@@ -1,0 +1,27 @@
+{
+  "name": "scripture-mastery",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A spaced-repetition study system for whole-Bible survey knowledge.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "check": "tsc -b --noEmit false --pretty",
+    "validate": "vite-node scripts/validate.ts"
+  },
+  "dependencies": {
+    "firebase": "^12.17.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-node": "^2.1.8"
+  }
+}
