@@ -5,6 +5,7 @@ import { buildSchedule, DAILY_RHYTHM } from '../data/plan';
 import { TOPIC_LABELS, type Topic } from '../data/types';
 import type { StoreApi } from '../lib/useStore';
 import { todayISO } from '../lib/storage';
+import { Card, CountUp, Meter, sx } from '../ui';
 
 export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string) => void }) {
   const { store, cards, daysLeft } = api;
@@ -77,16 +78,16 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
   return (
     <div>
       <div className="section">
-        <div className="grid four">
-          <div className="card stat"><span className="n">{daysLeft}</span><span className="k">Days to quiz</span></div>
-          <div className="card stat"><span className="n">{stats.due}</span><span className="k">Cards due</span></div>
-          <div className="card stat"><span className="n">{stats.mastery}%</span><span className="k">Overall mastery</span></div>
-          <div className="card stat"><span className="n">{streak}</span><span className="k">Day streak</span></div>
+        <div className="grid four stack-in">
+          <div className="card stat"><span className="n"><CountUp value={daysLeft} /></span><span className="k">Days to quiz</span></div>
+          <div className="card stat"><span className="n"><CountUp value={stats.due} /></span><span className="k">Cards due</span></div>
+          <div className="card stat"><span className="n"><CountUp value={stats.mastery} />%</span><span className="k">Overall mastery</span></div>
+          <div className="card stat"><span className="n"><CountUp value={streak} /></span><span className="k">Consecutive days</span></div>
         </div>
       </div>
 
       <div className="section">
-        <div className="card">
+        <Card corners>
           <div className="spread">
             <div>
               <span className="pill accent">{currentWeek?.label ?? 'Week 1'}</span>
@@ -107,7 +108,7 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
               ({Math.round((todayLog.correct / todayLog.reviewed) * 100)}%).
             </p>
           )}
-        </div>
+        </Card>
       </div>
 
       <div className="section">
@@ -116,7 +117,7 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
           Three short sessions beat one long one. Quiz-program coaches converge on the same advice:
           10–20 minutes at a time, every day, with review built in.
         </p>
-        <div className="grid three">
+        <div className="grid three stack-in">
           {DAILY_RHYTHM.map((r) => (
             <div className="card" key={r.when}>
               <span className="pill">{r.when}</span>
@@ -130,13 +131,17 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
         <h2>Weakest areas</h2>
         <p className="small muted">Ranked by mastery across all questions in each topic.</p>
         <div className="card">
-          {byTopic.map((t) => (
-            <div key={t.topic} style={{ marginBottom: 14 }}>
+          {byTopic.map((t, i) => (
+            <div key={t.topic} className="item-in" style={sx({ marginBottom: 14, '--stagger-i': i })}>
               <div className="spread" style={{ marginBottom: 5 }}>
                 <span className="small">{TOPIC_LABELS[t.topic]}</span>
                 <span className="tiny muted mono">{t.pct}% mastery · {t.coverage}% seen</span>
               </div>
-              <div className={`bar${t.pct >= 80 ? ' good' : ''}`}><i style={{ width: `${t.pct}%` }} /></div>
+              <Meter
+                value={t.pct}
+                className={t.pct >= 80 ? 'good' : ''}
+                label={`${TOPIC_LABELS[t.topic]} mastery`}
+              />
             </div>
           ))}
         </div>

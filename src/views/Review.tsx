@@ -3,6 +3,7 @@ import QuestionCard from '../components/QuestionCard';
 import { allItems, ITEMS_BY_ID } from '../lib/generate';
 import { buildQueue, isDue, isNew, type Grade } from '../lib/srs';
 import type { StoreApi } from '../lib/useStore';
+import { Card, Corners, CountUp, Meter, sx, space } from '../ui';
 
 export default function Review({ api }: { api: StoreApi }) {
   const { store, cards, answer, toggleStar } = api;
@@ -51,24 +52,34 @@ export default function Review({ api }: { api: StoreApi }) {
   }
 
   if (!started) {
+    const canStart = counts.due + counts.fresh > 0;
     return (
-      <div className="section">
+      <div className="section screen" key="idle">
         <h2>Daily Review</h2>
         <p className="muted small">
           Spaced repetition over everything you have unlocked. Cards you miss come back sooner;
           cards you know get pushed out — but never past your exam date.
         </p>
-        <div className="grid three" style={{ margin: '20px 0' }}>
-          <div className="card stat"><span className="n">{counts.due}</span><span className="k">Due now</span></div>
-          <div className="card stat"><span className="n">{Math.min(counts.fresh, store.settings.newLimit)}</span><span className="k">New today</span></div>
-          <div className="card stat"><span className="n">{counts.total - counts.fresh}</span><span className="k">Seen so far</span></div>
+        <div className="grid three stack-in" style={sx({ margin: `${space[6]} 0` })}>
+          <Card className="stat">
+            <span className="n"><CountUp value={counts.due} /></span>
+            <span className="k">Due now</span>
+          </Card>
+          <Card className="stat">
+            <span className="n"><CountUp value={Math.min(counts.fresh, store.settings.newLimit)} /></span>
+            <span className="k">New today</span>
+          </Card>
+          <Card className="stat">
+            <span className="n"><CountUp value={counts.total - counts.fresh} /></span>
+            <span className="k">Seen so far</span>
+          </Card>
         </div>
-        <button className="btn primary" onClick={start} disabled={counts.due + counts.fresh === 0}>
+        <button className="btn primary" onClick={start} disabled={!canStart}>
           Start review session
         </button>
-        {counts.due + counts.fresh === 0 && (
-          <p className="small muted" style={{ marginTop: 12 }}>
-            Nothing is due. Take a mixed quiz instead, or raise your daily new-card limit in Progress.
+        {!canStart && (
+          <p className="small muted" style={sx({ marginTop: space[3] })}>
+            Nothing is due right now. Take a mixed quiz instead, or raise your daily new-card limit in Progress.
           </p>
         )}
       </div>
@@ -77,13 +88,26 @@ export default function Review({ api }: { api: StoreApi }) {
 
   if (pos >= queue.length) {
     const total = tally.right + tally.wrong;
+    const accuracy = total ? Math.round((tally.right / total) * 100) : 0;
     return (
-      <div className="section">
+      <div className="section screen" key="complete">
         <h2>Session complete</h2>
-        <div className="grid three" style={{ margin: '20px 0' }}>
-          <div className="card stat"><span className="n">{total}</span><span className="k">Answered</span></div>
-          <div className="card stat"><span className="n">{tally.right}</span><span className="k">Correct</span></div>
-          <div className="card stat"><span className="n">{total ? Math.round((tally.right / total) * 100) : 0}%</span><span className="k">Accuracy</span></div>
+        <p className="muted small">
+          That's everything queued for today. Come back tomorrow, or start another session now.
+        </p>
+        <div className="grid three stack-in" style={sx({ margin: `${space[6]} 0` })}>
+          <Card className="stat">
+            <span className="n"><CountUp value={total} /></span>
+            <span className="k">Answered</span>
+          </Card>
+          <Card className="stat">
+            <span className="n"><CountUp value={tally.right} /></span>
+            <span className="k">Correct</span>
+          </Card>
+          <Card className="stat">
+            <span className="n"><CountUp value={accuracy} />%</span>
+            <span className="k">Accuracy</span>
+          </Card>
         </div>
         <div className="row">
           <button className="btn primary" onClick={start}>Another session</button>
@@ -96,18 +120,21 @@ export default function Review({ api }: { api: StoreApi }) {
   const item = ITEMS_BY_ID.get(queue[pos])!;
 
   return (
-    <div className="section">
-      <div className="bar" style={{ marginBottom: 18 }}>
-        <i style={{ width: `${(pos / queue.length) * 100}%` }} />
+    <div className="section screen" key="session">
+      <div style={sx({ marginBottom: space[4] })}>
+        <Meter value={pos} max={queue.length} label={`${pos} of ${queue.length} answered`} />
       </div>
-      <QuestionCard
-        item={item}
-        onGrade={handleGrade}
-        starred={store.starred.includes(item.id)}
-        onToggleStar={() => toggleStar(item.id)}
-        counter={`${pos + 1} / ${queue.length}`}
-      />
-      <div className="row" style={{ marginTop: 14 }}>
+      <div className="card-swap" key={item.id} style={sx({ position: 'relative' })}>
+        <Corners />
+        <QuestionCard
+          item={item}
+          onGrade={handleGrade}
+          starred={store.starred.includes(item.id)}
+          onToggleStar={() => toggleStar(item.id)}
+          counter={`${pos + 1} / ${queue.length}`}
+        />
+      </div>
+      <div className="row" style={sx({ marginTop: space[4] })}>
         <button className="btn sm" onClick={() => setStarted(false)}>End session</button>
         <span className="tiny muted">{tally.right} right · {tally.wrong} missed</span>
       </div>

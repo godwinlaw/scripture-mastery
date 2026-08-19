@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { buildSchedule, PHASES } from '../data/plan';
 import { TOPIC_LABELS } from '../data/types';
 import type { StoreApi } from '../lib/useStore';
+import { Card, Field, space, sx } from '../ui';
 
 const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
@@ -11,12 +12,11 @@ export default function Plan({ api }: { api: StoreApi }) {
   const now = new Date();
 
   return (
-    <div>
+    <div className="stack-in">
       <div className="section">
         <div className="spread">
-          <h2 style={{ margin: 0 }}>Study Plan</h2>
-          <div className="row">
-            <label className="tiny muted" htmlFor="exam">Quiz date</label>
+          <h2 style={sx({ margin: 0 })}>Study Plan</h2>
+          <Field label="Quiz date" htmlFor="exam">
             <input
               id="exam"
               className="ctl"
@@ -24,9 +24,9 @@ export default function Plan({ api }: { api: StoreApi }) {
               value={store.settings.examDate}
               onChange={(e) => updateSettings({ examDate: e.target.value })}
             />
-          </div>
+          </Field>
         </div>
-        <p className="small muted" style={{ marginTop: 10 }}>
+        <p className="small muted" style={sx({ marginTop: space[3] })}>
           {daysLeft} days left, split across {schedule.length} weeks. The order matters: the frame
           first, then content, then connections, then mixed review. Detail learned before the frame
           has nothing to attach to.
@@ -34,46 +34,59 @@ export default function Plan({ api }: { api: StoreApi }) {
       </div>
 
       <div className="section">
-        <div className="card">
-          {schedule.map((w) => {
-            const active = now >= w.start && now <= new Date(w.end.getTime() + 86_400_000);
-            return (
-              <div className={`week${active ? ' now' : ''}`} key={w.index}>
-                <div>
-                  <div className="when">{fmt(w.start)} – {fmt(w.end)}</div>
-                  <div className="tiny muted">{w.label}</div>
-                </div>
-                <div>
-                  <strong className="small">{w.phase.name.replace(/^Phase \d+ — /, '')}</strong>
-                  <p className="small muted" style={{ margin: '3px 0 8px' }}>{w.phase.goal}</p>
-                  <div className="row">
-                    {w.phase.topics.map((t) => <span className="pill" key={t}>{TOPIC_LABELS[t]}</span>)}
+        <Card corners kicker="Schedule">
+          {schedule.length === 0 ? (
+            <p className="small muted">
+              No weeks to show — the quiz date above has already passed. Move it forward to rebuild
+              the plan.
+            </p>
+          ) : (
+            schedule.map((w, i) => {
+              const active = now >= w.start && now <= new Date(w.end.getTime() + 86_400_000);
+              return (
+                <div
+                  className={`week${active ? ' now' : ''} item-in`}
+                  style={sx({ '--stagger-i': i })}
+                  key={w.index}
+                >
+                  <div>
+                    <div className="when">{fmt(w.start)} – {fmt(w.end)}</div>
+                    <div className="tiny muted">{w.label}</div>
+                  </div>
+                  <div>
+                    <strong className="small">{w.phase.name.replace(/^Phase \d+ — /, '')}</strong>
+                    <p className="small muted" style={sx({ margin: `${space[1]} 0 ${space[3]}` })}>
+                      {w.phase.goal}
+                    </p>
+                    <div className="row">
+                      {w.phase.topics.map((t) => <span className="pill" key={t}>{TOPIC_LABELS[t]}</span>)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })
+          )}
+        </Card>
       </div>
 
       <div className="section">
         <h2>What each phase actually asks of you</h2>
         <div className="grid two">
           {PHASES.map((p) => (
-            <div className="card" key={p.id}>
+            <Card key={p.id}>
               <h3>{p.name}</h3>
               <p className="small muted">{p.goal}</p>
-              <ul className="small" style={{ paddingLeft: 18, margin: 0 }}>
+              <ul className="small" style={sx({ paddingLeft: 18, margin: 0 })}>
                 {p.drills.map((d) => <li key={d}>{d}</li>)}
               </ul>
-            </div>
+            </Card>
           ))}
         </div>
       </div>
 
       <div className="section">
         <h2>How to study this material</h2>
-        <div className="card">
+        <Card>
           <p className="small">
             <strong>Retrieve before you re-read.</strong> Practice testing and spaced repetition are the
             two techniques a well-known review of ten study methods rated “high utility.” Re-reading
@@ -95,12 +108,12 @@ export default function Plan({ api }: { api: StoreApi }) {
             material means you arrive in October knowing the last two weeks well and everything else
             vaguely. The scheduler handles this for you — just clear your due cards.
           </p>
-          <p className="small" style={{ marginBottom: 0 }}>
+          <p className="small" style={sx({ marginBottom: 0 })}>
             <strong>Say it out loud.</strong> Reciting the 66 books, the eras, and the standing lists aloud
             while walking or driving costs nothing and is one of the most-recommended habits among
             competitive quizzers.
           </p>
-        </div>
+        </Card>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Card, Corners, CountUp, Meter, Segmented, Field, space } from '../ui';
 import QuestionCard from '../components/QuestionCard';
 import { allItems, ITEMS_BY_ID } from '../lib/generate';
 import { BOOKS } from '../data/books';
@@ -58,7 +59,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
 
   if (!queue) {
     return (
-      <div className="section">
+      <div className="section stack-in">
         <h2>Mixed Quiz</h2>
         <p className="muted small">
           Test yourself under quiz conditions. Interleaving topics is harder than drilling one at a
@@ -66,50 +67,72 @@ export default function Quiz({ api }: { api: StoreApi }) {
           working through it; leave it on everything once you are consolidating.
         </p>
 
-        <div className="card" style={{ marginTop: 18 }}>
-          <div className="grid three">
-            <div>
-              <label className="field" htmlFor="scope">Scope</label>
-              <select id="scope" className="ctl" value={scope} onChange={(e) => setScope(e.target.value as Scope)} style={{ width: '100%' }}>
-                <option value="all">Everything</option>
-                <option value="OT">Old Testament only</option>
-                <option value="NT">New Testament only</option>
-                <option value="starred">Starred items</option>
-                <option value="weak">Weak spots</option>
-              </select>
-            </div>
-            <div>
-              <label className="field" htmlFor="topic">Topic</label>
-              <select id="topic" className="ctl" value={topic} onChange={(e) => setTopic(e.target.value as Topic | 'all')} style={{ width: '100%' }}>
+        <Card corners kicker="Setup" title="Choose what to cover" style={{ marginTop: space[6] }}>
+          <div className="grid two">
+            <Field label="Topic" htmlFor="topic">
+              <select
+                id="topic"
+                className="ctl"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value as Topic | 'all')}
+                style={{ width: '100%' }}
+              >
                 <option value="all">All topics</option>
                 {Object.entries(TOPIC_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="field" htmlFor="book">Book</label>
-              <select id="book" className="ctl" value={book} onChange={(e) => setBook(e.target.value)} style={{ width: '100%' }}>
+            </Field>
+            <Field label="Book" htmlFor="book">
+              <select
+                id="book"
+                className="ctl"
+                value={book}
+                onChange={(e) => setBook(e.target.value)}
+                style={{ width: '100%' }}
+              >
                 <option value="all">Every book</option>
                 {BOOKS.map((b) => (
                   <option key={b.id} value={b.id}>{b.order}. {b.name}</option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="field" htmlFor="len">Questions</label>
-              <select id="len" className="ctl" value={length} onChange={(e) => setLength(Number(e.target.value))} style={{ width: '100%' }}>
-                {[10, 20, 40, 60, 100].map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
+            </Field>
           </div>
-          <div className="row" style={{ marginTop: 18 }}>
+
+          <div className="row" style={{ marginTop: space[4], gap: space[8] }}>
+            <Field label="Scope">
+              <Segmented
+                ariaLabel="Scope"
+                value={scope}
+                onChange={setScope}
+                options={[
+                  { label: 'Everything', value: 'all' },
+                  { label: 'Old Testament', value: 'OT' },
+                  { label: 'New Testament', value: 'NT' },
+                  { label: 'Starred', value: 'starred' },
+                  { label: 'Weak spots', value: 'weak' },
+                ]}
+              />
+            </Field>
+            <Field label="Questions">
+              <Segmented
+                ariaLabel="Number of questions"
+                value={length}
+                onChange={setLength}
+                options={[10, 20, 40, 60, 100].map((n) => ({ label: n, value: n }))}
+              />
+            </Field>
+          </div>
+
+          <div className="row" style={{ marginTop: space[4] }}>
             <button className="btn primary" onClick={start} disabled={pool.length === 0}>
               Start quiz
             </button>
-            <span className="tiny muted">{pool.length} questions match this filter</span>
+            <span className="tiny muted">
+              {pool.length} question{pool.length === 1 ? '' : 's'} match this filter
+            </span>
           </div>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -117,36 +140,49 @@ export default function Quiz({ api }: { api: StoreApi }) {
   if (pos >= queue.length) {
     const pct = Math.round((right / queue.length) * 100);
     return (
-      <div className="section">
-        <h2>Score: {right} / {queue.length} ({pct}%)</h2>
-        {missed.length > 0 && (
-          <>
-            <h3 style={{ marginTop: 24 }}>What you missed</h3>
-            <div className="card scroll-x">
-              <table className="data">
-                <thead><tr><th>Question</th><th>Answer</th></tr></thead>
-                <tbody>
-                  {missed.map((id) => {
-                    const it = ITEMS_BY_ID.get(id)!;
-                    return (
-                      <tr key={id}>
-                        <td>{it.prompt}</td>
-                        <td><strong>{it.kind === 'order' ? (it.sequence ?? []).join(' → ') : it.answer}</strong></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+      <div className="section screen">
+        <Card corners kicker="Results" title="Quiz complete">
+          <div className="row" style={{ gap: space[8], alignItems: 'center' }}>
+            <div className="stat">
+              <CountUp value={right} className="n" />
+              <span className="k">correct out of {queue.length}</span>
             </div>
-            <p className="tiny muted" style={{ marginTop: 10 }}>
-              These are now scheduled to come back soon in your daily review.
-            </p>
-          </>
-        )}
-        <div className="row" style={{ marginTop: 22 }}>
-          <button className="btn primary" onClick={start}>Retake</button>
-          <button className="btn" onClick={() => setQueue(null)}>Change filters</button>
-        </div>
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <Meter value={right} max={queue.length} label={`${right} of ${queue.length} correct`} />
+              <p className="tiny muted" style={{ marginTop: space[2] }}>{pct}% correct</p>
+            </div>
+          </div>
+
+          {missed.length > 0 && (
+            <>
+              <div className="label-section" style={{ marginTop: space[6] }}>What you missed</div>
+              <div className="scroll-x">
+                <table className="data">
+                  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+                  <tbody>
+                    {missed.map((id) => {
+                      const it = ITEMS_BY_ID.get(id)!;
+                      return (
+                        <tr key={id}>
+                          <td>{it.prompt}</td>
+                          <td><strong>{it.kind === 'order' ? (it.sequence ?? []).join(' → ') : it.answer}</strong></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="tiny muted" style={{ marginTop: space[3] }}>
+                These are scheduled to come back soon in your daily review.
+              </p>
+            </>
+          )}
+
+          <div className="row" style={{ marginTop: space[6] }}>
+            <button className="btn primary" onClick={start}>Retake</button>
+            <button className="btn" onClick={() => setQueue(null)}>Change filters</button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -154,18 +190,21 @@ export default function Quiz({ api }: { api: StoreApi }) {
   const item = ITEMS_BY_ID.get(queue[pos])!;
 
   return (
-    <div className="section">
-      <div className="bar" style={{ marginBottom: 18 }}>
-        <i style={{ width: `${(pos / queue.length) * 100}%` }} />
+    <div className="section screen">
+      <div style={{ marginBottom: space[4] }}>
+        <Meter value={pos} max={queue.length} label={`Progress: question ${pos + 1} of ${queue.length}`} />
       </div>
-      <QuestionCard
-        item={item}
-        onGrade={handleGrade}
-        starred={store.starred.includes(item.id)}
-        onToggleStar={() => toggleStar(item.id)}
-        counter={`${pos + 1} / ${queue.length}`}
-      />
-      <div className="row" style={{ marginTop: 14 }}>
+      <div key={item.id} className="card-swap" style={{ position: 'relative' }}>
+        <Corners />
+        <QuestionCard
+          item={item}
+          onGrade={handleGrade}
+          starred={store.starred.includes(item.id)}
+          onToggleStar={() => toggleStar(item.id)}
+          counter={`${pos + 1} / ${queue.length}`}
+        />
+      </div>
+      <div className="row" style={{ marginTop: space[4] }}>
         <button className="btn sm" onClick={() => setQueue(null)}>Quit quiz</button>
         <span className="tiny muted">{right} correct so far</span>
       </div>

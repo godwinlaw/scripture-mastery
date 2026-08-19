@@ -4,3 +4,12 @@ dist
 *.local
 .env
 *.tsbuildinfo
+
+# Dev-only visual harness (not part of the vite build)
+/preview.html
+/src/dev/
+
+# Local visual-testing artifacts
+/.playwright-mcp/
+/shots/
+/*.png

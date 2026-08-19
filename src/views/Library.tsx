@@ -6,6 +6,7 @@ import { PEOPLE, PLACES } from '../data/people';
 import { DETAIL_BY_BOOK, DETAIL_TOTALS } from '../data/details';
 import BookDetailPanel from '../components/BookDetailPanel';
 import type { Division } from '../data/types';
+import { Card, Segmented, Field, sx } from '../ui';
 
 const DIVISION_ORDER: Division[] = [
   'Law', 'History', 'Wisdom', 'Major Prophets', 'Minor Prophets',
@@ -13,6 +14,13 @@ const DIVISION_ORDER: Division[] = [
 ];
 
 type Tab = 'books' | 'timeline' | 'people' | 'lists';
+
+const TAB_OPTIONS: { label: string; value: Tab }[] = [
+  { label: 'The 66 Books', value: 'books' },
+  { label: 'Timeline', value: 'timeline' },
+  { label: 'People & Places', value: 'people' },
+  { label: 'Lists to Know', value: 'lists' },
+];
 
 /** Everything about a book that search should reach — outline, events, and all. */
 function haystack(bookId: string): string {
@@ -63,17 +71,22 @@ export default function Library() {
     return PLACES.filter((p) => `${p.name} ${p.what}`.toLowerCase().includes(needle));
   }, [needle]);
 
+  let bookIndex = 0;
+
   return (
     <div className="section">
       <div className="spread" style={{ marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Reference</h2>
-        <input
-          className="ctl"
-          placeholder="Search books, outlines, events, people…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          style={{ minWidth: 260 }}
-        />
+        <Field label="Search" htmlFor="library-search">
+          <input
+            id="library-search"
+            className="ctl"
+            placeholder="Search books, outlines, events, people…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            style={{ minWidth: 260 }}
+          />
+        </Field>
       </div>
 
       <div className="counts">
@@ -88,19 +101,11 @@ export default function Library() {
       </div>
 
       <div className="row" style={{ marginBottom: 20 }}>
-        {(['books', 'timeline', 'people', 'lists'] as Tab[]).map((t) => (
-          <button
-            key={t}
-            className={`btn sm${tab === t ? ' primary' : ''}`}
-            onClick={() => setTab(t)}
-          >
-            {t === 'books' ? 'The 66 Books' : t === 'timeline' ? 'Timeline' : t === 'people' ? 'People & Places' : 'Lists to Know'}
-          </button>
-        ))}
+        <Segmented ariaLabel="Reference section" options={TAB_OPTIONS} value={tab} onChange={setTab} />
       </div>
 
       {tab === 'books' && (
-        <>
+        <div className="screen">
           <p className="tiny muted">
             Open a book and work the tabs: overview, outline, events, people, terms. Read a pane,
             close it, and say it back out loud. Recall beats re-reading.
@@ -117,7 +122,12 @@ export default function Library() {
                 {group.map((b) => {
                   const detail = DETAIL_BY_BOOK.get(b.id);
                   return (
-                    <details className="book" key={b.id} open={Boolean(needle) && filteredBooks.length <= 3}>
+                    <details
+                      className="book item-in"
+                      key={b.id}
+                      open={Boolean(needle) && filteredBooks.length <= 3}
+                      style={sx({ '--stagger-i': bookIndex++ })}
+                    >
                       <summary>
                         <span className="ord">{b.order}</span>
                         {b.name}
@@ -137,17 +147,17 @@ export default function Library() {
           {filteredBooks.length === 0 && (
             <p className="small muted">No book mentions “{q.trim()}”. Try the People tab.</p>
           )}
-        </>
+        </div>
       )}
 
       {tab === 'timeline' && (
-        <>
+        <div className="screen">
           <p className="tiny muted">
             Fourteen eras in order. If you can walk this spine out loud, every book and person has
             somewhere to attach.
           </p>
-          {ERAS.map((e) => (
-            <div className="card" key={e.id} style={{ marginTop: 12 }}>
+          {ERAS.map((e, i) => (
+            <Card corners key={e.id} className="item-in" style={sx({ marginTop: 12, '--stagger-i': i })}>
               <div className="spread">
                 <h3 style={{ margin: 0 }}>{e.seq}. {e.name}</h3>
                 <span className="pill accent">{e.span}</span>
@@ -161,15 +171,15 @@ export default function Library() {
                   Books: {e.books.map((id) => BOOKS.find((b) => b.id === id)?.name).filter(Boolean).join(', ')}
                 </p>
               )}
-            </div>
+            </Card>
           ))}
-        </>
+        </div>
       )}
 
       {tab === 'people' && (
-        <>
+        <div className="screen">
           <h3>People <span className="pill">{filteredPeople.length}</span></h3>
-          <div className="card scroll-x">
+          <Card corners className="scroll-x">
             <table className="data">
               <thead><tr><th>Name</th><th>Who</th><th>Identifying detail</th><th>Family</th></tr></thead>
               <tbody>
@@ -195,10 +205,10 @@ export default function Library() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </Card>
 
           <h3 style={{ marginTop: 28 }}>Places <span className="pill">{filteredPlaces.length}</span></h3>
-          <div className="card scroll-x">
+          <Card corners className="scroll-x">
             <table className="data">
               <thead><tr><th>Place</th><th>Known for</th></tr></thead>
               <tbody>
@@ -207,25 +217,24 @@ export default function Library() {
                 ))}
               </tbody>
             </table>
-          </div>
-        </>
+          </Card>
+        </div>
       )}
 
       {tab === 'lists' && (
-        <>
+        <div className="screen">
           <p className="tiny muted">Standing lists that show up on almost every Bible quiz.</p>
           <div className="grid two">
-            {LISTS.map((l) => (
-              <div className="card" key={l.id}>
-                <h3 style={{ marginBottom: 2 }}>{l.title}</h3>
-                <p className="tiny muted">{l.note}</p>
-                <ol style={{ margin: '10px 0 0', paddingLeft: 20, fontSize: '0.9rem' }}>
-                  {l.items.map((i) => <li key={i}>{i}</li>)}
+            {LISTS.map((l, i) => (
+              <Card corners key={l.id} title={l.title} className="item-in" style={sx({ '--stagger-i': i })}>
+                <p className="tiny muted" style={{ margin: 0 }}>{l.note}</p>
+                <ol style={{ margin: 0, paddingLeft: 20, fontSize: '0.9rem' }}>
+                  {l.items.map((item) => <li key={item}>{item}</li>)}
                 </ol>
-              </div>
+              </Card>
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Book } from '../data/types';
 import type { BookDetail } from '../data/details';
+import { color, space, sx } from '../ui';
 
 type Pane = 'overview' | 'outline' | 'events' | 'people' | 'terms';
 
@@ -68,8 +69,8 @@ export default function BookDetailPanel({ book, detail, highlight }: {
 
           <div className="christ"><strong>Christ in {book.name}:</strong> {detail.christ}</div>
           {detail.distinctive && (
-            <p className="small" style={{ color: 'var(--muted)' }}>
-              <strong style={{ color: 'var(--fg)' }}>What makes it unlike any other:</strong> {detail.distinctive}
+            <p className="small muted">
+              <strong style={sx({ color: color.text })}>What makes it unlike any other:</strong> {detail.distinctive}
             </p>
           )}
           {book.hook && <div className="hook"><strong>Remember it:</strong> {book.hook}</div>}
@@ -83,14 +84,14 @@ export default function BookDetailPanel({ book, detail, highlight }: {
             shelf every other fact sits on.
           </p>
           <ul className="outline">
-            {detail.outline.map((s) => (
-              <li key={s.ch}>
+            {detail.outline.map((s, i) => (
+              <li key={s.ch} className="item-in" style={sx({ '--stagger-i': i })}>
                 <span className="span">{s.ch}</span>
                 <span>{s.title}</span>
               </li>
             ))}
           </ul>
-          <h3 style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)', marginTop: 22 }}>
+          <h3 className="label-section" style={sx({ marginTop: space[6] })}>
             Key chapters
           </h3>
           <table className="data">
@@ -113,7 +114,7 @@ export default function BookDetailPanel({ book, detail, highlight }: {
             the references.
           </p>
           {detail.events.map((e, i) => (
-            <div className="episode" key={`${e.ref}-${i}`}>
+            <div className="episode item-in" key={`${e.ref}-${i}`} style={sx({ '--stagger-i': i })}>
               <div className="head">
                 <span className="ref">{book.abbr} {e.ref}</span>
                 <span className="name">{mark(e.name, highlight)}</span>
@@ -156,7 +157,7 @@ export default function BookDetailPanel({ book, detail, highlight }: {
         <>
           {detail.terms && detail.terms.length > 0 && (
             <>
-              <h3 style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)' }}>
+              <h3 className="label-section">
                 Terms this book runs on
               </h3>
               <table className="data">
@@ -173,7 +174,7 @@ export default function BookDetailPanel({ book, detail, highlight }: {
           )}
           {detail.numbers && detail.numbers.length > 0 && (
             <>
-              <h3 style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)', marginTop: 22 }}>
+              <h3 className="label-section" style={sx({ marginTop: space[6] })}>
                 Numbers worth knowing
               </h3>
               <table className="data">

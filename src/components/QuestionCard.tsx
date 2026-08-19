@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Item } from '../data/types';
-import { TOPIC_LABELS } from '../data/types';
+import { TOPIC_LABELS, type Item } from '../data/types';
 import type { Grade } from '../lib/srs';
 import { shuffle } from '../lib/rng';
 
@@ -130,8 +129,14 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
         <span className="row">
           {counter && <span className="tiny muted mono">{counter}</span>}
           {onToggleStar && (
-            <button className="btn sm" onClick={onToggleStar} title="Star for focused review">
-              {starred ? '★' : '☆'}
+            <button
+              className="btn sm"
+              onClick={onToggleStar}
+              title="Star for focused review"
+              aria-pressed={starred}
+              aria-label={starred ? 'Unstar this question' : 'Star for focused review'}
+            >
+              <span aria-hidden="true">{starred ? '★' : '☆'}</span>
             </button>
           )}
         </span>

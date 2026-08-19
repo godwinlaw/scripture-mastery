@@ -4,6 +4,7 @@ import { allItems } from '../lib/generate';
 import { isLeech, strength } from '../lib/srs';
 import { exportStore, importStore, todayISO } from '../lib/storage';
 import type { StoreApi } from '../lib/useStore';
+import { Card, CountUp, Field, Meter, color, space, sx } from '../ui';
 
 export default function Progress({ api }: { api: StoreApi }) {
   const { store, cards, updateSettings, replaceStore, reset, user } = api;
@@ -74,32 +75,37 @@ export default function Progress({ api }: { api: StoreApi }) {
   }
 
   return (
-    <div>
+    <div className="stack-in">
       <div className="section">
         <h2>Last 14 days</h2>
-        <div className="card">
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 90 }}>
-            {last14.map((d) => (
-              <div key={d.date} style={{ flex: 1, textAlign: 'center' }} title={`${d.date}: ${d.reviewed} answered`}>
+        <Card corners>
+          <div style={sx({ display: 'flex', alignItems: 'flex-end', gap: space[2], height: 90 })}>
+            {last14.map((d, i) => (
+              <div
+                key={d.date}
+                className="item-in"
+                style={sx({ flex: 1, textAlign: 'center', '--stagger-i': i })}
+                title={`${d.date}: ${d.reviewed} answered`}
+              >
                 <div
-                  style={{
+                  aria-hidden="true"
+                  style={sx({
                     height: `${(d.reviewed / maxReviewed) * 72}px`,
-                    background: d.reviewed ? 'var(--accent)' : 'var(--border)',
-                    borderRadius: 3,
+                    background: d.reviewed ? color.accent : color.divider,
                     minHeight: 2,
-                  }}
+                  })}
                 />
-                <div className="tiny muted" style={{ marginTop: 4 }}>{d.date.slice(8)}</div>
+                <div className="tiny muted" style={sx({ marginTop: space[1] })}>{d.date.slice(8)}</div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
       <div className="section">
         <h2>Mastery by book</h2>
         <p className="small muted">Anything under 50% is worth a targeted quiz. Sort your attention here.</p>
-        <div className="card scroll-x">
+        <Card corners className="scroll-x">
           <table className="data">
             <thead>
               <tr><th>#</th><th>Book</th><th>Division</th><th style={{ width: 160 }}>Mastery</th><th>Seen</th></tr>
@@ -111,72 +117,73 @@ export default function Progress({ api }: { api: StoreApi }) {
                   <td><strong>{r.book.name}</strong></td>
                   <td className="tiny muted">{r.book.division}</td>
                   <td>
-                    <div className={`bar${r.pct >= 80 ? ' good' : ''}`}><i style={{ width: `${r.pct}%` }} /></div>
+                    <Meter
+                      value={r.pct}
+                      className={r.pct >= 80 ? 'good' : ''}
+                      label={`${r.book.name} mastery, ${r.pct}%`}
+                    />
                   </td>
                   <td className="tiny muted mono">{r.seen}/{r.total}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       </div>
 
       {leeches.length > 0 && (
         <div className="section">
-          <h2>Stuck items <span className="pill bad">{leeches.length}</span></h2>
+          <h2>Stuck items <span className="pill bad"><CountUp value={leeches.length} /></span></h2>
           <p className="small muted">
             You have missed these four or more times. Drilling them harder rarely works — go read the
             book’s entry in the reference, find the hook, then come back.
           </p>
-          <div className="card scroll-x">
+          <Card corners className="scroll-x">
             <table className="data">
               <thead><tr><th>Question</th><th>Answer</th></tr></thead>
               <tbody>
-                {leeches.slice(0, 25).map((i) => (
-                  <tr key={i.id}>
-                    <td>{i.prompt}</td>
-                    <td><strong>{i.kind === 'order' ? (i.sequence ?? []).join(' → ') : i.answer}</strong></td>
+                {leeches.slice(0, 25).map((leech) => (
+                  <tr key={leech.id}>
+                    <td>{leech.prompt}</td>
+                    <td><strong>{leech.kind === 'order' ? (leech.sequence ?? []).join(' → ') : leech.answer}</strong></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </Card>
         </div>
       )}
 
       <div className="section">
         <h2>Settings</h2>
-        <div className="card">
+        <Card corners>
           <div className="grid three">
-            <div>
-              <label className="field" htmlFor="exam2">Quiz date</label>
+            <Field label="Quiz date" htmlFor="exam2">
               <input id="exam2" className="ctl" type="date" style={{ width: '100%' }}
                 value={store.settings.examDate}
                 onChange={(e) => updateSettings({ examDate: e.target.value })} />
-            </div>
-            <div>
-              <label className="field" htmlFor="nl">New cards per session</label>
+            </Field>
+            <Field label="New cards per session" htmlFor="nl">
               <input id="nl" className="ctl" type="number" min={5} max={100} style={{ width: '100%' }}
                 value={store.settings.newLimit}
                 onChange={(e) => updateSettings({ newLimit: Number(e.target.value) })} />
-            </div>
-            <div>
-              <label className="field" htmlFor="sl">Max cards per session</label>
+            </Field>
+            <Field label="Max cards per session" htmlFor="sl">
               <input id="sl" className="ctl" type="number" min={10} max={300} style={{ width: '100%' }}
                 value={store.settings.sessionLimit}
                 onChange={(e) => updateSettings({ sessionLimit: Number(e.target.value) })} />
-            </div>
+            </Field>
           </div>
-          <p className="tiny muted" style={{ marginTop: 14 }}>
+          <p className="tiny muted" style={sx({ marginTop: space[4] })}>
             Review intervals are capped so no card is scheduled past your quiz date without one more
             look at it.
           </p>
-        </div>
+        </Card>
       </div>
 
       <div className="section">
         <h2>Your data</h2>
-        <div className="card">
+        <Card corners>
           <p className="small muted">
             Progress syncs to Firestore under {user?.email ?? 'your account'} and follows you to any
             device you sign in on. Export still makes a local backup any time you want one.
@@ -193,8 +200,8 @@ export default function Progress({ api }: { api: StoreApi }) {
               }
             }}>Reset progress</button>
           </div>
-          {note && <p className="tiny" style={{ marginTop: 10, marginBottom: 0 }}>{note}</p>}
-        </div>
+          {note && <p className="tiny" style={sx({ marginTop: space[3], marginBottom: 0 })}>{note}</p>}
+        </Card>
       </div>
     </div>
   );
