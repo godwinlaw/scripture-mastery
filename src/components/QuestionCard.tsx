@@ -212,9 +212,18 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
           <div className="row" style={{ marginTop: 14 }}>
             {wasCorrect ? (
               <>
-                <button className="btn sm" onClick={() => onGrade(1)}>Hard <span className="kbd">1</span></button>
-                <button className="btn primary sm" onClick={() => onGrade(2)}>Good <span className="kbd">2</span></button>
-                <button className="btn sm" onClick={() => onGrade(3)}>Easy <span className="kbd">3</span></button>
+                <button className="btn sm" onClick={() => onGrade(1)}>
+                  Hard <span className="kbd">1</span>
+                  <span className="hint">see it more often</span>
+                </button>
+                <button className="btn primary sm" onClick={() => onGrade(2)}>
+                  Good <span className="kbd">2</span>
+                  <span className="hint">normal pace</span>
+                </button>
+                <button className="btn sm" onClick={() => onGrade(3)}>
+                  Easy <span className="kbd">3</span>
+                  <span className="hint">see it less often</span>
+                </button>
               </>
             ) : (
               <>

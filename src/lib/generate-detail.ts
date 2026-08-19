@@ -8,11 +8,8 @@ const bookAbbr = new Map(BOOKS.map((b) => [b.id, b.abbr]));
 
 /** Every "what" across every book — the pool for chapter-content distractors. */
 const allEventWhats = DETAILS.flatMap((d) => d.events.map((e) => e.what));
-const allSectionTitles = DETAILS.flatMap((d) => d.outline.map((s) => s.title));
 const allFigureDeeds = DETAILS.flatMap((d) => d.figures.map((f) => f.did));
 const allFigureNames = [...new Set(DETAILS.flatMap((d) => d.figures.map((f) => f.name)))];
-const allTermNames = [...new Set(DETAILS.flatMap((d) => d.terms?.map((t) => t.term) ?? []))];
-const allTermMeanings = DETAILS.flatMap((d) => d.terms?.map((t) => t.meaning) ?? []);
 const allNumberValues = DETAILS.flatMap((d) => d.numbers?.map((n) => n.value) ?? []);
 const allChristLines = DETAILS.map((d) => d.christ);
 const allPurposes = DETAILS.map((d) => d.purpose);
@@ -59,49 +56,6 @@ function booksWithEventName(name: string): Set<string> {
     if (d.events.some((e) => e.name.toLowerCase() === key)) out.add(bookName.get(d.book)!);
   }
   return out;
-}
-
-function outlineItems(d: BookDetail): Item[] {
-  const items: Item[] = [];
-  const name = bookName.get(d.book)!;
-  const ownTitles = d.outline.map((s) => s.title);
-
-  d.outline.forEach((sec, i) => {
-    // Chapters → section. Distractors prefer this book's other sections, which
-    // makes the question about structure rather than about vocabulary.
-    const pool = ownTitles.length >= 4 ? ownTitles : allSectionTitles;
-    items.push({
-      id: `det-outline-${d.book}-${i}`, kind: 'mcq', topic: 'outlines', tier: 2, book: d.book,
-      prompt: `In ${name}, what do chapters ${sec.ch} cover?`,
-      answer: sec.title,
-      distractors: pickDistractors(pool, sec.title, 3, `out-${d.book}-${i}`),
-      explain: `${name} outline: ${d.outline.map((s) => `${s.ch} — ${s.title}`).join(' · ')}`,
-    });
-
-    // Section → chapters, within this book only.
-    if (d.outline.length >= 4) {
-      items.push({
-        id: `det-outline-ch-${d.book}-${i}`, kind: 'mcq', topic: 'outlines', tier: 3, book: d.book,
-        prompt: `Which chapters of ${name} cover this? "${sec.title}"`,
-        answer: sec.ch,
-        distractors: pickDistractors(d.outline.map((s) => s.ch), sec.ch, 3, `outc-${d.book}-${i}`),
-      });
-    }
-  });
-
-  // Recite the skeleton in order.
-  if (d.outline.length >= 3) {
-    const window = d.outline.slice(0, Math.min(5, d.outline.length));
-    items.push({
-      id: `det-outline-order-${d.book}`, kind: 'order', topic: 'outlines', tier: 2, book: d.book,
-      prompt: `Put the movements of ${name} in order.`,
-      answer: window.map((s) => s.title).join(' → '),
-      sequence: window.map((s) => s.title),
-      explain: window.map((s) => `${s.ch}: ${s.title}`).join(' · '),
-    });
-  }
-
-  return items;
 }
 
 function eventItems(d: BookDetail): Item[] {
@@ -277,31 +231,6 @@ function figureItems(d: BookDetail): Item[] {
   return items;
 }
 
-function termItems(d: BookDetail): Item[] {
-  const items: Item[] = [];
-  const name = bookName.get(d.book)!;
-
-  for (const t of d.terms ?? []) {
-    const key = `${d.book}-${slug(t.term)}`;
-    items.push({
-      id: `det-term-mean-${key}`, kind: 'mcq', topic: 'terms', tier: 2, book: d.book,
-      prompt: `What does "${t.term}" mean?`,
-      answer: t.meaning,
-      distractors: pickDistractors(allTermMeanings, t.meaning, 3, `tm-${key}`),
-      explain: `A key term in ${name}.`,
-    });
-    items.push({
-      id: `det-term-name-${key}`, kind: 'mcq', topic: 'terms', tier: 3, book: d.book,
-      prompt: `Which term is this? "${t.meaning}"`,
-      answer: t.term,
-      distractors: pickDistractors(allTermNames, t.term, 3, `tn-${key}`),
-      explain: `From ${name}.`,
-    });
-  }
-
-  return items;
-}
-
 function numberItems(d: BookDetail): Item[] {
   const items: Item[] = [];
   const name = bookName.get(d.book)!;
@@ -422,19 +351,6 @@ function crossBookItems(): Item[] {
     });
   }
 
-  // Which book is this outline from? Tests the skeleton, not the details.
-  for (const d of DETAILS) {
-    if (d.outline.length < 4) continue;
-    const shape = d.outline.map((s) => s.title.split(' — ')[0]).slice(0, 4).join(' · ');
-    items.push({
-      id: `det-x-outline-book-${d.book}`, kind: 'mcq', topic: 'outlines', tier: 3, book: d.book,
-      prompt: `Which book has this shape? "${shape}"`,
-      answer: bookName.get(d.book)!,
-      distractors: pickDistractors(BOOKS.map((b) => b.name), bookName.get(d.book)!, 3, `xo-${d.book}`),
-      explain: d.purpose,
-    });
-  }
-
   return items;
 }
 
@@ -442,10 +358,8 @@ export function buildDetailItems(): Item[] {
   const items: Item[] = [];
   for (const d of DETAILS) {
     items.push(
-      ...outlineItems(d),
       ...eventItems(d),
       ...figureItems(d),
-      ...termItems(d),
       ...numberItems(d),
       ...frameItems(d),
     );
