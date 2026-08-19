@@ -111,6 +111,7 @@ button.btn.primary { background: var(--accent); border-color: var(--accent); col
 button.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
 button.btn:disabled { opacity: 0.45; cursor: not-allowed; }
 button.btn.sm { padding: 5px 11px; font-size: 0.8rem; }
+button.btn .hint { display: block; font-size: 0.66rem; font-weight: 400; opacity: 0.7; margin-top: 2px; }
 
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .spread { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }

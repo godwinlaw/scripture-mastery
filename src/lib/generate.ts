@@ -7,8 +7,6 @@ import { buildDetailItems } from './generate-detail';
 import { pickDistractors, seededShuffle } from './rng';
 
 const bookNames = BOOKS.map((b) => b.name);
-const authors = [...new Set(BOOKS.map((b) => b.author))];
-const divisions = [...new Set(BOOKS.map((b) => b.division))];
 const chapterCounts = [...new Set(BOOKS.map((b) => String(b.chapters)))];
 
 /** Distractors drawn from the same division are hard but fair. */
@@ -22,24 +20,6 @@ function buildBookItems(): Item[] {
   const items: Item[] = [];
 
   for (const b of BOOKS) {
-    // --- Authorship
-    items.push({
-      id: `gen-author-${b.id}`, kind: 'mcq', topic: 'authorship', tier: 1, book: b.id,
-      prompt: `Who is the traditional author of ${b.name}?`,
-      answer: b.author,
-      distractors: pickDistractors(authors, b.author, 3, `author-${b.id}`),
-      explain: b.authorNote,
-    });
-
-    // --- Division
-    items.push({
-      id: `gen-division-${b.id}`, kind: 'mcq', topic: 'divisions', tier: 1, book: b.id,
-      prompt: `Which division of the Bible does ${b.name} belong to?`,
-      answer: b.division,
-      distractors: pickDistractors(divisions, b.division, 3, `div-${b.id}`),
-      explain: `${b.name} is book ${b.order} of 66, in the ${b.testament === 'OT' ? 'Old' : 'New'} Testament.`,
-    });
-
     // --- Chapter count. Distractors are drawn from numerically nearby counts;
     // offering 50 against 3, 5, and 7 tests nothing.
     items.push({

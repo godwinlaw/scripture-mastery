@@ -62,16 +62,6 @@ export const LISTS: OrderedList[] = [
     items: ['Water into wine at Cana', 'Healing the official’s son', 'Healing the paralytic at Bethesda', 'Feeding the five thousand', 'Walking on water', 'Healing the man born blind', 'Raising Lazarus'],
   },
   {
-    id: 'divisions-ot', title: 'The Five Divisions of the Old Testament', note: 'In canonical order',
-    ordered: true,
-    items: ['Law (5 books)', 'History (12 books)', 'Wisdom/Poetry (5 books)', 'Major Prophets (5 books)', 'Minor Prophets (12 books)'],
-  },
-  {
-    id: 'divisions-nt', title: 'The Five Divisions of the New Testament', note: 'In canonical order',
-    ordered: true,
-    items: ['Gospels (4 books)', 'History — Acts (1 book)', 'Pauline Epistles (13 books)', 'General Epistles (8 books)', 'Prophecy — Revelation (1 book)'],
-  },
-  {
     id: 'journeys', title: 'Paul’s Journeys in Acts', note: 'In order',
     ordered: true,
     items: ['First missionary journey (Acts 13–14)', 'Jerusalem Council (Acts 15)', 'Second missionary journey (Acts 15–18)', 'Third missionary journey (Acts 18–21)', 'Arrest in Jerusalem (Acts 21–23)', 'Voyage to Rome (Acts 27–28)'],
@@ -96,23 +86,10 @@ export const AUTHORED: Item[] = [
   { id: 'a-paul-letters', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many New Testament letters are attributed to Paul?', answer: '13', accepts: ['thirteen'], explain: 'Romans through Philemon. Hebrews is anonymous and counted separately.' },
   { id: 'a-gospels-count', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many Gospels are there, and what are they?', answer: 'Four: Matthew, Mark, Luke, John', accepts: ['4', 'four', 'matthew mark luke john'] },
 
-  // ---- Divisions and structure
-  { id: 'a-pentateuch', kind: 'type', topic: 'divisions', tier: 1, prompt: 'What is the name for the first five books of the Bible?', answer: 'The Pentateuch', accepts: ['pentateuch', 'the law', 'torah'], explain: 'Also called the Torah or the Law — Genesis through Deuteronomy.' },
-  { id: 'a-synoptics', kind: 'type', topic: 'divisions', tier: 1, prompt: 'Which three Gospels are called the Synoptic Gospels?', answer: 'Matthew, Mark, and Luke', accepts: ['matthew mark luke', 'matthew, mark, luke'], explain: '"Synoptic" means "seen together" — they share much of the same material. John stands apart.' },
-  { id: 'a-major-minor', kind: 'mcq', topic: 'divisions', tier: 1, prompt: 'What distinguishes the Major Prophets from the Minor Prophets?', answer: 'The length of the books, not their importance', distractors: ['How accurate their prophecies were', 'Whether they prophesied before or after the exile', 'Whether they wrote to Israel or Judah'], explain: 'Major = longer (Isaiah, Jeremiah, Lamentations, Ezekiel, Daniel). Minor = shorter, the twelve.' },
-  { id: 'a-prison-epistles', kind: 'mcq', topic: 'divisions', tier: 2, prompt: 'Which four letters are known as the Prison Epistles?', answer: 'Ephesians, Philippians, Colossians, Philemon', distractors: ['Romans, Galatians, Ephesians, Philippians', '1 & 2 Timothy, Titus, Philemon', 'Colossians, 1 & 2 Thessalonians, Philemon'], explain: 'All four were written while Paul was imprisoned, most likely in Rome.' },
-  { id: 'a-pastoral-epistles', kind: 'mcq', topic: 'divisions', tier: 2, prompt: 'Which letters are the Pastoral Epistles?', answer: '1 Timothy, 2 Timothy, and Titus', distractors: ['Ephesians, Philippians, and Colossians', 'James, 1 Peter, and 2 Peter', '1, 2, and 3 John'], explain: 'They were written to individual pastors rather than to congregations.' },
-  { id: 'a-psalms-books', kind: 'mcq', topic: 'divisions', tier: 3, prompt: 'The book of Psalms is divided into how many "books"?', answer: 'Five', distractors: ['Three', 'Seven', 'Twelve'], explain: 'Psalms 1–41, 42–72, 73–89, 90–106, 107–150 — each closing with a doxology.' },
-  { id: 'a-last-ot', kind: 'type', topic: 'divisions', tier: 1, prompt: 'What is the last book of the Old Testament?', answer: 'Malachi', accepts: ['malachi'] },
-  { id: 'a-first-nt', kind: 'type', topic: 'divisions', tier: 1, prompt: 'What is the first book of the New Testament?', answer: 'Matthew', accepts: ['matthew'] },
+  // ---- Structure
   { id: 'a-silence', kind: 'mcq', topic: 'timeline', tier: 2, prompt: 'About how many years passed between Malachi and the New Testament?', answer: 'About 400 years', distractors: ['About 100 years', 'About 700 years', 'About 40 years'], explain: 'Called the intertestamental period or the "400 silent years."' },
 
   // ---- Cross-book connections
-  { id: 'a-luke-acts', kind: 'mcq', topic: 'authorship', tier: 1, prompt: 'Which two New Testament books were written by the same author as a two-volume work?', answer: 'Luke and Acts', distractors: ['Matthew and Mark', 'John and Revelation', 'Hebrews and James'], explain: 'Both are addressed to Theophilus; Acts picks up where Luke ends.' },
-  { id: 'a-gentile-author', kind: 'type', topic: 'authorship', tier: 2, prompt: 'Who is generally considered the only Gentile author in the Bible?', answer: 'Luke', accepts: ['luke'], explain: 'A physician and Paul’s travel companion; he wrote Luke and Acts.' },
-  { id: 'a-hebrews-author', kind: 'mcq', topic: 'authorship', tier: 2, prompt: 'Who wrote the book of Hebrews?', answer: 'The author is unknown', distractors: ['Paul', 'Apollos', 'Barnabas'], explain: 'Hebrews is anonymous. Paul, Apollos, Barnabas, and Priscilla have all been proposed.' },
-  { id: 'a-johns-books', kind: 'mcq', topic: 'authorship', tier: 2, prompt: 'How many New Testament books are traditionally attributed to the apostle John?', answer: 'Five', distractors: ['Three', 'Two', 'Four'], explain: 'The Gospel of John, 1–3 John, and Revelation.' },
-  { id: 'a-moses-books', kind: 'type', topic: 'authorship', tier: 1, prompt: 'How many books of the Bible are traditionally attributed to Moses?', answer: 'Five', accepts: ['5', 'five'], explain: 'Genesis through Deuteronomy — the Pentateuch.' },
   { id: 'a-no-god-named', kind: 'type', topic: 'summaries', tier: 2, prompt: 'Which book of the Bible never mentions God by name?', answer: 'Esther', accepts: ['esther'], explain: 'God is never named, yet His providence drives the entire plot.' },
   { id: 'a-joel-pentecost', kind: 'mcq', topic: 'events', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28 — "I will pour out my Spirit on all flesh."' },
   { id: 'a-micah-bethlehem', kind: 'mcq', topic: 'events', tier: 3, prompt: 'Which prophet foretold that the Messiah would be born in Bethlehem?', answer: 'Micah', distractors: ['Isaiah', 'Malachi', 'Hosea'], explain: 'Micah 5:2, quoted to Herod by the chief priests in Matthew 2.' },
@@ -163,7 +140,5 @@ export const LIST_DECOYS: Record<string, string[]> = {
   beatitudes: ['the wealthy', 'the wise', 'the strong', 'the learned'],
   'i-am': ['I am the cornerstone', 'I am the rock of ages', 'I am the living water', 'I am the lamb of God'],
   signs: ['Calming the storm', 'Healing the ten lepers', 'Cursing the fig tree', 'Feeding the four thousand'],
-  'divisions-ot': ['Gospels (4 books)', 'Epistles (21 books)', 'Apocalyptic (1 book)', 'Proverbs (1 book)'],
-  'divisions-nt': ['Law (5 books)', 'Minor Prophets (12 books)', 'Wisdom (5 books)', 'History (12 books)'],
   journeys: ['Fourth missionary journey', 'Mission to Spain', 'Council of Antioch', 'Voyage to Alexandria'],
 };

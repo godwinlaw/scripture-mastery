@@ -77,10 +77,7 @@ export interface Item {
 
 export type Topic =
   | 'book-order'
-  | 'authorship'
-  | 'divisions'
   | 'summaries'
-  | 'outlines'
   | 'chapters'
   | 'people'
   | 'relationships'
@@ -88,15 +85,11 @@ export type Topic =
   | 'places'
   | 'timeline'
   | 'numbers'
-  | 'terms'
   | 'christ';
 
 export const TOPIC_LABELS: Record<Topic, string> = {
   'book-order': 'Book Order',
-  authorship: 'Authorship',
-  divisions: 'Divisions & Genre',
   summaries: 'Book Summaries',
-  outlines: 'Book Outlines',
   chapters: 'Chapter Content',
   people: 'People',
   relationships: 'Family & Relationships',
@@ -104,6 +97,5 @@ export const TOPIC_LABELS: Record<Topic, string> = {
   places: 'Places',
   timeline: 'Timeline',
   numbers: 'Numbers & Counts',
-  terms: 'Terms & Concepts',
   christ: 'Christ in Scripture',
 };

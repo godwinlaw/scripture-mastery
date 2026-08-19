@@ -3,8 +3,8 @@ import { BOOKS } from './books';
 
 /**
  * A phased plan built backwards from the exam date. The ordering is deliberate:
- * the frame (order, divisions, authors, summaries) comes first, because every
- * later fact has to hang on something. Detail without a frame does not stick.
+ * the frame (order, summaries) comes first, because every later fact has to
+ * hang on something. Detail without a frame does not stick.
  */
 export interface Phase {
   id: string;
@@ -22,26 +22,23 @@ export const PHASES: Phase[] = [
   {
     id: 'frame',
     name: 'Phase 1 — Build the Frame',
-    goal: 'Know all 66 books cold: order, division, author, and one-sentence summary. Nothing else sticks without this.',
+    goal: 'Know all 66 books cold: order and one-sentence summary. Nothing else sticks without this.',
     weight: 3,
-    topics: ['book-order', 'divisions', 'authorship', 'summaries', 'outlines'],
+    topics: ['book-order', 'summaries'],
     scope: 'all',
     drills: [
       'Recite the 66 books in order out loud, daily',
-      'Sort every book into its division without looking',
       'Match each book to its one-line summary',
-      'Name the author of any book called out at random',
     ],
   },
   {
     id: 'ot-sweep',
     name: 'Phase 2 — Old Testament Sweep',
-    goal: 'Walk the OT storyline book by book: outline, key chapters, people, events, and the terms each book runs on.',
+    goal: 'Walk the OT storyline book by book: key chapters, people, and events.',
     weight: 3,
-    topics: ['chapters', 'outlines', 'people', 'relationships', 'events', 'places', 'terms'],
+    topics: ['chapters', 'people', 'relationships', 'events', 'places'],
     scope: BOOKS.filter((b) => b.testament === 'OT').map((b) => b.id),
     drills: [
-      'For each book, recite its outline — the movements, in order, by chapter',
       'For each book, say its key chapters and what happens in them',
       'Tell the OT story start to finish in five minutes, no notes',
       'Identify every major character from a one-line clue',
@@ -51,15 +48,15 @@ export const PHASES: Phase[] = [
   {
     id: 'nt-sweep',
     name: 'Phase 3 — New Testament Sweep',
-    goal: 'Walk the NT: Gospels, Acts, the letters — audience, occasion, and outline — and Revelation.',
+    goal: 'Walk the NT: Gospels, Acts, the letters — audience and occasion — and Revelation.',
     weight: 2.5,
-    topics: ['chapters', 'outlines', 'people', 'relationships', 'events', 'places', 'terms'],
+    topics: ['chapters', 'people', 'relationships', 'events', 'places'],
     scope: BOOKS.filter((b) => b.testament === 'NT').map((b) => b.id),
     drills: [
       'Name all 13 Pauline letters in order and their one-line point',
       'Trace Paul’s journeys through Acts, city by city',
-      'Distinguish the four Gospels by audience, emphasis, and structure',
-      'For each letter: who wrote it, to whom, from where, and why',
+      'Distinguish the four Gospels by audience and emphasis',
+      'For each letter: to whom, from where, and why',
     ],
   },
   {
@@ -67,7 +64,7 @@ export const PHASES: Phase[] = [
     name: 'Phase 4 — Timeline & Connections',
     goal: 'Lock the chronology and the standing lists, then connect books to eras.',
     weight: 2,
-    topics: ['timeline', 'numbers', 'summaries', 'christ', 'terms'],
+    topics: ['timeline', 'numbers', 'summaries', 'christ'],
     scope: 'all',
     drills: [
       'Put the 14 eras in order from memory',
@@ -82,7 +79,7 @@ export const PHASES: Phase[] = [
     name: 'Phase 5 — Mixed Review & Mock Quizzes',
     goal: 'No new material. Mixed review, weak spots, and full-length practice under time.',
     weight: 2,
-    topics: ['book-order', 'divisions', 'authorship', 'summaries', 'outlines', 'chapters', 'people', 'relationships', 'events', 'places', 'timeline', 'numbers', 'terms', 'christ'],
+    topics: ['book-order', 'summaries', 'chapters', 'people', 'relationships', 'events', 'places', 'timeline', 'numbers', 'christ'],
     scope: 'all',
     drills: [
       'Take a 40-question mixed quiz every other day',
