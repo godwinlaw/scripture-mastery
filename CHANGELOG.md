@@ -7,6 +7,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Daily review questions are shuffled** ([#11]). The queue was fully
+  deterministic, so the same cards arrived in the same order every day and you
+  could start recalling the sequence instead of the answer. `buildQueue` now
+  shuffles what it presents. Selection is deliberately left alone and still
+  runs first — sort by how overdue a card is, interleave the books, *then* cut
+  to the session limit — so a truncated session still takes the most urgent
+  cards and a spread of books. Only the order they are asked in is random.
+  Covered by a new `tests/e2e/queue.spec.ts`, which pins both halves: that the
+  order varies between sessions, and that a truncated session still keeps the
+  most overdue cards.
+
 - **Chapter Content options now come from nearby books** ([#10]). "What happens
   in Leviticus 10?" used to draw its wrong options from anywhere in the canon,
   so it could offer a verse from Colossians — not a hard question, just a
@@ -71,3 +82,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#9]: https://github.com/godwinlaw/scripture-mastery/issues/9
 
 [#10]: https://github.com/godwinlaw/scripture-mastery/issues/10
+
+[#11]: https://github.com/godwinlaw/scripture-mastery/issues/11

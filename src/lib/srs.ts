@@ -3,6 +3,7 @@
  * every card comes back at least once before the exam date. A card scheduled for
  * 60 days out is useless when the test is in 40.
  */
+import { shuffle } from './rng';
 
 export type Grade = 0 | 1 | 2 | 3; // again | hard | good | easy
 
@@ -117,7 +118,16 @@ export function buildQueue(
 
   due.sort((a, b) => cards[a].due - cards[b].due);
   const picked = [...due, ...fresh.slice(0, opts.newLimit)];
-  return interleave(picked).slice(0, opts.sessionLimit);
+  // Order matters twice here, for different reasons.
+  //
+  // Selecting: sort by how overdue a card is, interleave the books, and only
+  // then cut to the session limit — so a truncated session still takes the
+  // most urgent cards and a spread of books, not the first N of one.
+  //
+  // Presenting: shuffle what survived. The selection above is deterministic,
+  // so without this you meet the same cards in the same order every day and
+  // start recalling the sequence rather than the answer (#11).
+  return shuffle(interleave(picked).slice(0, opts.sessionLimit));
 }
 
 /** Spread same-prefix items apart so you are not answering six Genesis cards in a row. */
