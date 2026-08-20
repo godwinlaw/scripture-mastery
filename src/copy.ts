@@ -16,6 +16,22 @@ function orList(items: readonly string[]): string {
 export const copy = {
   appName: 'Scripture Mastery',
 
+  /**
+   * The motto verse (#22). The trainer's own charge: the work is handling the
+   * text rightly, not merely admiring it. Quoted in full, as the issue gives it.
+   *
+   * Top-level rather than under `boot` because two screens speak it — the boot
+   * splash and the sign-in (#23) — and a verse transcribed twice is a verse
+   * that will eventually disagree with itself. `ref` travels with `text` so the
+   * line is never shown anonymously; a verse without its citation reads as a
+   * slogan.
+   */
+  motto: {
+    text:
+      '“Do your best to present yourself to God as one approved, a worker who has no need to be ashamed, rightly handling the word of truth.”',
+    ref: '2 Timothy 2:15 ESV',
+  },
+
   header: {
     /** e.g. "1,240 questions across 66 books" */
     tagline: (questionCount: number) =>
@@ -35,16 +51,6 @@ export const copy = {
   },
 
   boot: {
-    /**
-     * The motto verse (#22). The trainer's own charge: the work is handling
-     * the text rightly, not merely admiring it.
-     *
-     * Quoted in full, as the issue gives it. `mottoRef` is kept alongside so
-     * the line is never shown anonymously — the login screen cites it too.
-     */
-    epigraph:
-      '“Do your best to present yourself to God as one approved, a worker who has no need to be ashamed, rightly handling the word of truth.”',
-    mottoRef: '2 Timothy 2:15 ESV',
     steps: ['Indexing the canon', 'Restoring your progress', 'Queueing today’s review'],
   },
 

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Scripture Mastery">
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Scripture Mastery">
   <title>Scripture Mastery</title>
   <!--
     "Blade on the page" (design 2a). A ribbon marker cut from paper on a steel
@@ -6,9 +6,13 @@
 
     Colours are the app's own tokens, written as literals because an SVG loaded
     as a favicon never sees the document's custom properties:
-      #1d2d3d  --color-accent-900   steel field / blade
-      #f2f2f3  --color-bg           paper ribbon
-      #5980a6  --color-accent       the rules standing in for the passage
+      #1d2d3d  is  color-accent-900  steel field and blade
+      #f2f2f3  is  color-bg          paper ribbon
+      #5980a6  is  color-accent      the rules standing in for the passage
+
+    Token names are written without their leading dashes on purpose: a literal
+    double hyphen is illegal inside an XML comment, and a standalone SVG is
+    parsed as XML, so it would render as a broken image.
 
     This is the full-detail cut, for app tiles and any size at or above 48px.
     favicon.svg carries the simplified small-size treatment.
