@@ -7,6 +7,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **The app mark now sits in the top bar** ([#34]). The header carried the
+  wordmark alone, so the mark that identifies the app on the browser tab, on
+  the sign-in screen and on an installed tile was missing from the one surface
+  you look at all day. It uses `favicon.svg` rather than the `icon.svg` the
+  sign-in screen shows: that is the mark's small-size cut, with the blade
+  widened and the passage rules dropped, drawn for exactly this 16–24px range
+  — `icon.svg`'s fine detail would turn to mush at 22px. Referenced through
+  `import.meta.env.BASE_URL`, as the sign-in mark already is, because vite's
+  `base` is relative and a root-absolute path would break anywhere the app is
+  not served from `/`. The image is decorative (`alt=""`): the wordmark sits
+  immediately beside it, so naming it would only make a screen reader say
+  "Scripture Mastery" twice.
+
 - **Type the reference for a bonus** ([#14]). Questions whose answer is a place
   in scripture — 1,067 of them, about 17% of the bank — now ask you to name it
   before showing any options at all. *Where does this happen? "The walls of
@@ -186,3 +199,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 
 [#23]: https://github.com/godwinlaw/scripture-mastery/issues/23
+
+[#34]: https://github.com/godwinlaw/scripture-mastery/issues/34

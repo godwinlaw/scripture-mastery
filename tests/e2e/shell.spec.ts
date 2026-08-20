@@ -50,6 +50,23 @@ test.describe('shell and auth', () => {
     await expect(page.getByRole('navigation')).toBeVisible();
   });
 
+  test('the header shows the app mark beside the wordmark', async ({ page }) => {
+    await openAs(page);
+
+    const mark = page.locator('header .brand .brand-mark');
+    await expect(mark).toBeVisible();
+
+    // A missing image still counts as "visible", so check it actually decoded —
+    // that is what would catch the asset path going stale.
+    await expect
+      .poll(() => mark.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+
+    // Decorative on purpose: the wordmark sits immediately beside it, so giving
+    // the image a name would just make a screen reader say it twice.
+    await expect(mark).toHaveAttribute('alt', '');
+  });
+
   test('the header counts down to the seeded quiz date', async ({ page }) => {
     await openAs(page, { store: { settings: { examDate: '2027-03-04', newLimit: 20, sessionLimit: 60 } } });
 
