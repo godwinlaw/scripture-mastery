@@ -31,7 +31,7 @@ test.describe('daily review', () => {
     await expect(page.getByText('1 / 1')).toBeVisible();
 
     await answerMcq(page, 'Exodus');
-    await page.getByRole('button', { name: /^Good/ }).click();
+    await page.getByRole('button', { name: /^Ok/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Session complete' })).toBeVisible();
     await expectStat(page, 'Answered', 1);
@@ -112,7 +112,7 @@ test.describe('daily review', () => {
     await openAs(page, { store: soloQueue(ITEM.mcq) }, 'review');
     await start(page);
     await answerMcq(page, 'Exodus');
-    await page.getByRole('button', { name: /^Good/ }).click();
+    await page.getByRole('button', { name: /^Ok/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Session complete' })).toBeVisible();
     await page.getByRole('button', { name: 'Done' }).click();

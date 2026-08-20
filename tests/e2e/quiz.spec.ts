@@ -79,7 +79,7 @@ test.describe('mixed quiz', () => {
     await scope(page, 'Starred').click();
     await page.getByRole('button', { name: 'Start quiz' }).click();
     await page.locator('.choice').filter({ has: page.getByText('Exodus', { exact: true }) }).click();
-    await page.getByRole('button', { name: /^Good/ }).click();
+    await page.getByRole('button', { name: /^Ok/ }).click();
 
     await expect(cardTitle(page, 'Quiz complete')).toBeVisible();
     await expectStat(page, 'correct out of 1', 1);
@@ -92,7 +92,7 @@ test.describe('mixed quiz', () => {
     await scope(page, 'Starred').click();
     await page.getByRole('button', { name: 'Start quiz' }).click();
     await page.locator('.choice').filter({ has: page.getByText('Exodus', { exact: true }) }).click();
-    await page.getByRole('button', { name: /^Good/ }).click();
+    await page.getByRole('button', { name: /^Ok/ }).click();
 
     await page.getByRole('button', { name: 'Retake' }).click();
     await expect(page.getByRole('progressbar', { name: 'Progress: question 1 of 1' })).toBeVisible();
@@ -126,7 +126,7 @@ test.describe('mixed quiz', () => {
     await scope(page, 'Starred').click();
     await page.getByRole('button', { name: 'Start quiz' }).click();
     await page.locator('.choice').filter({ has: page.getByText('Exodus', { exact: true }) }).click();
-    await page.getByRole('button', { name: /^Good/ }).click();
+    await page.getByRole('button', { name: /^Ok/ }).click();
     await expect(cardTitle(page, 'Quiz complete')).toBeVisible();
 
     const store = await readStore(page);

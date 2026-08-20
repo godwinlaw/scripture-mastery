@@ -5,7 +5,7 @@
  */
 import { shuffle } from './rng';
 
-export type Grade = 0 | 1 | 2 | 3; // again | hard | good | easy
+export type Grade = 0 | 1 | 2 | 3; // again | hard | ok | easy
 
 export interface CardState {
   id: string;

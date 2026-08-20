@@ -46,8 +46,8 @@ test.describe('multiple choice', () => {
     await choice(page, 'Exodus').click();
 
     await expect(page.locator('.feedback.correct')).toContainText('Correct');
-    await expect(page.getByRole('button', { name: /^Good/ })).toBeVisible();
-    await page.getByRole('button', { name: /^Good/ }).click();
+    await expect(page.getByRole('button', { name: /^Ok/ })).toBeVisible();
+    await page.getByRole('button', { name: /^Ok/ }).click();
 
     const store = await readStore(page);
     expect(store.cards[ITEM.mcq].reps).toBe(3);
@@ -64,7 +64,7 @@ test.describe('multiple choice', () => {
     await expect(page.locator('.choice.correct')).toHaveText(/Exodus/);
     await expect(page.locator('.choice.wrong')).toHaveText(/Deuteronomy/);
     // A miss offers no self-grading — it goes back in the queue as "again".
-    await expect(page.getByRole('button', { name: /^Good/ })).toBeHidden();
+    await expect(page.getByRole('button', { name: /^Ok/ })).toBeHidden();
     await expect(page.getByRole('button', { name: /^Continue/ })).toBeVisible();
   });
 
@@ -91,7 +91,7 @@ test.describe('multiple choice', () => {
 
     await page.keyboard.press('3'); // Easy
     const store = await readStore(page);
-    // Easy nudges ease up from the 2.5 default; Good would have left it alone.
+    // Easy nudges ease up from the 2.5 default; Ok would have left it alone.
     expect(store.cards[ITEM.mcq].ease).toBeCloseTo(2.6, 5);
     expect(store.cards[ITEM.mcq].recent.at(-1)).toBe(3);
   });

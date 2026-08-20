@@ -7,6 +7,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The middle grade button reads "Ok" rather than "Good"** ([#15]). Its keyboard
+  shortcut, scheduling behaviour, and "normal pace" hint are unchanged — this is
+  the label only. "Good" sat oddly next to "Hard", reading as a judgement on the
+  answer rather than on how easily it came back.
+
 - **Events options now come from the same division** ([#12]). "In which book do
   we read about this: Miriam's leprosy?" now offers Genesis, Exodus and
   Leviticus against Numbers — the books of Moses — instead of anything in the
@@ -97,3 +102,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#11]: https://github.com/godwinlaw/scripture-mastery/issues/11
 
 [#12]: https://github.com/godwinlaw/scripture-mastery/issues/12
+
+[#15]: https://github.com/godwinlaw/scripture-mastery/issues/15

@@ -222,7 +222,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
                   <span className="hint">see it more often</span>
                 </button>
                 <button className="btn primary sm" onClick={() => onGrade(2)}>
-                  Good <span className="kbd">2</span>
+                  Ok <span className="kbd">2</span>
                   <span className="hint">normal pace</span>
                 </button>
                 <button className="btn sm" onClick={() => onGrade(3)}>
