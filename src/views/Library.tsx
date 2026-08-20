@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { BOOKS } from '../data/books';
 import { LISTS } from '../data/extras';
+import { ESSENTIALS, ESSENTIAL_ALIASES, ESSENTIAL_ENTRY_COUNT } from '../data/essentials';
 import { ERAS } from '../data/timeline';
 import { PEOPLE, PLACES } from '../data/people';
 import { DETAIL_BY_BOOK, DETAIL_TOTALS } from '../data/details';
@@ -66,6 +67,16 @@ export default function Library() {
     );
   }, [needle]);
 
+  // The must-know lists are the one place a search for "Babel" or "Jehu" should
+  // land on the index rather than on a book, so match cue and content both.
+  const filteredEssentials = useMemo(() => {
+    if (!needle) return ESSENTIALS;
+    return ESSENTIALS.filter((l) =>
+      [l.title, l.source, ...l.entries.map((e) => `${e.cue} ${e.what} ${e.group ?? ''}`)]
+        .join(' ').toLowerCase().includes(needle),
+    );
+  }, [needle]);
+
   const filteredPlaces = useMemo(() => {
     if (!needle) return PLACES;
     return PLACES.filter((p) => `${p.name} ${p.what}`.toLowerCase().includes(needle));
@@ -97,7 +108,8 @@ export default function Library() {
         <span><b>{PLACES.length}</b> places</span>
         <span><b>{DETAIL_TOTALS.terms}</b> terms</span>
         <span><b>{ERAS.length}</b> eras</span>
-        <span><b>{LISTS.length}</b> lists</span>
+        <span><b>{LISTS.length + ESSENTIALS.length}</b> lists</span>
+        <span><b>{ESSENTIAL_ENTRY_COUNT}</b> must-know pairs</span>
       </div>
 
       <div className="row" style={{ marginBottom: 20 }}>
@@ -223,11 +235,60 @@ export default function Library() {
 
       {tab === 'lists' && (
         <div className="screen">
-          <p className="tiny muted">Standing lists that show up on almost every Bible quiz.</p>
+          <div className="spread">
+            <h3 style={{ margin: 0 }}>Must-know lists</h3>
+            <span className="pill accent">know these cold</span>
+          </div>
+          <p className="tiny muted">
+            Every row is a pair: the address on the left, what sits there on the right. Cover one
+            column and work down the other — the quiz asks in both directions.
+            {needle && ` — ${filteredEssentials.length} list${filteredEssentials.length === 1 ? '' : 's'} match “${q.trim()}”.`}
+          </p>
+          <div className="grid two">
+            {filteredEssentials.map((l, i) => (
+              <Card corners key={l.id} title={l.title} className="item-in" style={sx({ '--stagger-i': i })}>
+                <div className="spread" style={{ marginBottom: 6 }}>
+                  <span className="tiny muted">{l.source}</span>
+                  <span className="pill">{l.testament}</span>
+                </div>
+                <div className="scroll-x">
+                  <table className="data">
+                    <tbody>
+                      {l.entries.map((e) => (
+                        <tr key={e.cue}>
+                          <td style={{ whiteSpace: 'nowrap' }}><strong>{e.cue}</strong></td>
+                          <td>
+                            {e.what}
+                            {e.note && <div className="tiny muted">{e.note}</div>}
+                          </td>
+                          {l.groupAsk && <td className="tiny muted">{e.group}</td>}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            ))}
+          </div>
+          {filteredEssentials.length === 0 && (
+            <p className="small muted">No must-know list mentions “{q.trim()}”.</p>
+          )}
+          <p className="tiny muted" style={{ marginTop: 16 }}>
+            Four more belong to this set and are already below, where the drill is membership rather
+            than pairing: {ESSENTIAL_ALIASES.map((a) => a.title).join(', ')}.
+          </p>
+
+          <h3 style={{ marginTop: 28 }}>Standing lists</h3>
+          <p className="tiny muted">Lists that show up on almost every Bible quiz.</p>
           <div className="grid two">
             {LISTS.map((l, i) => (
               <Card corners key={l.id} title={l.title} className="item-in" style={sx({ '--stagger-i': i })}>
-                <p className="tiny muted" style={{ margin: 0 }}>{l.note}</p>
+                <div className="spread" style={{ marginBottom: 4 }}>
+                  <span className="tiny muted">{l.note}</span>
+                  {ESSENTIAL_ALIASES.some((a) => a.listId === l.id) && (
+                    <span className="pill accent">know this cold</span>
+                  )}
+                </div>
                 <ol style={{ margin: 0, paddingLeft: 20, fontSize: '0.9rem' }}>
                   {l.items.map((item) => <li key={item}>{item}</li>)}
                 </ol>

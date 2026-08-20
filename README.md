@@ -3,9 +3,10 @@
 A whole-Bible survey trainer built for one job: walking into a quiz at the end of
 October knowing the content of all 66 books.
 
-**7,541 questions** generated from structured data: 66 books with a full outline
-and episode list each, 595 dated events, 360 per-book figures, 232 people, 54
-places, 246 key terms, 14 historical eras, and 13 standing lists.
+**6,581 questions** generated from structured data: 66 books with a full outline
+and episode list each, 595 dated events, 360 per-book figures, 233 people, 54
+places, 246 key terms, 14 historical eras, 13 standing lists, and 13 must-know
+lists holding 145 cue/content pairs.
 
 Every book carries its own outline, its episodes chapter by chapter with the
 people in them, the terms it runs on, the numbers it is known for, and a line on
@@ -96,7 +97,7 @@ Change the date in **Progress → Settings** and the schedule re-plans itself.
 | **Dashboard** | Countdown, cards due, mastery, streak, and the current phase of the plan |
 | **Daily Review** | The spaced-repetition queue. This is the main event — clear it daily |
 | **Quiz** | Mixed testing under quiz conditions. Filter by scope, topic, single book, or weak spots |
-| **Reference** | Every book opened to five panes — overview, outline, events, people, terms — plus the timeline, 232 people, 54 places, and the standing lists |
+| **Reference** | Every book opened to five panes — overview, outline, events, people, terms — plus the timeline, 233 people, 54 places, the must-know lists, and the standing lists |
 | **Study Plan** | Week-by-week schedule from today to your quiz date |
 | **Progress** | Mastery by book, stuck items, settings, export/import |
 
@@ -115,8 +116,8 @@ fact needs somewhere to attach.
 2. **Old Testament Sweep** — outline, key chapters, people and their families, events,
    places, and the terms each book runs on, book by book
 3. **New Testament Sweep** — Gospels, Acts, every letter's audience and occasion, Revelation
-4. **Timeline & Connections** — the 14 eras, the standing lists, the two fall dates,
-   and how each book points to Christ
+4. **Timeline & Connections** — the 14 eras, the must-know and standing lists, the
+   two fall dates, and how each book points to Christ
 5. **Mixed Review & Mock Quizzes** — no new material, weak spots only
 
 ---
@@ -166,13 +167,16 @@ src/
 │   │   ├── pauline.ts      Romans–Philemon
 │   │   ├── general.ts      Hebrews–Revelation
 │   │   └── index.ts        Combines them + coverage assertions
-│   ├── people.ts     232 people (with family, tribe, and death) + 54 places
+│   ├── people.ts     233 people (with family, tribe, and death) + 54 places
 │   ├── timeline.ts   14 eras + 29 dated events
 │   ├── extras.ts     13 standing lists + ~60 hand-authored questions
+│   ├── essentials.ts 13 must-know lists — cue → content pairs (chapter indexes,
+│   │                 judges, kings, prophets, the Romans Road)
 │   └── plan.ts       Phase definitions and calendar builder
 ├── lib/
 │   ├── generate.ts         The frame, people, timeline, and list generators
-│   ├── generate-detail.ts  The detail generators — ~4,900 of the 7,541 items
+│   ├── generate-detail.ts  The detail generators — the bulk of the bank
+│   ├── generate-essentials.ts  The must-know lists, both directions + sequencing
 │   ├── srs.ts              Scheduler, queue building, mastery scoring
 │   ├── storage.ts          Store shape, defaults, export/import
 │   ├── firebase.ts         Firebase app/auth/Firestore init, domain allowlist
@@ -182,7 +186,7 @@ src/
 └── components/
     └── BookDetailPanel.tsx  A book's five reference panes
 scripts/
-└── validate.ts       21 content-integrity checks — `npm run validate`
+└── validate.ts       27 content-integrity checks — `npm run validate`
 ```
 
 ### Item ids are stable on purpose

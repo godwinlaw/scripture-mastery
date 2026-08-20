@@ -69,6 +69,7 @@ export const PHASES: Phase[] = [
     drills: [
       'Put the 14 eras in order from memory',
       'Recite the ten plagues, the twelve apostles, the fruit of the Spirit',
+      'Walk the must-know indexes out loud: Genesis, John, Acts, the key epistle chapters',
       'Place every book on the timeline',
       'Memorize the two fall dates: 722 BC and 586 BC',
       'For each book, say in one sentence how it points to Christ',
