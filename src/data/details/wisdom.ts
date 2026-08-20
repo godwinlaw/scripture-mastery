@@ -170,7 +170,7 @@ export const WISDOM_DETAILS: BookDetail[] = [
     ],
     events: [
       { ref: '1', name: '"Vanity of vanities"', what: 'The Preacher declares everything a vapor; generations pass, the sun rises and sets, and there is nothing new under the sun', who: ['Solomon'] },
-      { ref: '2', name: 'The great experiment', what: 'He builds houses, plants vineyards, gathers silver, singers, and every pleasure — and finds it striving after wind', who: ['Solomon'] },
+      { ref: '2', name: 'The great experiment', what: 'Solomon builds houses, plants vineyards, gathers silver, singers, and every pleasure — and finds it striving after wind', who: ['Solomon'] },
       { ref: '3', name: 'A time for everything', what: 'A time to be born and a time to die; God has put eternity into man’s heart yet hidden the whole from him', who: [] },
       { ref: '4', name: 'A threefold cord', what: 'Two are better than one, and a cord of three strands is not quickly broken', who: [] },
       { ref: '5', name: 'Guard your steps', what: 'Be careful how you approach God’s house; let your words be few; whoever loves money never has enough', who: [] },
@@ -215,7 +215,7 @@ export const WISDOM_DETAILS: BookDetail[] = [
       { ref: '2', name: 'The rose of Sharon', what: 'Spring imagery — "the flowers appear on the earth, the time of singing has come" — and the charge not to awaken love before it pleases', who: [] },
       { ref: '3', name: 'Solomon’s procession', what: 'The king’s carriage comes up from the wilderness with sixty mighty men around it', who: ['Solomon'] },
       { ref: '4', name: 'The wedding song', what: 'The bridegroom praises his bride head to foot and calls her a garden locked, a spring sealed', who: [] },
-      { ref: '5', name: 'The night search', what: 'She hesitates to open the door; when she does he is gone, and she searches the city and is beaten by the watchmen', who: [] },
+      { ref: '5', name: 'The night search', what: 'The bride hesitates to open the door; when she does he is gone, and she searches the city and is beaten by the watchmen', who: [] },
       { ref: '8', name: 'Love strong as death', what: 'The book’s climax: love is as strong as death, jealousy fierce as the grave; many waters cannot quench it', who: [] },
     ],
     figures: [

@@ -171,8 +171,8 @@ export const MAJOR_PROPHET_DETAILS: BookDetail[] = [
     ],
     events: [
       { ref: '1', name: 'Wheels within wheels', what: 'Ezekiel sees a storm from the north, four living creatures with four faces, gleaming wheels full of eyes, and a throne above them', who: ['Ezekiel'], where: 'The Chebar canal' },
-      { ref: '2-3', name: 'Eating the scroll', what: 'He is told to eat a scroll written with lamentation, and it is sweet as honey; he is appointed a watchman for Israel', who: ['Ezekiel'] },
-      { ref: '4-5', name: 'The siege sign-acts', what: 'He draws Jerusalem on a brick, lies on his side 390 days and then 40, eats rationed bread, and shaves his head into three parts', who: ['Ezekiel'] },
+      { ref: '2-3', name: 'Eating the scroll', what: 'Ezekiel is told to eat a scroll written with lamentation, and it is sweet as honey; he is appointed a watchman for Israel', who: ['Ezekiel'] },
+      { ref: '4-5', name: 'The siege sign-acts', what: 'Ezekiel draws Jerusalem on a brick, lies on his side 390 days and then 40, eats rationed bread, and shaves his head into three parts', who: ['Ezekiel'] },
       { ref: '8-11', name: 'The glory departs', what: 'Carried in a vision to the temple, he sees idolatry inside it and watches the glory of the LORD leave by the east gate', who: ['Ezekiel'], where: 'Jerusalem' },
       { ref: '18', name: 'The soul that sins shall die', what: 'The proverb about sour grapes is retired — each person answers for his own sin', who: [] },
       { ref: '24', name: 'The death of his wife', what: 'On the day the siege begins, the delight of his eyes dies and he is forbidden to mourn, as a sign', who: ['Ezekiel'] },

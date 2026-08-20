@@ -324,7 +324,7 @@ export const PAULINE_DETAILS: BookDetail[] = [
       { ch: '4-5', title: 'Instructions — purity, work, the coming of the Lord, and final commands' },
     ],
     events: [
-      { ref: '1', name: 'Turning from idols', what: 'Their faith is known everywhere; they turned from idols to serve the living God and wait for His Son', who: [] },
+      { ref: '1', name: 'Turning from idols', what: 'The Thessalonians’ faith is known everywhere; they turned from idols to serve the living God and wait for His Son', who: [] },
       { ref: '2', name: 'Like a nursing mother', what: 'Paul recalls how gently he worked among them, night and day, not to be a burden', who: ['Paul'] },
       { ref: '3', name: 'Timothy’s report', what: 'Unable to bear it, Paul sent Timothy, who returned with good news of their faith and love', who: ['Timothy'] },
       { ref: '4', name: 'The dead in Christ', what: 'The Lord will descend with a cry of command; the dead in Christ will rise first, then the living will be caught up', who: [] },
@@ -483,7 +483,7 @@ export const PAULINE_DETAILS: BookDetail[] = [
       { ref: '1', name: 'Elders in every town', what: 'Titus is left to put what remained in order and appoint elders, who must hold firm to the trustworthy word', who: ['Titus'], where: 'Crete' },
       { ref: '1', name: 'The Cretan proverb', what: 'Paul quotes a Cretan prophet — "Cretans are always liars, evil beasts, lazy gluttons" — and says the testimony is true', who: [] },
       { ref: '2', name: 'Teaching by group', what: 'Instructions for older men, older women, younger women, young men, and slaves, so the word of God is not reviled', who: [] },
-      { ref: '3', name: 'The washing of regeneration', what: 'He saved us not because of works done by us but according to His own mercy, by the washing of regeneration and renewal of the Holy Spirit', who: [] },
+      { ref: '3', name: 'The washing of regeneration', what: 'God saved us not because of works done by us but according to His own mercy, by the washing of regeneration and renewal of the Holy Spirit', who: [] },
     ],
     figures: [
       { name: 'Titus', did: 'A Greek convert and troubleshooter; left on Crete to organize the churches', ref: 'Titus 1:4-5' },

@@ -7,6 +7,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Question cues name their subject instead of opening on a bare pronoun**
+  ([#13]). *Where does this happen? "He reopens and cleanses the temple…"* gave
+  you nothing to grip; it now reads *"Hezekiah reopens and cleanses the
+  temple…"*. Twenty-five episode summaries and detail lines were rewritten
+  across all seven detail files.
+  Two kinds of pronoun are deliberately left alone: **verbatim scripture**
+  ("He is the image of the invisible God" — you identify a quotation by its
+  words, and editing it to insert a name would falsify it), and **riddle cues
+  whose answer is the person** ("Who is this? *Her household reported the
+  quarrels to Paul*" → Chloe), where naming them would hand over the answer.
+  Naming the subject created a new hazard for "Who is involved in this?", which
+  quotes the same summary — so that generator now skips any candidate the cue
+  already names. That also retired **105 pre-existing questions that printed
+  their own answer** ("Who is involved in this? *God creates the heavens and
+  earth…*" → God). Bank drops from 6,203 to 6,098; every book still clears the
+  20-question floor.
+
 - **The middle grade button reads "Ok" rather than "Good"** ([#15]). Its keyboard
   shortcut, scheduling behaviour, and "normal pace" hint are unchanged — this is
   the label only. "Good" sat oddly next to "Hard", reading as a judgement on the
@@ -111,6 +128,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#11]: https://github.com/godwinlaw/scripture-mastery/issues/11
 
 [#12]: https://github.com/godwinlaw/scripture-mastery/issues/12
+
+[#13]: https://github.com/godwinlaw/scripture-mastery/issues/13
 
 [#15]: https://github.com/godwinlaw/scripture-mastery/issues/15
 

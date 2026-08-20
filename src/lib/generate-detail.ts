@@ -127,7 +127,14 @@ function eventItems(d: BookDetail): Item[] {
 
     // Who was involved. Only for people tied to a single book, so the answer
     // is not "well, he is in six of them."
-    const scoped = e.who.filter((w) => (nameBookCount.get(w)?.size ?? 0) === 1);
+    //
+    // The cue is the episode's own summary, and #13 rewrote those to name
+    // their subject instead of opening on a bare "He". That is right for the
+    // where- and when- questions, but it hands this one its answer — so any
+    // candidate the cue already names is not a candidate here.
+    const scoped = e.who.filter(
+      (w) => (nameBookCount.get(w)?.size ?? 0) === 1 && !e.what.includes(w),
+    );
     if (scoped.length > 0) {
       const answer = scoped[0];
       const others = allFigureNames.filter((n) => !e.who.includes(n));

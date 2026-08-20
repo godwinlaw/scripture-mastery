@@ -192,7 +192,7 @@ export const MINOR_PROPHET_DETAILS: BookDetail[] = [
     ],
     events: [
       { ref: '1', name: 'The LORD comes down', what: 'God treads the high places; the mountains melt, and the wound reaches the gate of Jerusalem', who: ['Micah'] },
-      { ref: '2', name: 'Woe to schemers', what: 'They covet fields and seize them, oppressing a man and his house', who: [] },
+      { ref: '2', name: 'Woe to schemers', what: 'Schemers covet fields and seize them, oppressing a man and his house', who: [] },
       { ref: '3', name: 'Leaders who hate good', what: 'Rulers who tear the skin off God’s people, prophets who cry peace when fed — Zion will be plowed as a field', who: [] },
       { ref: '4', name: 'Swords into plowshares', what: 'In the latter days the mountain of the house of the LORD will be lifted up and nations will not learn war anymore', who: [] },
       { ref: '5', name: 'Bethlehem Ephrathah', what: '"From you shall come forth for me one who is to be ruler in Israel, whose coming forth is from of old"', who: [], where: 'Bethlehem' },
@@ -329,7 +329,7 @@ export const MINOR_PROPHET_DETAILS: BookDetail[] = [
       { ch: '2', title: 'Three more messages — the greater glory, the defiled offering, and Zerubbabel as a signet ring' },
     ],
     events: [
-      { ref: '1', name: 'Consider your ways', what: 'They sow much and harvest little because God’s house lies in ruins; twenty-three days later the work restarts', who: ['Haggai', 'Zerubbabel', 'Joshua the high priest'] },
+      { ref: '1', name: 'Consider your ways', what: 'The returned exiles sow much and harvest little because God’s house lies in ruins; twenty-three days later the work restarts', who: ['Haggai', 'Zerubbabel', 'Joshua the high priest'] },
       { ref: '2', name: 'The latter glory', what: 'To those weeping that this temple is nothing next to Solomon’s: "The latter glory of this house shall be greater than the former"', who: [] },
       { ref: '2', name: 'The priests’ ruling', what: 'A question about clean and unclean makes the point that holiness is not contagious but defilement is', who: [] },
       { ref: '2', name: 'The signet ring', what: 'God tells Zerubbabel He will make him like a signet ring — reversing the curse spoken over his grandfather Jehoiachin', who: ['Zerubbabel'] },
@@ -409,8 +409,8 @@ export const MINOR_PROPHET_DETAILS: BookDetail[] = [
     ],
     events: [
       { ref: '1', name: '"How have you loved us?"', what: 'God says "I have loved you" and the people answer with a question — the book’s pattern of six disputations', who: ['Malachi'] },
-      { ref: '1', name: 'Blemished offerings', what: 'They bring blind and lame animals God would not dare offer a governor; better to shut the temple doors', who: [] },
-      { ref: '2', name: 'Faithless marriages', what: 'They are marrying foreign wives and divorcing the wives of their youth; "the man who does not love his wife but divorces her… covers his garment with violence"', who: [] },
+      { ref: '1', name: 'Blemished offerings', what: 'The priests bring blind and lame animals God would not dare offer a governor; better to shut the temple doors', who: [] },
+      { ref: '2', name: 'Faithless marriages', what: 'The men of Judah are marrying foreign wives and divorcing the wives of their youth; "the man who does not love his wife but divorces her… covers his garment with violence"', who: [] },
       { ref: '3', name: 'The messenger of the covenant', what: 'A messenger will prepare the way, and the Lord will suddenly come to His temple like a refiner’s fire', who: [] },
       { ref: '3', name: 'Robbing God', what: 'Bring the full tithe into the storehouse and "put me to the test" — the one place God invites it', who: [] },
       { ref: '3', name: 'The book of remembrance', what: 'Those who feared the LORD spoke with one another, and a book of remembrance was written before Him', who: [] },
