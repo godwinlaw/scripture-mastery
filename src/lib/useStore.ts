@@ -2,8 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db, isAllowedEmail } from './firebase';
-import { emptyStore, todayISO, type Settings, type Store } from './storage';
-import { grade as gradeCard, newCard, type CardState, type Grade } from './srs';
+import { emptyStore, type Settings, type Store } from './storage';
+import type { CardState, Grade } from './srs';
+import {
+  applyAnswer,
+  applyReset,
+  applyToggleStar,
+  applyUpdateSettings,
+  daysLeftUntil,
+  examTimeOf,
+} from './store-ops';
 
 export type AuthStatus = 'loading' | 'signed-out' | 'denied' | 'ready';
 
@@ -59,59 +67,28 @@ export function useStore() {
     [user, authStatus],
   );
 
-  const examTime = useMemo(
-    () => new Date(`${store.settings.examDate}T23:59:59`).getTime(),
-    [store.settings.examDate],
-  );
+  const examTime = useMemo(() => examTimeOf(store.settings), [store.settings]);
 
   const answer = useCallback(
-    (id: string, g: Grade) => {
-      const prev = storeRef.current;
-      const card = prev.cards[id] ?? newCard(id);
-      const next = gradeCard(card, g, examTime);
-      const date = todayISO();
-      const log = [...prev.log];
-      const todayEntry = log.find((l) => l.date === date);
-      if (todayEntry) {
-        todayEntry.reviewed += 1;
-        if (g > 0) todayEntry.correct += 1;
-      } else {
-        log.push({ date, reviewed: 1, correct: g > 0 ? 1 : 0 });
-      }
-      commit({ ...prev, cards: { ...prev.cards, [id]: next }, log });
-    },
+    (id: string, g: Grade) => commit(applyAnswer(storeRef.current, id, g, examTime)),
     [examTime, commit],
   );
 
   const toggleStar = useCallback(
-    (id: string) => {
-      const prev = storeRef.current;
-      commit({
-        ...prev,
-        starred: prev.starred.includes(id)
-          ? prev.starred.filter((s) => s !== id)
-          : [...prev.starred, id],
-      });
-    },
+    (id: string) => commit(applyToggleStar(storeRef.current, id)),
     [commit],
   );
 
   const updateSettings = useCallback(
-    (patch: Partial<Settings>) => {
-      const prev = storeRef.current;
-      commit({ ...prev, settings: { ...prev.settings, ...patch } });
-    },
+    (patch: Partial<Settings>) => commit(applyUpdateSettings(storeRef.current, patch)),
     [commit],
   );
 
   const replaceStore = useCallback((next: Store) => commit(next), [commit]);
 
-  const reset = useCallback(() => {
-    const prev = storeRef.current;
-    commit({ ...prev, cards: {}, log: [], starred: [] });
-  }, [commit]);
+  const reset = useCallback(() => commit(applyReset(storeRef.current)), [commit]);
 
-  const daysLeft = Math.max(0, Math.ceil((examTime - Date.now()) / 86_400_000));
+  const daysLeft = daysLeftUntil(examTime);
 
   return {
     store,

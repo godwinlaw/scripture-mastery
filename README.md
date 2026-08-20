@@ -18,6 +18,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # static output in dist/ — deployable anywhere
 npm run validate # content-integrity checks over the whole item bank
+npm run test:e2e # Playwright: 82 browser tests over the real UI
 ```
 
 Progress syncs to **Firestore**, keyed to a Google sign-in restricted to
@@ -241,6 +242,47 @@ answer. Flagging shared prompts would have flagged those. The check that actuall
 means something is narrower — **one card's correct answer appearing as a wrong
 option on another card asking the same question** — plus identical prompt *and*
 identical option set with different answers. Both currently report zero.
+
+### Browser tests
+
+`npm run test:e2e` drives the actual app in Chromium — 82 tests over sign-in and
+the domain gate, tab routing, all three question kinds, review sessions, quiz
+filters, the reference search, and export/import/reset. A second project runs
+the mobile refusal on an emulated Pixel 5, because the one thing that must never
+happen on a phone is the app letting you in.
+
+**Getting past Google sign-in.** Every screen but the splash sits behind a
+Firebase popup, and the emulators need a JVM. So the E2E build swaps two modules
+and nothing else: `src/lib/useStore.ts` and `src/lib/firebase.ts` are replaced by
+`*.e2e.ts` stand-ins that keep the store in localStorage and make sign-in a
+synchronous write. The swap lives in a vite plugin gated on `E2E=1`
+(`vite.config.ts`), so a production build has never heard of it — `npm run build`
+output contains zero E2E code and still ships the real Firebase SDK.
+
+The point of that split is that the stand-in replaces the *transport only*.
+Everything that decides what the store becomes when you answer a card lives in
+`src/lib/store-ops.ts`, which both hooks call, so a browser test exercises the
+real grading, logging and exam-clamp logic rather than a re-implementation of
+it. The stand-in declares `StoreApi` as its return type: if the real hook's
+surface changes, the fake stops compiling.
+
+Tests seed a whole `Store` into localStorage before the app boots and read it
+back afterwards (`tests/e2e/harness.ts`). Where a test needs a known question on
+screen, it seeds one due card with `newLimit: 0` so the queue can only contain
+that one — no shuffling, no flake. The three fixture item ids are pinned by
+`content-contract.spec.ts`, so if the generator ever retires one, that says so
+directly instead of a dozen UI tests failing for no visible reason.
+
+**One known bug is recorded as a failing test.** `review.spec.ts` carries a
+`test.fail()` for the requeue bug described below; delete the marker when it is
+fixed and Playwright will flag the test as unexpectedly passing.
+
+> Miss the last card of a session and it is requeued — but it comes back already
+> answered, with the wrong answer still in a disabled input. The session card is
+> keyed on `item.id` (`src/views/Review.tsx:127`), so when the same id repeats
+> back to back React reuses the component and `QuestionCard`'s reset effect,
+> keyed on that same id, never fires. You are never actually re-asked, which is
+> the whole point of requeueing. Keying on the queue position fixes it.
 
 ---
 
