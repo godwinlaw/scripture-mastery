@@ -24,6 +24,7 @@
   --color-accent-2: #728fab;
   --color-error: #a4553f;       /* the one out-of-system red: wrongness */
   --color-on-ink: #f2f2f3;      /* fixed light foreground for ink plates; NOT flipped by the dark theme */
+  color-scheme: light;          /* native chrome (scrollbars, date picker) renders light */
 
   /* the accent when it is a *fill behind text* (primary button, selected segment).
      The signature --color-accent is too light to seat light text at AA on paper,
@@ -119,26 +120,29 @@
 }
 
 /* ------------------------------------------------------------- dark theme --
-   Only the role colours change; the aliases + tints above resolve to these
-   at the point of use, so the whole system follows. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #17191b;        /* dark ink ground */
-    --color-surface: #1f2224;
-    --color-text: #e9e9ea;      /* paper text */
-    --color-accent: #86a9cf;    /* lifted steel-blue for contrast on dark */
-    --color-accent-2: #9db8d3;
-    --color-error: #cc7a63;     /* lightened red */
-    /* on dark, the lifted accent is bright enough to carry dark text at AA, so the
-       fill is the accent itself and the text drops back to the dark ground. */
-    --color-accent-fill: var(--color-accent);
-    --color-on-accent: var(--color-bg);
-    --color-divider: color-mix(in srgb, var(--color-text) 18%, transparent);
-    --shadow-tint: 0, 0, 0;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
-  }
+   Only the role colours change; the aliases + tints above resolve to these at
+   the point of use, so the whole system follows. Applied via <html data-theme>:
+   theme.ts resolves the user's Light/Dark/System choice to a concrete value and
+   writes it here, so this stylesheet needs only the two themes — no media query,
+   no duplication. (:root stays the light source of truth, i.e. data-theme='light'.)
+   Equal specificity to :root, but authored later, so the dark values win when set. */
+[data-theme='dark'] {
+  --color-bg: #17191b;        /* dark ink ground */
+  --color-surface: #1f2224;
+  --color-text: #e9e9ea;      /* paper text */
+  --color-accent: #86a9cf;    /* lifted steel-blue for contrast on dark */
+  --color-accent-2: #9db8d3;
+  --color-error: #cc7a63;     /* lightened red */
+  /* on dark, the lifted accent is bright enough to carry dark text at AA, so the
+     fill is the accent itself and the text drops back to the dark ground. */
+  --color-accent-fill: var(--color-accent);
+  --color-on-accent: var(--color-bg);
+  --color-divider: color-mix(in srgb, var(--color-text) 18%, transparent);
+  --shadow-tint: 0, 0, 0;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;         /* native chrome renders dark to match */
 }
 
 /* ============================================================ base + reset */
@@ -579,6 +583,9 @@ textarea.input { min-height: 90px; resize: vertical; width: 100%; }
 .seg-opt:first-child { border-left: none; }
 .seg-opt:hover { color: var(--color-text); }
 .seg-opt[aria-checked='true'], .seg-opt[aria-pressed='true'], .seg-opt.active { background: var(--color-accent-fill); color: var(--color-on-accent); }
+
+/* header theme switch: sized down to sit with the countdown + sign-out chrome */
+.theme-seg .seg-opt { padding: 5px 11px; font-size: 12px; }
 
 /* ==================================================================== data */
 table.data { width: 100%; border-collapse: collapse; font-size: 14px; }

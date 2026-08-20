@@ -8,8 +8,9 @@ import Progress from './views/Progress';
 import { useStore } from './lib/useStore';
 import { allItems } from './lib/generate';
 import { ALLOWED_DOMAINS, signIn, signOutUser } from './lib/firebase';
-import { BootSplash, MobileGate, Corners, useIsMobile } from './ui';
+import { BootSplash, MobileGate, Corners, Segmented, useIsMobile } from './ui';
 import { copy } from './copy';
+import { useThemeMode, type ThemeMode } from './lib/theme';
 
 const TABS = [
   { id: 'home', label: 'Dashboard' },
@@ -21,6 +22,13 @@ const TABS = [
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
+
+/** Light default, then Dark, then follow-the-OS System. */
+const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
+  { label: copy.theme.light, value: 'light' },
+  { label: copy.theme.dark, value: 'dark' },
+  { label: copy.theme.system, value: 'system' },
+];
 
 /** How long the boot mark stays up at minimum, so it reads as a screen and not
  *  a flicker. Never blocks past a genuine load that outlasts it. */
@@ -37,6 +45,7 @@ export default function App() {
   const [tab, setTab] = useState<TabId>(currentHash);
   const [authError, setAuthError] = useState('');
   const [splashHeld, setSplashHeld] = useState(true);
+  const [themeMode, setTheme] = useThemeMode();
 
   useEffect(() => {
     const onHash = () => setTab(currentHash());
@@ -141,6 +150,13 @@ export default function App() {
             <strong>{api.daysLeft.toLocaleString()}</strong> day{api.daysLeft === 1 ? '' : 's'} until{' '}
             {examDateLabel}
           </div>
+          <Segmented
+            className="theme-seg"
+            ariaLabel={copy.theme.label}
+            options={THEME_OPTIONS}
+            value={themeMode}
+            onChange={setTheme}
+          />
           <button className="btn sm" title={api.user?.email ?? ''} onClick={() => signOutUser()}>
             {copy.header.signOut}
           </button>

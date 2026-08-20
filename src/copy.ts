@@ -26,6 +26,14 @@ export const copy = {
     signOut: 'Sign out',
   },
 
+  theme: {
+    /** accessible name for the Light/Dark/System switch (no visible caption) */
+    label: 'Theme',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
+  },
+
   boot: {
     // Hebrews 4:12 ESV — the trainer's own charge, not a slogan.
     epigraph: '“For the word of God is living and active, sharper than any two-edged sword.”',
