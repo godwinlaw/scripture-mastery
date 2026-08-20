@@ -159,6 +159,16 @@ export default function App() {
     <div className="app">
       <header className="top">
         <div className="brand">
+          {/* favicon.svg, not the icon.svg the sign-in screen uses: this is the
+              mark's small-size cut, drawn for exactly this range. BASE_URL for
+              the same reason as there — vite's base is relative. */}
+          <img
+            className="brand-mark"
+            src={`${import.meta.env.BASE_URL}favicon.svg`}
+            alt=""
+            width={22}
+            height={22}
+          />
           {copy.appName}
           <span>{copy.header.tagline(total)}</span>
         </div>

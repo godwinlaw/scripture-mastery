@@ -222,6 +222,15 @@ header.top,
   align-items: baseline;
   gap: 12px;
 }
+.brand-mark {
+  /* .brand aligns its children on the baseline, which an image has no useful
+     notion of — it would sit on its bottom edge. Centre it against the
+     wordmark instead. */
+  width: 22px;
+  height: 22px;
+  align-self: center;
+  flex: none;
+}
 .brand span {
   font-family: var(--font-body);
   color: color-mix(in srgb, var(--color-text) 50%, transparent);
