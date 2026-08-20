@@ -7,6 +7,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Events options now come from the same division** ([#12]). "In which book do
+  we read about this: Miriam's leprosy?" now offers Genesis, Exodus and
+  Leviticus against Numbers — the books of Moses — instead of anything in the
+  canon. Reuses the `nearbyPool` widening added in [#10], so short divisions
+  reach into adjacent ones and nothing ever crosses the Old/New Testament seam.
+  Applies to all four Events generators: the two whose answer is a book name,
+  and the two whose options are event text. Verified against the bank: across
+  932 book-answered Events questions, zero options cross the Testament boundary
+  and zero fall outside the neighbourhood, with every question still offering
+  four choices.
+
 - **Daily review questions are shuffled** ([#11]). The queue was fully
   deterministic, so the same cards arrived in the same order every day and you
   could start recalling the sequence instead of the answer. `buildQueue` now
@@ -84,3 +95,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#10]: https://github.com/godwinlaw/scripture-mastery/issues/10
 
 [#11]: https://github.com/godwinlaw/scripture-mastery/issues/11
+
+[#12]: https://github.com/godwinlaw/scripture-mastery/issues/12

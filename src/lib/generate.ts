@@ -93,13 +93,15 @@ function buildBookItems(): Item[] {
       const key = eventKey(ev);
       if (eventOwner.get(key) !== b.id) continue; // one item per event, first book wins
       const banned = booksRecording(ev);
-      const pool = siblingNames(b.id).filter((n) => !banned.has(n));
-      const fallback = pool.length >= 3 ? pool : bookNames.filter((n) => !banned.has(n));
+      // The ban is folded into the extract rather than applied afterwards, so
+      // the widening in nearbyPool counts only books it can actually offer —
+      // filtering after the fact could leave a division short and still stop (#12).
+      const pool = nearbyPool(b.id, (x) => (banned.has(x.name) ? [] : [x.name]), b.name);
       items.push({
         id: `gen-event-${b.id}-${slug(ev)}`, kind: 'mcq', topic: 'events', tier: 2, book: b.id,
         prompt: `In which book does this occur: ${ev}?`,
         answer: b.name,
-        distractors: pickDistractors(fallback, b.name, 3, `ev-${b.id}-${ev}`),
+        distractors: pickDistractors(pool, b.name, 3, `ev-${b.id}-${ev}`),
         explain: b.oneLine,
       });
     }
