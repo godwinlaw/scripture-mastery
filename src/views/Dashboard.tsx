@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { allItems } from '../lib/generate';
 import { isDue, isNew, strength } from '../lib/srs';
-import { buildSchedule, DAILY_RHYTHM } from '../data/plan';
+import { buildSchedule } from '../data/plan';
 import { TOPIC_LABELS, type Topic } from '../data/types';
 import type { StoreApi } from '../lib/useStore';
 import { todayISO } from '../lib/storage';
@@ -109,22 +109,6 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
             </p>
           )}
         </Card>
-      </div>
-
-      <div className="section">
-        <h2>Today’s rhythm</h2>
-        <p className="small muted">
-          Three short sessions beat one long one. Quiz-program coaches converge on the same advice:
-          10–20 minutes at a time, every day, with review built in.
-        </p>
-        <div className="grid three stack-in">
-          {DAILY_RHYTHM.map((r) => (
-            <div className="card" key={r.when}>
-              <span className="pill">{r.when}</span>
-              <p className="small" style={{ marginTop: 10, marginBottom: 0 }}>{r.what}</p>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="section">
