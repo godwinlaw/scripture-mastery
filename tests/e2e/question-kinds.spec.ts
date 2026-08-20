@@ -14,14 +14,23 @@ async function reviewOne(page: Page, id: string) {
 /** Drag-free sort: walk each entry up until the list matches `want`. */
 async function arrangeInto(page: Page, want: string[]) {
   const rows = page.locator('.order-item');
+  const labels = () => rows.locator('span:not(.num):not(.moves)');
   for (let target = 0; target < want.length; target++) {
     for (;;) {
-      const labels = await rows.locator('span:not(.num):not(.moves)').allInnerTexts();
-      const at = labels.indexOf(want[target]);
+      const at = (await labels().allInnerTexts()).indexOf(want[target]);
       if (at <= target) break;
       await rows.nth(at).getByRole('button', { name: 'Move up' }).click();
+      // Wait for the row to actually land in its new slot before re-reading.
+      // Without this the next allInnerTexts() can observe the pre-click DOM,
+      // compute a stale index, and walk some other row up the list — which
+      // shows up as an arrangement that is only partly sorted.
+      await expect(labels().nth(at - 1)).toHaveText(want[target]);
     }
   }
+  // Fail in the helper, not three assertions later. Callers that submit an
+  // arrangement without checking it first would otherwise report a confusing
+  // count mismatch instead of "the list never got sorted".
+  await expect(labels()).toHaveText(want);
 }
 
 async function currentOrder(page: Page): Promise<string[]> {
@@ -32,9 +41,9 @@ test.describe('multiple choice', () => {
   test('a right answer reveals the grade buttons and records the card', async ({ page }) => {
     await reviewOne(page, ITEM.mcq);
 
-    await expect(page.getByText('How many chapters are in Genesis?')).toBeVisible();
+    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
     await expect(page.locator('.choice')).toHaveCount(4);
-    await choice(page, '50').click();
+    await choice(page, 'Exodus').click();
 
     await expect(page.locator('.feedback.correct')).toContainText('Correct');
     await expect(page.getByRole('button', { name: /^Good/ })).toBeVisible();
@@ -48,12 +57,12 @@ test.describe('multiple choice', () => {
   test('a wrong answer shows the right one and marks both options', async ({ page }) => {
     await reviewOne(page, ITEM.mcq);
 
-    await choice(page, '36').click();
+    await choice(page, 'Deuteronomy').click();
 
     await expect(page.locator('.feedback.wrong')).toContainText('Not quite');
-    await expect(page.locator('.feedback')).toContainText('Answer: 50');
-    await expect(page.locator('.choice.correct')).toHaveText(/50/);
-    await expect(page.locator('.choice.wrong')).toHaveText(/36/);
+    await expect(page.locator('.feedback')).toContainText('Answer: Exodus');
+    await expect(page.locator('.choice.correct')).toHaveText(/Exodus/);
+    await expect(page.locator('.choice.wrong')).toHaveText(/Deuteronomy/);
     // A miss offers no self-grading — it goes back in the queue as "again".
     await expect(page.getByRole('button', { name: /^Good/ })).toBeHidden();
     await expect(page.getByRole('button', { name: /^Continue/ })).toBeVisible();
@@ -62,7 +71,7 @@ test.describe('multiple choice', () => {
   test('every option locks once an answer is in', async ({ page }) => {
     await reviewOne(page, ITEM.mcq);
 
-    await choice(page, '36').click();
+    await choice(page, 'Deuteronomy').click();
 
     for (const choice of await page.locator('.choice').all()) {
       await expect(choice).toBeDisabled();
@@ -74,7 +83,7 @@ test.describe('multiple choice', () => {
 
     // Options are reshuffled per item, so find where the right answer landed.
     const labels = await page.locator('.choice span:not(.key)').allInnerTexts();
-    const slot = labels.indexOf('50');
+    const slot = labels.indexOf('Exodus');
     expect(slot, 'the correct option should be on screen').toBeGreaterThanOrEqual(0);
 
     await page.keyboard.press(String(slot + 1));

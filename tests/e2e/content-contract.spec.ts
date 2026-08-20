@@ -12,13 +12,14 @@ import { ITEM, ORDER_SEQUENCE } from './harness';
 import { allItems, ITEMS_BY_ID } from '../../src/lib/generate';
 
 test.describe('content contract', () => {
-  test('the multiple-choice fixture is still a 4-option question with answer 50', () => {
+  test('the multiple-choice fixture is still a 4-option question answered by Exodus', () => {
     const item = ITEMS_BY_ID.get(ITEM.mcq);
     expect(item, `${ITEM.mcq} has left the item bank`).toBeDefined();
     expect(item!.kind).toBe('mcq');
-    expect(item!.prompt).toBe('How many chapters are in Genesis?');
-    expect(item!.answer).toBe('50');
-    expect(item!.distractors).toContain('36');
+    expect(item!.prompt).toBe('Which book immediately follows Genesis?');
+    expect(item!.answer).toBe('Exodus');
+    // The specs click this one to register a deliberate miss.
+    expect(item!.distractors).toContain('Deuteronomy');
     expect(item!.distractors).toHaveLength(3);
   });
 

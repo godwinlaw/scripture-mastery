@@ -30,7 +30,7 @@ test.describe('daily review', () => {
     await expect(page.getByRole('progressbar', { name: '0 of 1 answered' })).toBeVisible();
     await expect(page.getByText('1 / 1')).toBeVisible();
 
-    await answerMcq(page, '50');
+    await answerMcq(page, 'Exodus');
     await page.getByRole('button', { name: /^Good/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Session complete' })).toBeVisible();
@@ -57,11 +57,11 @@ test.describe('daily review', () => {
     await openAs(page, { store: soloQueue(ITEM.mcq) }, 'review');
     await start(page);
 
-    await answerMcq(page, '36');
+    await answerMcq(page, 'Deuteronomy');
     await page.getByRole('button', { name: /^Continue/ }).click();
 
     // The card is back — it should be asked afresh, not shown already answered.
-    await expect(page.getByText('How many chapters are in Genesis?')).toBeVisible();
+    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
     await expect(page.locator('.feedback')).toHaveCount(0);
     await expect(page.locator('.choice').first()).toBeEnabled();
   });
@@ -72,9 +72,9 @@ test.describe('daily review', () => {
 
     // Miss it three times; the third must not extend the session again.
     for (let attempt = 1; attempt <= 3; attempt++) {
-      await expect(page.getByText('How many chapters are in Genesis?')).toBeVisible();
+      await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
       // Tolerates the requeue bug above: only answer if the card is still open.
-      if (await page.locator('.feedback').count() === 0) await answerMcq(page, '36');
+      if (await page.locator('.feedback').count() === 0) await answerMcq(page, 'Deuteronomy');
       await page.getByRole('button', { name: /^Continue/ }).click();
     }
 
@@ -111,7 +111,7 @@ test.describe('daily review', () => {
   test('another session can be started from the summary', async ({ page }) => {
     await openAs(page, { store: soloQueue(ITEM.mcq) }, 'review');
     await start(page);
-    await answerMcq(page, '50');
+    await answerMcq(page, 'Exodus');
     await page.getByRole('button', { name: /^Good/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Session complete' })).toBeVisible();
@@ -131,7 +131,7 @@ test.describe('daily review', () => {
     }, 'review');
     await start(page);
 
-    await answerMcq(page, '50');
+    await answerMcq(page, 'Exodus');
     await page.getByRole('button', { name: /^Easy/ }).click();
 
     const store = await readStore(page);

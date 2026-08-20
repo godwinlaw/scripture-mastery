@@ -48,8 +48,8 @@ test.describe('progress and settings', () => {
 
     await expect(page.getByRole('heading', { name: /Stuck items/ })).toBeVisible();
     const stuckRow = page.locator('h2:has-text("Stuck items") ~ * table.data tbody tr');
-    await expect(stuckRow).toContainText('How many chapters are in Genesis?');
-    await expect(stuckRow).toContainText('50');
+    await expect(stuckRow).toContainText('Which book immediately follows Genesis?');
+    await expect(stuckRow).toContainText('Exodus');
   });
 
   test('a clean history shows no stuck items at all', async ({ page }) => {

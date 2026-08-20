@@ -8,7 +8,6 @@ import { buildEssentialItems } from './generate-essentials';
 import { pickDistractors, seededShuffle } from './rng';
 
 const bookNames = BOOKS.map((b) => b.name);
-const chapterCounts = [...new Set(BOOKS.map((b) => String(b.chapters)))];
 
 /** Distractors drawn from the same division are hard but fair. */
 function siblingNames(bookId: string): string[] {
@@ -21,14 +20,10 @@ function buildBookItems(): Item[] {
   const items: Item[] = [];
 
   for (const b of BOOKS) {
-    // --- Chapter count. Distractors are drawn from numerically nearby counts;
-    // offering 50 against 3, 5, and 7 tests nothing.
-    items.push({
-      id: `gen-chapters-${b.id}`, kind: 'mcq', topic: 'numbers', tier: 3, book: b.id,
-      prompt: `How many chapters are in ${b.name}?`,
-      answer: String(b.chapters),
-      distractors: pickDistractors(nearbyCounts(b.chapters), String(b.chapters), 3, `ch-${b.id}`),
-    });
+    // Per-book chapter counts used to live here. They were rote trivia — 66
+    // questions whose answer is a number you can read off a contents page —
+    // and they crowded the Numbers & Counts topic with the one kind of recall
+    // that teaches nothing about the book. Removed in #8.
 
     // --- Summary → book
     items.push({
@@ -394,13 +389,6 @@ for (const b of BOOKS) {
     const key = eventKey(ev);
     if (!eventOwner.has(key)) eventOwner.set(key, b.id);
   }
-}
-
-/** Chapter counts closest to `n`, so the wrong options are actually tempting. */
-function nearbyCounts(n: number): string[] {
-  return [...chapterCounts]
-    .sort((a, b) => Math.abs(Number(a) - n) - Math.abs(Number(b) - n))
-    .slice(0, 9);
 }
 
 function slug(s: string): string {

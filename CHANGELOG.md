@@ -5,6 +5,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Removed
+
+- **Chapter-count questions** ([#8]). The 66 per-book "How many chapters are in
+  X?" items are gone, along with "How many chapters are in the whole Bible?"
+  (1,189) — the same species of question in the same topic. Their answer is a
+  number you read off a contents page, which teaches nothing about the book.
+  The Numbers & Counts topic keeps its other 256 items, including the questions
+  where chapters are only incidental and the answer is a *name* ("What is the
+  longest chapter in the Bible?" → Psalm 119). Bank is now 6,514 items and
+  every book still clears the 20-question floor.
+
+### Fixed
+
+- **A race in the e2e ordering helper.** `arrangeInto` re-read the list
+  immediately after clicking "Move up", so under load it could compute an index
+  from the pre-click DOM and walk the wrong row. It now waits for each row to
+  land before re-reading, and asserts the finished arrangement — one caller
+  submitted an arrangement without ever checking it, turning the race into a
+  confusing count mismatch three assertions later.
+
 ### Added
 
 - **App icon** ([#7]). The "Blade on the page" mark (design 2a) — a paper ribbon
@@ -19,3 +39,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   SVG loaded as a favicon never sees the document's custom properties.
 
 [#7]: https://github.com/godwinlaw/scripture-mastery/issues/7
+
+[#8]: https://github.com/godwinlaw/scripture-mastery/issues/8

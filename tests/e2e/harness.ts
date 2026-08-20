@@ -22,8 +22,15 @@ export const OUTSIDER = 'someone@gmail.com';
  * `content-contract.spec.ts`, which fails loudly if the bank stops producing them.
  */
 export const ITEM = {
-  /** "How many chapters are in Genesis?" → 50 */
-  mcq: 'gen-chapters-genesis',
+  /**
+   * "Which book immediately follows Genesis?" → Exodus.
+   *
+   * Deliberately a `book-order` item rather than a summary or a chapter fact:
+   * the canon's sequence is the one thing no content issue is going to
+   * rewrite. The previous fixture here was `gen-chapters-genesis`, which #8
+   * deleted outright.
+   */
+  mcq: 'gen-position-genesis',
   /** "How many books are in the Bible?" → 66, accepts "sixty-six" */
   type: 'a-count-total',
   /** "Put these events from Genesis 1–4 in the order they occur." */
