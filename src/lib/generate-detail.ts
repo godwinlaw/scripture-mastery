@@ -9,8 +9,6 @@ const bookAbbr = new Map(BOOKS.map((b) => [b.id, b.abbr]));
 /** Lets a Book-keyed pool walk reach that book's detail entry (#10). */
 const detailByBook = new Map(DETAILS.map((d) => [d.book, d]));
 
-/** Every "what" across every book — the pool for chapter-content distractors. */
-const allEventWhats = DETAILS.flatMap((d) => d.events.map((e) => e.what));
 const allFigureDeeds = DETAILS.flatMap((d) => d.figures.map((f) => f.did));
 const allFigureNames = [...new Set(DETAILS.flatMap((d) => d.figures.map((f) => f.name)))];
 const allNumberValues = DETAILS.flatMap((d) => d.numbers?.map((n) => n.value) ?? []);
@@ -85,7 +83,12 @@ function eventItems(d: BookDetail): Item[] {
         : `${ref(d, e.ref)} — what happens?`,
       answer: e.what,
       distractors: pickDistractors(
-        ownWhats.length >= 6 ? ownWhats : allEventWhats, e.what, 3, `evw-${key}`,
+        // Own book first, as before. The fallback used to be the whole canon;
+        // it is now the surrounding division, widening only as needed (#12).
+        ownWhats.length >= 6
+          ? ownWhats
+          : nearbyPool(d.book, (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.what), e.what),
+        e.what, 3, `evw-${key}`,
       ),
       explain: [e.detail, e.where ? `Where: ${e.where}.` : null].filter(Boolean).join(' '),
     });
@@ -110,7 +113,10 @@ function eventItems(d: BookDetail): Item[] {
     // that records it is kept out of the distractor pool.
     if (eventNameOwner.get(e.name.toLowerCase()) === d.book) {
       const banned = booksWithEventName(e.name);
-      const pool = BOOKS.map((b) => b.name).filter((n) => !banned.has(n));
+      // Same-division books, widening only as far as it must — "Miriam's
+      // leprosy" should offer the books of Moses, not Colossians (#12). The
+      // ban is folded in so the widening counts only offerable books.
+      const pool = nearbyPool(d.book, (x) => (banned.has(x.name) ? [] : [x.name]), name);
       items.push({
         id: `det-ev-book-${key}`, kind: 'mcq', topic: 'events', tier: 2, book: d.book,
         prompt: `In which book do we read about this: ${e.name}?`,
@@ -149,7 +155,11 @@ function eventItems(d: BookDetail): Item[] {
 
     // The detail that separates this episode from every similar one.
     if (e.detail) {
-      const details = DETAILS.flatMap((x) => x.events.map((y) => y.detail)).filter((x): x is string => !!x);
+      const details = nearbyPool(
+        d.book,
+        (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.detail).filter((y): y is string => !!y),
+        e.detail,
+      );
       items.push({
         id: `det-ev-detail-${key}`, kind: 'mcq', topic: 'events', tier: 3, book: d.book,
         prompt: `Which detail belongs to this episode: ${e.name} (${ref(d, e.ref)})?`,
