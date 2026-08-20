@@ -34,6 +34,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The motto verse is 2 Timothy 2:15 ESV** ([#22]). The boot splash now reads
+  *"Do your best to present yourself to God as one approved, a worker who has
+  no need to be ashamed, rightly handling the word of truth."*, quoted in full
+  as the issue gives it, with the citation shown beneath it so the line is
+  never quoted anonymously. Replaces the Hebrews 4:12 epigraph.
+  Worth noting for the record: this is the same verse as the original
+  "Study to shew thyself approved" line that [#5] asked to remove — that was
+  the KJV rendering. The verse is back, in ESV.
+
 - **Question cues name their subject instead of opening on a bare pronoun**
   ([#13]). *Where does this happen? "He reopens and cleanses the temple…"* gave
   you nothing to grip; it now reads *"Hezekiah reopens and cleanses the
@@ -131,6 +140,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   submitted an arrangement without ever checking it, turning the race into a
   confusing count mismatch three assertions later.
 
+[#5]: https://github.com/godwinlaw/scripture-mastery/issues/5
+
 [#7]: https://github.com/godwinlaw/scripture-mastery/issues/7
 
 [#8]: https://github.com/godwinlaw/scripture-mastery/issues/8
@@ -150,3 +161,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#15]: https://github.com/godwinlaw/scripture-mastery/issues/15
 
 [#16]: https://github.com/godwinlaw/scripture-mastery/issues/16
+
+[#22]: https://github.com/godwinlaw/scripture-mastery/issues/22
+

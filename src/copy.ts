@@ -35,8 +35,16 @@ export const copy = {
   },
 
   boot: {
-    // Hebrews 4:12 ESV — the trainer's own charge, not a slogan.
-    epigraph: '“For the word of God is living and active, sharper than any two-edged sword.”',
+    /**
+     * The motto verse (#22). The trainer's own charge: the work is handling
+     * the text rightly, not merely admiring it.
+     *
+     * Quoted in full, as the issue gives it. `mottoRef` is kept alongside so
+     * the line is never shown anonymously — the login screen cites it too.
+     */
+    epigraph:
+      '“Do your best to present yourself to God as one approved, a worker who has no need to be ashamed, rightly handling the word of truth.”',
+    mottoRef: '2 Timothy 2:15 ESV',
     steps: ['Indexing the canon', 'Restoring your progress', 'Queueing today’s review'],
   },
 

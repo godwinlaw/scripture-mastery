@@ -23,6 +23,7 @@ export function BootSplash() {
         <Corners />
         <div className="wordmark">{copy.appName}</div>
         <div className="epigraph">{copy.boot.epigraph}</div>
+        <div className="epigraph-ref">{copy.boot.mottoRef}</div>
         <div className="rule" aria-hidden="true">
           <i />
         </div>
