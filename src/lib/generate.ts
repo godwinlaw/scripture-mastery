@@ -1,4 +1,4 @@
-import { BOOKS } from '../data/books';
+import { BOOKS, isPropheticBook } from '../data/books';
 import { PEOPLE, PLACES } from '../data/people';
 import { ERAS, EVENTS } from '../data/timeline';
 import { AUTHORED, LIST_DECOYS, LISTS } from '../data/extras';
@@ -25,23 +25,25 @@ function buildBookItems(): Item[] {
     // and they crowded the Numbers & Counts topic with the one kind of recall
     // that teaches nothing about the book. Removed in #8.
 
-    // --- Summary → book
-    items.push({
-      id: `gen-summary-to-book-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 1, book: b.id,
-      prompt: `Which book is this? "${b.oneLine}"`,
-      answer: b.name,
-      distractors: pickDistractors(siblingNames(b.id), b.name, 3, `s2b-${b.id}`),
-      explain: b.hook,
-    });
+    // --- Summary → book, and book → theme. Prophets only: see
+    // isPropheticBook() for why the rest of the canon stopped asking (#9).
+    if (isPropheticBook(b.id)) {
+      items.push({
+        id: `gen-summary-to-book-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 1, book: b.id,
+        prompt: `Which book is this? "${b.oneLine}"`,
+        answer: b.name,
+        distractors: pickDistractors(siblingNames(b.id), b.name, 3, `s2b-${b.id}`),
+        explain: b.hook,
+      });
 
-    // --- Book → theme
-    items.push({
-      id: `gen-theme-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 2, book: b.id,
-      prompt: `What is the central theme of ${b.name}?`,
-      answer: b.theme,
-      distractors: pickDistractors(BOOKS.map((x) => x.theme), b.theme, 3, `theme-${b.id}`),
-      explain: b.oneLine,
-    });
+      items.push({
+        id: `gen-theme-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 2, book: b.id,
+        prompt: `What is the central theme of ${b.name}?`,
+        answer: b.theme,
+        distractors: pickDistractors(BOOKS.map((x) => x.theme), b.theme, 3, `theme-${b.id}`),
+        explain: b.oneLine,
+      });
+    }
 
     // --- Position in canon
     items.push({

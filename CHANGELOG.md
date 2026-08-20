@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Changed
+
+- **Book-summary questions are now prophets-only** ([#9]). The five per-book
+  summary generators — "Which book is this?", "What is the central theme of X?",
+  "Why was X written?", "Who was X written to?", and the distinctive-trait
+  question — now fire only for the seventeen Major and Minor Prophets. They are
+  the one stretch of canon where a summary is the thing worth knowing:
+  overlapping vocabulary and no narrative spine, so "which book is this?" is a
+  real question rather than a recital. Bank drops from 6,514 to 6,269 items;
+  the Book Summaries topic keeps 194 items (85 across the prophets, plus 109
+  must-know-list and trivia questions that are not about a book's summary at
+  all). Every book still clears the 20-question floor — the leanest, 2 John,
+  sits at 23.
+
 ### Removed
 
 - **Chapter-count questions** ([#8]). The 66 per-book "How many chapters are in
@@ -41,3 +55,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#7]: https://github.com/godwinlaw/scripture-mastery/issues/7
 
 [#8]: https://github.com/godwinlaw/scripture-mastery/issues/8
+
+[#9]: https://github.com/godwinlaw/scripture-mastery/issues/9
