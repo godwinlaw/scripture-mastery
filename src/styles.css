@@ -728,7 +728,16 @@ dl.facts dd { margin: 0; }
   letter-spacing: 0.26em;
   text-transform: uppercase;
 }
-.boot-splash .epigraph { font-family: var(--font-body); font-style: italic; font-size: 12px; opacity: 0.7; margin-top: 8px; }
+.boot-splash .epigraph { font-family: var(--font-body); font-style: italic; font-size: 12px; opacity: 0.7; margin-top: 8px; line-height: 1.5; text-wrap: pretty; }
+/* The citation sits under the verse, quieter than it and not italic, so the
+   quotation reads as a quotation rather than as more of the sentence. */
+.boot-splash .epigraph-ref {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+  margin-top: 6px;
+}
 .boot-splash .rule {
   height: 4px;
   margin: 26px auto 14px;
