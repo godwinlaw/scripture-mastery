@@ -7,6 +7,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Chapter Content options now come from nearby books** ([#10]). "What happens
+  in Leviticus 10?" used to draw its wrong options from anywhere in the canon,
+  so it could offer a verse from Colossians — not a hard question, just a
+  different subject. All five Chapter Content generators now build their pool
+  from the answer's own division, widening one division at a time only when the
+  tighter pool cannot fill four options, and **never crossing the Old/New
+  Testament seam**. Verified against the generated bank: of 3,193 attributable
+  distractors across 1,528 questions, zero cross the Testament boundary and
+  zero fall outside the neighbourhood, with every question still offering four
+  options. One-book divisions widen as intended — Acts reaches into the Pauline
+  Epistles, Revelation into the General Epistles.
+
 - **Book-summary questions are now prophets-only** ([#9]). The five per-book
   summary generators — "Which book is this?", "What is the central theme of X?",
   "Why was X written?", "Who was X written to?", and the distinctive-trait
@@ -57,3 +69,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#8]: https://github.com/godwinlaw/scripture-mastery/issues/8
 
 [#9]: https://github.com/godwinlaw/scripture-mastery/issues/9
+
+[#10]: https://github.com/godwinlaw/scripture-mastery/issues/10

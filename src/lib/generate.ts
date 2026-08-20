@@ -1,4 +1,4 @@
-import { BOOKS, isPropheticBook } from '../data/books';
+import { BOOKS, isPropheticBook, nearbyPool } from '../data/books';
 import { PEOPLE, PLACES } from '../data/people';
 import { ERAS, EVENTS } from '../data/timeline';
 import { AUTHORED, LIST_DECOYS, LISTS } from '../data/extras';
@@ -71,7 +71,7 @@ function buildBookItems(): Item[] {
         prompt: `What happens in ${b.name} ${kc.ch}?`,
         answer: kc.what,
         distractors: pickDistractors(
-          BOOKS.flatMap((x) => x.keyChapters.map((k) => k.what)),
+          nearbyPool(b.id, (x) => x.keyChapters.map((k) => k.what), kc.what),
           kc.what, 3, `chwhat-${b.id}-${kc.ch}`,
         ),
       });
@@ -80,7 +80,7 @@ function buildBookItems(): Item[] {
         prompt: `Where does this happen? "${kc.what}"`,
         answer: `${b.name} ${kc.ch}`,
         distractors: pickDistractors(
-          BOOKS.flatMap((x) => x.keyChapters.map((k) => `${x.name} ${k.ch}`)),
+          nearbyPool(b.id, (x) => x.keyChapters.map((k) => `${x.name} ${k.ch}`), `${b.name} ${kc.ch}`),
           `${b.name} ${kc.ch}`, 3, `loc-${b.id}-${kc.ch}`,
         ),
       });
@@ -110,7 +110,10 @@ function buildBookItems(): Item[] {
         id: `gen-verse-${b.id}`, kind: 'mcq', topic: 'chapters', tier: 3, book: b.id,
         prompt: `Which book is this from? "${b.keyVerse.text}"`,
         answer: b.name,
-        distractors: pickDistractors(bookNames, b.name, 3, `kv-${b.id}`),
+        distractors: pickDistractors(
+          nearbyPool(b.id, (x) => [x.name], b.name),
+          b.name, 3, `kv-${b.id}`,
+        ),
         explain: `${b.keyVerse.ref} (ESV)`,
       });
     }

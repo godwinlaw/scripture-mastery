@@ -1,4 +1,4 @@
-import type { Book } from './types';
+import type { Book, Division, Testament } from './types';
 
 /**
  * All 66 books, structured so questions can be generated rather than hand-written.
@@ -1148,6 +1148,64 @@ export const BOOKS_BY_ID: Record<string, Book> = Object.fromEntries(
 
 export const OT = BOOKS.filter((b) => b.testament === 'OT');
 export const NT = BOOKS.filter((b) => b.testament === 'NT');
+
+/**
+ * The divisions in canonical order, kept as two lists so that widening a
+ * distractor pool can never step across the Testament seam. Offering Colossians
+ * against "What happens in Leviticus 10?" is not a hard question, it is a
+ * different subject — the wrong options have to be plausible neighbours to test
+ * anything (#10, #12).
+ */
+const DIVISIONS_BY_TESTAMENT: Record<Testament, readonly Division[]> = {
+  OT: ['Law', 'History', 'Wisdom', 'Major Prophets', 'Minor Prophets'],
+  NT: ['Gospels', 'Acts', 'Pauline Epistles', 'General Epistles', 'Apocalyptic'],
+};
+
+/**
+ * Books near `bookId`: its own division at `rings = 0`, then one division
+ * further out in each direction per ring, never leaving the Testament.
+ *
+ * Callers widen a ring at a time only when the tighter pool cannot fill the
+ * options, so a question drawn from a one-book division (Acts, Revelation)
+ * still gets four choices without silently reaching across the canon.
+ */
+export function booksNear(bookId: string, rings = 0): Book[] {
+  const book = BOOKS_BY_ID[bookId];
+  if (!book) return [];
+  const order = DIVISIONS_BY_TESTAMENT[book.testament];
+  const at = order.indexOf(book.division);
+  if (at === -1) return BOOKS.filter((b) => b.testament === book.testament);
+
+  const lo = Math.max(0, at - rings);
+  const hi = Math.min(order.length - 1, at + rings);
+  const wanted = new Set(order.slice(lo, hi + 1));
+  return BOOKS.filter((b) => b.testament === book.testament && wanted.has(b.division));
+}
+
+/**
+ * The tightest pool around `bookId` that can still supply `n` distinct options
+ * other than `answer`, widening a division at a time and stopping at the
+ * Testament boundary.
+ *
+ * `extract` pulls the candidate strings out of each book, so the same widening
+ * rule serves chapter summaries, references, and book names alike.
+ */
+export function nearbyPool(
+  bookId: string,
+  extract: (b: Book) => string[],
+  answer: string,
+  n = 3,
+): string[] {
+  const widest = DIVISIONS_BY_TESTAMENT[BOOKS_BY_ID[bookId]?.testament ?? 'OT'].length;
+  let pool: string[] = [];
+  for (let rings = 0; rings <= widest; rings++) {
+    pool = [...new Set(booksNear(bookId, rings).flatMap(extract))].filter((s) => s !== answer);
+    if (pool.length >= n) return pool;
+  }
+  // Whole Testament still too thin: return what there is rather than reaching
+  // across the seam. pickDistractors will simply yield fewer options.
+  return pool;
+}
 
 /**
  * The prophets are the one stretch of the canon where a book's summary is the
