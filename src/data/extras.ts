@@ -77,7 +77,11 @@ export const AUTHORED: Item[] = [
   { id: 'a-count-total', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many books are in the Bible?', answer: '66', accepts: ['sixty-six', 'sixty six'], explain: '39 Old Testament + 27 New Testament = 66. (39 × 27 is a handy check: 3 × 9 = 27.)' },
   { id: 'a-count-ot', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many books are in the Old Testament?', answer: '39', accepts: ['thirty-nine', 'thirty nine'] },
   { id: 'a-count-nt', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many books are in the New Testament?', answer: '27', accepts: ['twenty-seven', 'twenty seven'] },
-  { id: 'a-count-chapters', kind: 'mcq', topic: 'numbers', tier: 3, prompt: 'How many chapters are in the whole Bible?', answer: '1,189', distractors: ['929', '1,050', '1,260'], explain: '929 in the Old Testament plus 260 in the New Testament.' },
+  // 'a-count-chapters' ("How many chapters are in the whole Bible?" → 1,189)
+  // was removed alongside the per-book chapter counts in #8: same species of
+  // question, same topic. The questions below survive because chapters are
+  // only incidental to them — the answer is a book or a chapter's *name*
+  // ("Psalm 119"), which is survey knowledge, not a tally.
   { id: 'a-longest-chapter', kind: 'type', topic: 'numbers', tier: 2, prompt: 'What is the longest chapter in the Bible?', answer: 'Psalm 119', accepts: ['psalms 119', '119', 'ps 119'], explain: '176 verses, an acrostic where each stanza begins with a successive Hebrew letter.' },
   { id: 'a-shortest-chapter', kind: 'type', topic: 'numbers', tier: 3, prompt: 'What is the shortest chapter in the Bible?', answer: 'Psalm 117', accepts: ['psalms 117', '117', 'ps 117'], explain: 'Just two verses.' },
   { id: 'a-longest-book', kind: 'mcq', topic: 'numbers', tier: 2, prompt: 'Which book has the most chapters?', answer: 'Psalms', distractors: ['Isaiah', 'Genesis', 'Jeremiah'], explain: 'Psalms has 150; Isaiah is next at 66.' },

@@ -60,7 +60,7 @@ test.describe('mixed quiz', () => {
     await page.getByRole('button', { name: 'Start quiz' }).click();
 
     await expect(page.getByRole('progressbar', { name: 'Progress: question 1 of 1' })).toBeVisible();
-    await page.locator('.choice').filter({ has: page.getByText('36', { exact: true }) }).click();
+    await page.locator('.choice').filter({ has: page.getByText('Deuteronomy', { exact: true }) }).click();
     await page.getByRole('button', { name: /^Continue/ }).click();
 
     await expect(cardTitle(page, 'Quiz complete')).toBeVisible();
@@ -69,8 +69,8 @@ test.describe('mixed quiz', () => {
 
     const missedRow = page.locator('table.data tbody tr');
     await expect(missedRow).toHaveCount(1);
-    await expect(missedRow).toContainText('How many chapters are in Genesis?');
-    await expect(missedRow).toContainText('50');
+    await expect(missedRow).toContainText('Which book immediately follows Genesis?');
+    await expect(missedRow).toContainText('Exodus');
   });
 
   test('a clean run reports full marks and lists nothing missed', async ({ page }) => {
@@ -78,7 +78,7 @@ test.describe('mixed quiz', () => {
 
     await scope(page, 'Starred').click();
     await page.getByRole('button', { name: 'Start quiz' }).click();
-    await page.locator('.choice').filter({ has: page.getByText('50', { exact: true }) }).click();
+    await page.locator('.choice').filter({ has: page.getByText('Exodus', { exact: true }) }).click();
     await page.getByRole('button', { name: /^Good/ }).click();
 
     await expect(cardTitle(page, 'Quiz complete')).toBeVisible();
@@ -91,7 +91,7 @@ test.describe('mixed quiz', () => {
     await openAs(page, { store: { starred: [ITEM.mcq] } }, 'quiz');
     await scope(page, 'Starred').click();
     await page.getByRole('button', { name: 'Start quiz' }).click();
-    await page.locator('.choice').filter({ has: page.getByText('50', { exact: true }) }).click();
+    await page.locator('.choice').filter({ has: page.getByText('Exodus', { exact: true }) }).click();
     await page.getByRole('button', { name: /^Good/ }).click();
 
     await page.getByRole('button', { name: 'Retake' }).click();
@@ -117,7 +117,7 @@ test.describe('mixed quiz', () => {
 
     await expect(poolCount(page)).toContainText(/^1 question match/);
     await page.getByRole('button', { name: 'Start quiz' }).click();
-    await expect(page.getByText('How many chapters are in Genesis?')).toBeVisible();
+    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
   });
 
   test('quiz answers feed the same review schedule', async ({ page }) => {
@@ -125,7 +125,7 @@ test.describe('mixed quiz', () => {
 
     await scope(page, 'Starred').click();
     await page.getByRole('button', { name: 'Start quiz' }).click();
-    await page.locator('.choice').filter({ has: page.getByText('50', { exact: true }) }).click();
+    await page.locator('.choice').filter({ has: page.getByText('Exodus', { exact: true }) }).click();
     await page.getByRole('button', { name: /^Good/ }).click();
     await expect(cardTitle(page, 'Quiz complete')).toBeVisible();
 
