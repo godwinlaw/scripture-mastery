@@ -93,7 +93,7 @@ export const GOSPEL_DETAILS: BookDetail[] = [
       { ref: '9', name: 'The Transfiguration and the boy with a spirit', what: 'Jesus is transfigured, then heals a boy the disciples could not: "I believe; help my unbelief!"', who: ['Peter', 'James son of Zebedee', 'John'] },
       { ref: '10', name: 'The rich young man and blind Bartimaeus', what: 'A man goes away sorrowful over his wealth; James and John ask for the best seats; Bartimaeus is healed by the roadside', who: ['Bartimaeus', 'James son of Zebedee', 'John'], where: 'Jericho' },
       { ref: '11', name: 'The entry and the fig tree', what: 'Jesus enters on a colt, curses a barren fig tree, and clears the temple — the tree found withered the next morning', who: [] },
-      { ref: '12', name: 'The widow’s two coins', what: 'She put in everything she had, all she had to live on — more than all the rich', who: [] },
+      { ref: '12', name: 'The widow’s two coins', what: 'The widow put in everything she had, all she had to live on — more than all the rich', who: [] },
       { ref: '14', name: 'Anointing, supper, arrest', what: 'A woman breaks an alabaster flask over His head; a young man flees naked from Gethsemane', who: ['Judas Iscariot'] },
       { ref: '15', name: 'The crucifixion', what: 'Crucified at the third hour, darkness from the sixth to the ninth, and a centurion says "Truly this man was the Son of God"', who: ['Pontius Pilate', 'Simon of Cyrene'], where: 'Golgotha' },
       { ref: '16', name: 'The empty tomb', what: 'The women find the stone rolled back and a young man in white saying "He has risen; he is not here"', who: ['Mary Magdalene', 'Salome'] },
@@ -153,7 +153,7 @@ export const GOSPEL_DETAILS: BookDetail[] = [
       { ref: '22', name: 'The Last Supper', what: 'Jesus institutes the meal, predicts Peter’s denial, and prays until His sweat becomes like drops of blood', who: ['Peter', 'Judas Iscariot'] },
       { ref: '23', name: 'The crucifixion', what: 'Jesus prays "Father, forgive them," promises paradise to one criminal, and dies saying "into your hands I commit my spirit"', who: ['Pontius Pilate', 'Herod Antipas', 'Simon of Cyrene'] },
       { ref: '24', name: 'The road to Emmaus', what: 'Two disciples walk seven miles with the risen Jesus, who explains Moses and all the Prophets, and know Him in the breaking of bread', who: ['Cleopas'], where: 'Emmaus' },
-      { ref: '24', name: 'The ascension', what: 'He blesses them at Bethany, is carried up into heaven, and they return with great joy', who: [], where: 'Bethany' },
+      { ref: '24', name: 'The ascension', what: 'Jesus blesses them at Bethany, is carried up into heaven, and they return with great joy', who: [], where: 'Bethany' },
     ],
     figures: [
       { name: 'Luke', did: 'The physician and Paul’s companion; the only Gentile author in the Bible', ref: 'Col 4:14' },

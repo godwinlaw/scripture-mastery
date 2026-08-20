@@ -149,8 +149,8 @@ export const GENERAL_DETAILS: BookDetail[] = [
     events: [
       { ref: '1', name: 'Add to your faith', what: 'A chain of qualities to supplement faith: virtue, knowledge, self-control, steadfastness, godliness, brotherly affection, love', who: [] },
       { ref: '1', name: 'We were eyewitnesses', what: 'Peter recalls the Transfiguration and says the prophetic word is even more sure; no prophecy came by the will of man', who: ['Peter'] },
-      { ref: '2', name: 'False teachers', what: 'They bring destructive heresies, are like waterless springs, and the examples of the flood, Sodom, and Balaam prove God knows how to judge', who: ['Noah', 'Lot', 'Balaam'] },
-      { ref: '3', name: 'Scoffers in the last days', what: 'They ask "Where is the promise of his coming?" — but with the Lord one day is as a thousand years', who: [] },
+      { ref: '2', name: 'False teachers', what: 'False teachers bring destructive heresies, are like waterless springs, and the examples of the flood, Sodom, and Balaam prove God knows how to judge', who: ['Noah', 'Lot', 'Balaam'] },
+      { ref: '3', name: 'Scoffers in the last days', what: 'Scoffers ask "Where is the promise of his coming?" — but with the Lord one day is as a thousand years', who: [] },
       { ref: '3', name: 'The day of the Lord', what: 'The heavens will pass away with a roar; we wait for new heavens and a new earth in which righteousness dwells', who: ['Paul'] },
     ],
     figures: [
@@ -252,8 +252,8 @@ export const GENERAL_DETAILS: BookDetail[] = [
     written: 'c. AD 85–95',
     outline: [{ ch: '1-8', title: 'Gaius commended for walking in truth and supporting the brothers' }, { ch: '9-11', title: 'Diotrephes, who likes to put himself first' }, { ch: '12-15', title: 'Demetrius commended, and a closing hope to visit' }],
     events: [
-      { ref: '2-8', name: 'Gaius praised', what: 'His soul prospers, he walks in truth, and he supports brothers who went out for the sake of the name, accepting nothing from the Gentiles', who: ['Gaius'] },
-      { ref: '9-10', name: 'Diotrephes', what: 'He loves to be first, refuses to welcome the brothers, talks wicked nonsense, and puts out those who would welcome them', who: ['Diotrephes'] },
+      { ref: '2-8', name: 'Gaius praised', what: 'Gaius’s soul prospers, he walks in truth, and he supports brothers who went out for the sake of the name, accepting nothing from the Gentiles', who: ['Gaius'] },
+      { ref: '9-10', name: 'Diotrephes', what: 'Diotrephes loves to be first, refuses to welcome the brothers, talks wicked nonsense, and puts out those who would welcome them', who: ['Diotrephes'] },
       { ref: '12', name: 'Demetrius', what: 'Well spoken of by everyone and by the truth itself', who: ['Demetrius'] },
     ],
     figures: [
