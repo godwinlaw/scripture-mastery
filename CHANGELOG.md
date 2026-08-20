@@ -5,6 +5,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Added
+
+- **Type the reference for a bonus** ([#14]). Questions whose answer is a place
+  in scripture — 1,067 of them, about 17% of the bank — now ask you to name it
+  before showing any options at all. *Where does this happen? "The walls of
+  Jericho fall after seven days of marching"* opens on a text box, not four
+  choices. Name it and the card files itself as **Easy** without asking you to
+  grade it; naming a reference is a strictly harder thing than recognising one.
+  Abbreviations are fine ("Josh 6" = "Joshua 6"), and so is extra precision —
+  "Genesis 3:15" answers a question about Genesis 3, because more knowledge
+  should never score worse. One attempt: a wrong guess costs the bonus but not
+  the question, dropping you to the ordinary multiple choice, and
+  "Show me the choices" declines the bonus outright for a normal score.
+  References are parsed structurally rather than compared as text, so "Genesis
+  3" cannot answer "Genesis 30" and the colon in "1 Cor 15:1-8" survives.
+
+- **App icon** ([#7]). The "Blade on the page" mark (design 2a) — a paper ribbon
+  marker on a steel field with the sword of Hebrews 4:12 struck through it.
+  Shipped in two cuts, since the design gives small sizes their own treatment:
+  `favicon.svg` widens the blade and drops the passage rules that turn to mush
+  in a browser tab, while `icon.svg` keeps the full detail for app tiles.
+  Adds `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, and a web
+  manifest, so the app installs with a real icon rather than a blank tile.
+  Colours are the app's existing tokens (`--color-accent-900` steel,
+  `--color-bg` paper, `--color-accent` rules), written as literals because an
+  SVG loaded as a favicon never sees the document's custom properties.
+
 ### Changed
 
 - **Question cues name their subject instead of opening on a bare pronoun**
@@ -104,19 +131,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   submitted an arrangement without ever checking it, turning the race into a
   confusing count mismatch three assertions later.
 
-### Added
-
-- **App icon** ([#7]). The "Blade on the page" mark (design 2a) — a paper ribbon
-  marker on a steel field with the sword of Hebrews 4:12 struck through it.
-  Shipped in two cuts, since the design gives small sizes their own treatment:
-  `favicon.svg` widens the blade and drops the passage rules that turn to mush
-  in a browser tab, while `icon.svg` keeps the full detail for app tiles.
-  Adds `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, and a web
-  manifest, so the app installs with a real icon rather than a blank tile.
-  Colours are the app's existing tokens (`--color-accent-900` steel,
-  `--color-bg` paper, `--color-accent` rules), written as literals because an
-  SVG loaded as a favicon never sees the document's custom properties.
-
 [#7]: https://github.com/godwinlaw/scripture-mastery/issues/7
 
 [#8]: https://github.com/godwinlaw/scripture-mastery/issues/8
@@ -130,6 +144,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#12]: https://github.com/godwinlaw/scripture-mastery/issues/12
 
 [#13]: https://github.com/godwinlaw/scripture-mastery/issues/13
+
+[#14]: https://github.com/godwinlaw/scripture-mastery/issues/14
 
 [#15]: https://github.com/godwinlaw/scripture-mastery/issues/15
 
