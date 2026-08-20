@@ -738,6 +738,40 @@ dl.facts dd { margin: 0; }
   opacity: 0.5;
   margin-top: 6px;
 }
+
+/* --- Sign-in (#23) ------------------------------------------------------- */
+
+/* The mark at the size of a face, not a favicon. It carries its own steel
+   ground, so it needs no plate behind it in either theme. */
+.signin-mark {
+  display: block;
+  margin: 0 auto 18px;
+  width: 88px;
+  height: 88px;
+}
+
+/* The motto, quoted rather than asserted: indented, italic, with the citation
+   on its own line beneath. `blockquote` and `cite` carry the meaning; the
+   reset strips their default margins, so both are restated here. */
+.signin-motto {
+  margin: 0 0 18px;
+  padding: 0 4px;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 12.5px;
+  line-height: 1.6;
+  text-wrap: pretty;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.signin-motto cite {
+  display: block;
+  margin-top: 7px;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-text) 45%, transparent);
+}
 .boot-splash .rule {
   height: 4px;
   margin: 26px auto 14px;

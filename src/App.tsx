@@ -8,6 +8,7 @@ import Progress from './views/Progress';
 import { useStore } from './lib/useStore';
 import { allItems } from './lib/generate';
 import { ALLOWED_DOMAINS, signIn, signOutUser } from './lib/firebase';
+import GoogleMark from './ui/GoogleMark';
 import { BootSplash, MobileGate, Corners, Segmented, useIsMobile } from './ui';
 import { copy } from './copy';
 import { useThemeMode, type ThemeMode } from './lib/theme';
@@ -86,6 +87,17 @@ export default function App() {
         <div className="empty screen">
           <div className="blueprint" style={{ maxWidth: 360, margin: '0 auto', padding: '40px 32px' }}>
             <Corners />
+            {/* The mark, at a size that reads as the app's face rather than a
+                favicon. Sourced from the same file the browser tab uses, so
+                the two cannot drift; BASE_URL keeps it correct under vite's
+                relative `base`. */}
+            <img
+              className="signin-mark"
+              src={`${import.meta.env.BASE_URL}icon.svg`}
+              alt=""
+              width={88}
+              height={88}
+            />
             <div
               style={{
                 fontFamily: 'var(--font-heading)',
@@ -98,6 +110,10 @@ export default function App() {
             >
               {copy.appName}
             </div>
+            <blockquote className="signin-motto">
+              {copy.motto.text}
+              <cite>{copy.motto.ref}</cite>
+            </blockquote>
             <p className="small muted">
               {denied
                 ? copy.auth.denied(api.user?.email, ALLOWED_DOMAINS)
@@ -118,6 +134,7 @@ export default function App() {
                     );
                   }}
                 >
+                  <GoogleMark />
                   {copy.auth.signInButton}
                 </button>
               )}

@@ -32,7 +32,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `--color-bg` paper, `--color-accent` rules), written as literals because an
   SVG loaded as a favicon never sees the document's custom properties.
 
+### Fixed
+
+- **The app icon never actually rendered** (found while doing [#23]). Both
+  `icon.svg` and `favicon.svg` shipped malformed in [#7]: an XML comment cannot
+  contain a literal double hyphen, and the comment documenting the colour
+  tokens spelled them `--color-accent-900`. A standalone SVG is parsed as XML,
+  so every browser drew a broken image — while the files returned 200 with the
+  right content-type, which is why serving them looked fine. The comments now
+  name the tokens without their leading dashes and say why, and both files
+  gained intrinsic `width`/`height`. `tests/e2e/icons.spec.ts` now decodes each
+  icon and parses it as XML, because checking that an asset is *served* proves
+  nothing about whether it *renders*.
+
+- **A race in the e2e ordering helper.** `arrangeInto` re-read the list
+  immediately after clicking "Move up", so under load it could compute an index
+  from the pre-click DOM and walk the wrong row. It now waits for each row to
+  land before re-reading, and asserts the finished arrangement — one caller
+  submitted an arrangement without ever checking it, turning the race into a
+  confusing count mismatch three assertions later.
+
 ### Changed
+
+- **The sign-in screen shows the mark, the verse, and Google's own glyph**
+  ([#23]). The app icon appears at 88px as the app's face rather than a
+  favicon; the motto verse is quoted beneath the wordmark with its citation;
+  and the sign-in button carries the official four-colour Google "G", as
+  Google's branding guidelines require for a "Sign in with Google" control.
+  The verse moved to a top-level `copy.motto` so the splash and the sign-in
+  speak from one source — a verse transcribed twice is one that will eventually
+  disagree with itself.
 
 - **The motto verse is 2 Timothy 2:15 ESV** ([#22]). The boot splash now reads
   *"Do your best to present yourself to God as one approved, a worker who has
@@ -131,15 +160,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   longest chapter in the Bible?" → Psalm 119). Bank is now 6,514 items and
   every book still clears the 20-question floor.
 
-### Fixed
-
-- **A race in the e2e ordering helper.** `arrangeInto` re-read the list
-  immediately after clicking "Move up", so under load it could compute an index
-  from the pre-click DOM and walk the wrong row. It now waits for each row to
-  land before re-reading, and asserts the finished arrangement — one caller
-  submitted an arrangement without ever checking it, turning the race into a
-  confusing count mismatch three assertions later.
-
 [#5]: https://github.com/godwinlaw/scripture-mastery/issues/5
 
 [#7]: https://github.com/godwinlaw/scripture-mastery/issues/7
@@ -164,3 +184,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 [#22]: https://github.com/godwinlaw/scripture-mastery/issues/22
 
+
+[#23]: https://github.com/godwinlaw/scripture-mastery/issues/23
