@@ -19,6 +19,8 @@ test.describe('mobile gate', () => {
 
     await expect(page.getByRole('button')).toHaveCount(0);
     await expect(page.getByRole('navigation')).toBeHidden();
+    // Not expectBooted(): this asserts the splash was never shown at all — the
+    // gate refuses before it — rather than waiting for boot to finish.
     await expect(page.locator('.boot-splash')).toBeHidden();
   });
 

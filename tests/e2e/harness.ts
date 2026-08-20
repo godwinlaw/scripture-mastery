@@ -111,10 +111,28 @@ export async function seed(page: Page, options: SeedOptions = {}): Promise<void>
   }, payload);
 }
 
+/**
+ * How long to allow for the app to boot.
+ *
+ * The splash holds for a deliberate minimum — `SPLASH_MIN_MS`, 1100ms in
+ * src/App.tsx — so it reads as a screen rather than a flicker, and a cold first
+ * load also pays for the dev server transforming the whole item bank. That is a
+ * known, intended delay sitting inside what would otherwise be the generic 5s
+ * expect timeout, which leaves very little headroom on a loaded machine. So the
+ * wait carries its own budget instead. It is still a bounded wait: a genuine
+ * hang fails the test rather than stalling the run.
+ */
+export const BOOT_TIMEOUT_MS = 20_000;
+
+/** Wait for the boot splash to hand off to the app. */
+export async function expectBooted(page: Page): Promise<void> {
+  await expect(page.locator('.boot-splash')).toBeHidden({ timeout: BOOT_TIMEOUT_MS });
+}
+
 /** Navigate to a tab and wait out the boot splash's minimum hold. */
 export async function openApp(page: Page, tab = 'home'): Promise<void> {
   await page.goto(`/#${tab}`);
-  await expect(page.locator('.boot-splash')).toBeHidden();
+  await expectBooted(page);
 }
 
 /** Seed a member, then open the app — the common two-line preamble. */

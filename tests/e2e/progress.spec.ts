@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { ITEM, daysFromNow, daysUntil, dueCard, expectStat, leechCard, openApp, openAs, readStore, seed, storeWith } from './harness';
+import { ITEM, daysFromNow, daysUntil, dueCard, expectBooted, expectStat, leechCard, openApp, openAs, readStore, seed, storeWith } from './harness';
 
 test.describe('progress and settings', () => {
   test('session limits are editable and survive a reload', async ({ page }) => {
@@ -12,7 +12,7 @@ test.describe('progress and settings', () => {
     expect((await readStore(page)).settings).toMatchObject({ newLimit: 35, sessionLimit: 120 });
 
     await page.reload();
-    await expect(page.locator('.boot-splash')).toBeHidden();
+    await expectBooted(page);
     await expect(page.locator('#nl')).toHaveValue('35');
     await expect(page.locator('#sl')).toHaveValue('120');
   });

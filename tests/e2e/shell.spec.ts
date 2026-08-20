@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { MEMBER, OUTSIDER, expectStat, openApp, openAs, seed } from './harness';
+import { BOOT_TIMEOUT_MS, MEMBER, OUTSIDER, expectStat, openApp, openAs, seed } from './harness';
 
 test.describe('shell and auth', () => {
   test('a signed-out visitor gets the sign-in prompt, not the app', async ({ page }) => {
@@ -46,7 +46,7 @@ test.describe('shell and auth', () => {
 
     const splash = page.locator('.boot-splash');
     await expect(splash).toHaveAttribute('aria-label', 'Scripture Mastery — Loading…');
-    await expect(splash).toBeHidden();
+    await expect(splash).toBeHidden({ timeout: BOOT_TIMEOUT_MS });
     await expect(page.getByRole('navigation')).toBeVisible();
   });
 
