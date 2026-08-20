@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TOPIC_LABELS, type Item } from '../data/types';
 import type { Grade } from '../lib/srs';
 import { shuffle } from '../lib/rng';
+import { isReference, referenceMatches } from '../lib/reference';
 
 interface Props {
   item: Item;
@@ -46,6 +47,18 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
   const [arranged, setArranged] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Questions whose answer is a place in scripture open with a chance to name
+   * it from memory, before any options are on screen (#14). Naming a reference
+   * is strictly harder than recognising one, so getting it this way is worth a
+   * grade you would otherwise have to award yourself.
+   */
+  const hasBonusRound = item.kind === 'mcq' && isReference(item.answer);
+  const [bonusOpen, setBonusOpen] = useState(hasBonusRound);
+  const [bonusMissed, setBonusMissed] = useState(false);
+  /** Named the reference unprompted — the card grades itself Easy on advance. */
+  const [bonusEarned, setBonusEarned] = useState(false);
+
   const options = useMemo(
     () => (item.kind === 'mcq' ? shuffle([item.answer, ...(item.distractors ?? [])]) : []),
     // Reshuffle per item so the answer is not always in the same slot.
@@ -58,11 +71,37 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     setRevealed(false);
     setWasCorrect(false);
     setArranged(item.kind === 'order' ? shuffle(item.sequence ?? []) : []);
-    if (item.kind === 'type') setTimeout(() => inputRef.current?.focus(), 30);
+    setBonusOpen(hasBonusRound);
+    setBonusMissed(false);
+    setBonusEarned(false);
+    if (item.kind === 'type' || hasBonusRound) setTimeout(() => inputRef.current?.focus(), 30);
   }, [item.id]);
 
   function resolve(correct: boolean) {
     setWasCorrect(correct);
+    setRevealed(true);
+  }
+
+  /** Give up on the bonus and show the four options at the normal score. */
+  function showChoices() {
+    setBonusOpen(false);
+    setTyped('');
+  }
+
+  function submitReference() {
+    if (revealed || !bonusOpen) return;
+    if (!referenceMatches(typed, item.answer)) {
+      // One attempt. A wrong guess costs the bonus, not the question — the
+      // options appear and the card is scored the ordinary way from here.
+      setBonusMissed(true);
+      showChoices();
+      return;
+    }
+    // Reveal first. Grading immediately would advance the session before the
+    // member ever saw "Correct" or the explanation, which is the part of a
+    // right answer worth keeping.
+    setBonusEarned(true);
+    setWasCorrect(true);
     setRevealed(true);
   }
 
@@ -95,18 +134,26 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     function onKey(e: KeyboardEvent) {
       const typing = document.activeElement?.tagName === 'INPUT';
       if (!revealed) {
-        if (item.kind === 'mcq' && /^[1-4]$/.test(e.key)) {
+        // While the bonus round is up the options are not on screen, so the
+        // number keys must not reach behind it and answer for you.
+        if (item.kind === 'mcq' && !bonusOpen && /^[1-4]$/.test(e.key)) {
           const opt = options[Number(e.key) - 1];
           if (opt) { e.preventDefault(); choose(opt); }
         }
         if (e.key === 'Enter') {
           e.preventDefault();
-          if (item.kind === 'type') submitTyped();
-          if (item.kind === 'order') submitOrder();
+          if (bonusOpen) submitReference();
+          else if (item.kind === 'type') submitTyped();
+          else if (item.kind === 'order') submitOrder();
         }
         return;
       }
       if (typing) return;
+      if (bonusEarned) {
+        // No grade to choose — Enter just advances, filed as Easy.
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onGrade(3); }
+        return;
+      }
       if (!wasCorrect) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onGrade(0); }
         return;
@@ -118,7 +165,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [revealed, wasCorrect, options, item.id, typed, arranged]);
+  }, [revealed, wasCorrect, options, item.id, typed, arranged, bonusOpen, bonusEarned]);
 
   const correctIndex = (item.sequence ?? []).reduce<Record<string, number>>((m, s, i) => ({ ...m, [s]: i }), {});
 
@@ -144,8 +191,41 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
 
       <p className="q-prompt">{item.prompt}</p>
 
-      {item.kind === 'mcq' && (
+      {bonusOpen && (
+        <div>
+          <input
+            ref={inputRef}
+            className="answer"
+            value={typed}
+            disabled={revealed}
+            placeholder="Type the reference, e.g. Josh 6"
+            aria-label="Type the reference for a bonus"
+            onChange={(e) => setTyped(e.target.value)}
+          />
+          {/* Once it is answered the round is over: leave what was typed on
+              screen, but take away the controls that would re-open it. */}
+          {!revealed && (
+            <>
+              <div className="row" style={{ marginTop: 12 }}>
+                <button className="btn primary" onClick={submitReference}>Check reference</button>
+                <button className="btn sm" onClick={showChoices}>Show me the choices</button>
+              </div>
+              <p className="tiny muted" style={{ marginTop: 10, marginBottom: 0 }}>
+                Name it and the card grades itself Easy. Abbreviations are fine.
+                Take the choices instead and it scores as normal.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+
+      {item.kind === 'mcq' && !bonusOpen && (
         <div className="choices">
+          {bonusMissed && !revealed && (
+            <p className="tiny muted" style={{ margin: '0 0 10px' }}>
+              Not that reference — no bonus. Pick it from the choices instead.
+            </p>
+          )}
           {options.map((opt, i) => {
             const cls = !revealed ? '' : opt === item.answer ? ' correct' : opt === picked ? ' wrong' : '';
             return (
@@ -215,7 +295,16 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
           {item.explain && <div className="why">{item.explain}</div>}
 
           <div className="row" style={{ marginTop: 14 }}>
-            {wasCorrect ? (
+            {bonusEarned ? (
+              // Named unprompted, which is the strongest evidence of recall
+              // this app can collect — so it grades itself Easy rather than
+              // asking. The button still exists, to keep the explanation on
+              // screen until the member is done reading it.
+              <button className="btn primary sm" onClick={() => onGrade(3)}>
+                Continue <span className="kbd">↵</span>
+                <span className="hint">named it — filed as Easy</span>
+              </button>
+            ) : wasCorrect ? (
               <>
                 <button className="btn sm" onClick={() => onGrade(1)}>
                   Hard <span className="kbd">1</span>
