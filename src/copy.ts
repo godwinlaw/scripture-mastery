@@ -27,8 +27,8 @@ export const copy = {
   },
 
   boot: {
-    // 2 Timothy 2:15 — the trainer's own charge, not a slogan.
-    epigraph: '“Study to shew thyself approved.”',
+    // Hebrews 4:12 ESV — the trainer's own charge, not a slogan.
+    epigraph: '“For the word of God is living and active, sharper than any two-edged sword.”',
     steps: ['Indexing the canon', 'Restoring your progress', 'Queueing today’s review'],
   },
 

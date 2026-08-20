@@ -2,13 +2,14 @@ import { useMemo, useState } from 'react';
 import { Card, Corners, CountUp, Meter, Segmented, Field, space } from '../ui';
 import QuestionCard from '../components/QuestionCard';
 import { allItems, ITEMS_BY_ID } from '../lib/generate';
+import { ESSENTIAL_ITEM_IDS } from '../lib/generate-essentials';
 import { BOOKS } from '../data/books';
 import { TOPIC_LABELS, type Topic } from '../data/types';
 import { shuffle } from '../lib/rng';
 import { strength, type Grade } from '../lib/srs';
 import type { StoreApi } from '../lib/useStore';
 
-type Scope = 'all' | 'OT' | 'NT' | 'starred' | 'weak';
+type Scope = 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
 
 export default function Quiz({ api }: { api: StoreApi }) {
   const { store, cards, answer, toggleStar } = api;
@@ -32,6 +33,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
     if (book !== 'all') out = out.filter((i) => i.book === book);
     if (scope === 'OT') out = out.filter((i) => i.book && otIds.has(i.book));
     if (scope === 'NT') out = out.filter((i) => i.book && ntIds.has(i.book));
+    if (scope === 'essentials') out = out.filter((i) => ESSENTIAL_ITEM_IDS.has(i.id));
     if (scope === 'starred') out = out.filter((i) => store.starred.includes(i.id));
     if (scope === 'weak') {
       out = out
@@ -109,6 +111,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
                   { label: 'Everything', value: 'all' },
                   { label: 'Old Testament', value: 'OT' },
                   { label: 'New Testament', value: 'NT' },
+                  { label: 'Must-know lists', value: 'essentials' },
                   { label: 'Starred', value: 'starred' },
                   { label: 'Weak spots', value: 'weak' },
                 ]}

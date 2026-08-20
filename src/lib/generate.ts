@@ -4,6 +4,7 @@ import { ERAS, EVENTS } from '../data/timeline';
 import { AUTHORED, LIST_DECOYS, LISTS } from '../data/extras';
 import type { Item } from '../data/types';
 import { buildDetailItems } from './generate-detail';
+import { buildEssentialItems } from './generate-essentials';
 import { pickDistractors, seededShuffle } from './rng';
 
 const bookNames = BOOKS.map((b) => b.name);
@@ -414,6 +415,7 @@ export function allItems(): Item[] {
   const items = [
     ...buildBookItems(),
     ...buildDetailItems(),
+    ...buildEssentialItems(),
     ...buildPeopleItems(),
     ...buildTimelineItems(),
     ...buildListItems(),
