@@ -1,10 +1,13 @@
-import { BOOKS, isPropheticBook } from '../data/books';
+import { BOOKS, isPropheticBook, nearbyPool } from '../data/books';
 import { DETAILS, type BookDetail, type DetailEvent } from '../data/details';
 import type { Item } from '../data/types';
 import { pickDistractors, seededShuffle } from './rng';
 
 const bookName = new Map(BOOKS.map((b) => [b.id, b.name]));
 const bookAbbr = new Map(BOOKS.map((b) => [b.id, b.abbr]));
+
+/** Lets a Book-keyed pool walk reach that book's detail entry (#10). */
+const detailByBook = new Map(DETAILS.map((d) => [d.book, d]));
 
 /** Every "what" across every book — the pool for chapter-content distractors. */
 const allEventWhats = DETAILS.flatMap((d) => d.events.map((e) => e.what));
@@ -93,7 +96,11 @@ function eventItems(d: BookDetail): Item[] {
       prompt: `Where does this happen? "${e.what}"`,
       answer: `${abbr} ${e.ref}`,
       distractors: pickDistractors(
-        DETAILS.flatMap((x) => x.events.map((y) => `${bookAbbr.get(x.book)} ${y.ref}`)),
+        nearbyPool(
+          d.book,
+          (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => `${bookAbbr.get(x.id)} ${y.ref}`),
+          `${abbr} ${e.ref}`,
+        ),
         `${abbr} ${e.ref}`, 3, `evr-${key}`,
       ),
       explain: `${e.name} — ${ref(d, e.ref)}.`,
@@ -324,7 +331,8 @@ function frameItems(d: BookDetail): Item[] {
       prompt: `Where is this from? "${v.text}"`,
       answer: v.ref,
       distractors: pickDistractors(
-        DETAILS.flatMap((x) => (x.verses ?? []).map((y) => y.ref)), v.ref, 3, `vs-${d.book}-${i}`,
+        nearbyPool(d.book, (x) => (detailByBook.get(x.id)?.verses ?? []).map((y) => y.ref), v.ref),
+        v.ref, 3, `vs-${d.book}-${i}`,
       ),
       explain: `${name} — ${d.purpose}`,
     });
