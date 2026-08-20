@@ -1149,5 +1149,17 @@ export const BOOKS_BY_ID: Record<string, Book> = Object.fromEntries(
 export const OT = BOOKS.filter((b) => b.testament === 'OT');
 export const NT = BOOKS.filter((b) => b.testament === 'NT');
 
+/**
+ * The prophets are the one stretch of the canon where a book's summary is the
+ * thing worth knowing: seventeen books with overlapping vocabulary, and no
+ * narrative spine to hang them on, so "which book is this?" is a real question
+ * rather than a recital. Everywhere else the summary questions were noise, and
+ * #9 stopped generating them.
+ */
+export function isPropheticBook(bookId: string): boolean {
+  const division = BOOKS_BY_ID[bookId]?.division;
+  return division === 'Major Prophets' || division === 'Minor Prophets';
+}
+
 /** Chapter totals — useful as a self-check that the data stayed intact. */
 export const TOTAL_CHAPTERS = BOOKS.reduce((n, b) => n + b.chapters, 0); // 1189

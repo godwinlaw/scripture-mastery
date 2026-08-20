@@ -1,4 +1,4 @@
-import { BOOKS } from '../data/books';
+import { BOOKS, isPropheticBook } from '../data/books';
 import { DETAILS, type BookDetail, type DetailEvent } from '../data/details';
 import type { Item } from '../data/types';
 import { pickDistractors, seededShuffle } from './rng';
@@ -260,21 +260,25 @@ function frameItems(d: BookDetail): Item[] {
   const items: Item[] = [];
   const name = bookName.get(d.book)!;
 
-  items.push({
-    id: `det-purpose-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 2, book: d.book,
-    prompt: `Why was ${name} written?`,
-    answer: d.purpose,
-    distractors: pickDistractors(allPurposes, d.purpose, 3, `pur-${d.book}`),
-    explain: `Audience: ${d.audience}.`,
-  });
+  // Purpose and audience summarise the book rather than teach its contents, so
+  // they follow the same prophets-only rule as the other summary questions (#9).
+  if (isPropheticBook(d.book)) {
+    items.push({
+      id: `det-purpose-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 2, book: d.book,
+      prompt: `Why was ${name} written?`,
+      answer: d.purpose,
+      distractors: pickDistractors(allPurposes, d.purpose, 3, `pur-${d.book}`),
+      explain: `Audience: ${d.audience}.`,
+    });
 
-  items.push({
-    id: `det-audience-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
-    prompt: `Who was ${name} written to?`,
-    answer: d.audience,
-    distractors: pickDistractors(allAudiences, d.audience, 3, `aud-${d.book}`),
-    explain: d.purpose,
-  });
+    items.push({
+      id: `det-audience-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
+      prompt: `Who was ${name} written to?`,
+      answer: d.audience,
+      distractors: pickDistractors(allAudiences, d.audience, 3, `aud-${d.book}`),
+      explain: d.purpose,
+    });
+  }
 
   items.push({
     id: `det-written-${d.book}`, kind: 'mcq', topic: 'timeline', tier: 3, book: d.book,
@@ -292,7 +296,7 @@ function frameItems(d: BookDetail): Item[] {
     explain: d.purpose,
   });
 
-  if (d.distinctive) {
+  if (d.distinctive && isPropheticBook(d.book)) {
     items.push({
       id: `det-distinctive-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
       prompt: `Which book is this true of? "${d.distinctive}"`,
