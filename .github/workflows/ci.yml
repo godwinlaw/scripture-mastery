@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push to the same PR supersedes an in-flight run.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Typecheck, content, browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Content integrity
+        run: npm run validate
+
+      # Both Playwright projects are Chromium-based, so that is all we install.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # No Firebase secrets here on purpose: the E2E build swaps the Firestore
+      # transport for a localStorage stand-in (see vite.config.ts), so the suite
+      # needs no credentials and cannot touch real user data.
+      - name: Browser tests
+        run: npm run test:e2e
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

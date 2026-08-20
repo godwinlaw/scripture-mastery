@@ -13,3 +13,12 @@ dist
 /.playwright-mcp/
 /shots/
 /*.png
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/.playwright/
+
+# Firebase deploy cache
+/.firebase/

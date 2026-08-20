@@ -6,10 +6,13 @@
   "description": "A spaced-repetition study system for whole-Bible survey knowledge.",
   "scripts": {
     "dev": "vite",
+    "dev:e2e": "E2E=1 vite --port 5174 --strictPort",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "check": "tsc -b --noEmit false --pretty",
-    "validate": "vite-node scripts/validate.ts"
+    "check": "tsc -b --pretty",
+    "validate": "vite-node scripts/validate.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "firebase": "^12.17.1",
@@ -17,6 +20,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
