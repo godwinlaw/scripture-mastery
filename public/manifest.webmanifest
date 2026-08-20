@@ -1,0 +1,15 @@
+{
+  "name": "Scripture Mastery",
+  "short_name": "Scripture",
+  "description": "A spaced-repetition study system for whole-Bible survey knowledge.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#1d2d3d",
+  "background_color": "#f2f2f3",
+  "icons": [
+    { "src": "./icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "./icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "./icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Scripture Mastery">
+  <title>Scripture Mastery</title>
+  <!--
+    "Blade on the page" (design 2a). A ribbon marker cut from paper on a steel
+    field, with the sword of Hebrews 4:12 struck through it in the same steel.
+
+    Colours are the app's own tokens, written as literals because an SVG loaded
+    as a favicon never sees the document's custom properties:
+      #1d2d3d  --color-accent-900   steel field / blade
+      #f2f2f3  --color-bg           paper ribbon
+      #5980a6  --color-accent       the rules standing in for the passage
+
+    This is the full-detail cut, for app tiles and any size at or above 48px.
+    favicon.svg carries the simplified small-size treatment.
+  -->
+  <rect width="64" height="64" fill="#1d2d3d"/>
+  <polygon points="19,8 45,8 45,56 32,46 19,56" fill="#f2f2f3"/>
+  <path d="M30.4,14 H33.6 V20 H39.5 V23.2 H33.6 V39 L32,44.5 L30.4,39 V23.2 H24.5 V20 H30.4 Z" fill="#1d2d3d"/>
+  <g stroke="#5980a6" stroke-width="1.6">
+    <path d="M22.5 28 H27"/><path d="M37 28 H41.5"/>
+    <path d="M22.5 34 H27"/><path d="M37 34 H41.5"/>
+  </g>
+</svg>
