@@ -84,8 +84,7 @@ export type Topic =
   | 'events'
   | 'places'
   | 'timeline'
-  | 'numbers'
-  | 'christ';
+  | 'numbers';
 
 export const TOPIC_LABELS: Record<Topic, string> = {
   'book-order': 'Book Order',
@@ -97,5 +96,4 @@ export const TOPIC_LABELS: Record<Topic, string> = {
   places: 'Places',
   timeline: 'Timeline',
   numbers: 'Numbers & Counts',
-  christ: 'Christ in Scripture',
 };

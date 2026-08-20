@@ -60,6 +60,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 
+- **"Christ in Scripture" is no longer a study category** ([#16]). The topic is
+  gone from the `Topic` union, the topic labels, both study-plan phases that
+  listed it, and the 66 "How does X point to Christ?" questions it generated.
+  The answers there are interpretive rather than recall, which made a
+  four-option quiz the wrong shape for them.
+  **The content itself is kept.** Every book's `christ` line still appears in
+  the Library's book panel and is still searchable — it is reference material
+  now rather than a question.
+
 - **Chapter-count questions** ([#8]). The 66 per-book "How many chapters are in
   X?" items are gone, along with "How many chapters are in the whole Bible?"
   (1,189) — the same species of question in the same topic. Their answer is a
@@ -104,3 +113,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#12]: https://github.com/godwinlaw/scripture-mastery/issues/12
 
 [#15]: https://github.com/godwinlaw/scripture-mastery/issues/15
+
+[#16]: https://github.com/godwinlaw/scripture-mastery/issues/16

@@ -64,7 +64,7 @@ export const PHASES: Phase[] = [
     name: 'Phase 4 — Timeline & Connections',
     goal: 'Lock the chronology and the standing lists, then connect books to eras.',
     weight: 2,
-    topics: ['timeline', 'numbers', 'summaries', 'christ'],
+    topics: ['timeline', 'numbers', 'summaries'],
     scope: 'all',
     drills: [
       'Put the 14 eras in order from memory',
@@ -72,7 +72,6 @@ export const PHASES: Phase[] = [
       'Walk the must-know indexes out loud: Genesis, John, Acts, the key epistle chapters',
       'Place every book on the timeline',
       'Memorize the two fall dates: 722 BC and 586 BC',
-      'For each book, say in one sentence how it points to Christ',
     ],
   },
   {
@@ -80,7 +79,7 @@ export const PHASES: Phase[] = [
     name: 'Phase 5 — Mixed Review & Mock Quizzes',
     goal: 'No new material. Mixed review, weak spots, and full-length practice under time.',
     weight: 2,
-    topics: ['book-order', 'summaries', 'chapters', 'people', 'relationships', 'events', 'places', 'timeline', 'numbers', 'christ'],
+    topics: ['book-order', 'summaries', 'chapters', 'people', 'relationships', 'events', 'places', 'timeline', 'numbers'],
     scope: 'all',
     drills: [
       'Take a 40-question mixed quiz every other day',

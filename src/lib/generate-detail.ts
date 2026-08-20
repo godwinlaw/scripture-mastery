@@ -12,7 +12,6 @@ const detailByBook = new Map(DETAILS.map((d) => [d.book, d]));
 const allFigureDeeds = DETAILS.flatMap((d) => d.figures.map((f) => f.did));
 const allFigureNames = [...new Set(DETAILS.flatMap((d) => d.figures.map((f) => f.name)))];
 const allNumberValues = DETAILS.flatMap((d) => d.numbers?.map((n) => n.value) ?? []);
-const allChristLines = DETAILS.map((d) => d.christ);
 const allPurposes = DETAILS.map((d) => d.purpose);
 const allAudiences = [...new Set(DETAILS.map((d) => d.audience))];
 const allWritten = [...new Set(DETAILS.map((d) => d.written))];
@@ -305,13 +304,11 @@ function frameItems(d: BookDetail): Item[] {
     explain: `${name}: ${d.purpose}.`,
   });
 
-  items.push({
-    id: `det-christ-${d.book}`, kind: 'mcq', topic: 'christ', tier: 2, book: d.book,
-    prompt: `How does ${name} point to Christ?`,
-    answer: d.christ,
-    distractors: pickDistractors(allChristLines, d.christ, 3, `chr-${d.book}`),
-    explain: d.purpose,
-  });
+  // "How does X point to Christ?" was generated here as its own topic. #16
+  // dropped it as a study category: the answers are interpretive rather than
+  // recall, so a four-option quiz was the wrong shape for them. The `christ`
+  // line survives on BookDetail and still reads in the Library panel — it is
+  // reference material now, not a question.
 
   if (d.distinctive && isPropheticBook(d.book)) {
     items.push({
