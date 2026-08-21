@@ -30,6 +30,7 @@ export default function Review({ api }: { api: StoreApi }) {
     const q = buildQueue(items.map((i) => i.id), cards, {
       newLimit: store.settings.newLimit,
       sessionLimit: store.settings.sessionLimit,
+      difficulty: store.settings.difficulty,
     });
     setQueue(q);
     setPos(0);
@@ -132,6 +133,7 @@ export default function Review({ api }: { api: StoreApi }) {
           starred={store.starred.includes(item.id)}
           onToggleStar={() => toggleStar(item.id)}
           counter={`${pos + 1} / ${queue.length}`}
+          difficulty={store.settings.difficulty}
         />
       </div>
       <div className="row" style={sx({ marginTop: space[4] })}>

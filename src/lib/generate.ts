@@ -1,8 +1,9 @@
-import { BOOKS, isPropheticBook, nearbyPool } from '../data/books';
+import { BOOKS, isPropheticBook } from '../data/books';
 import { PEOPLE, PLACES } from '../data/people';
 import { ERAS, EVENTS } from '../data/timeline';
 import { AUTHORED, LIST_DECOYS, LISTS } from '../data/extras';
 import type { Item } from '../data/types';
+import { distractorSets } from './distractors';
 import { buildDetailItems } from './generate-detail';
 import { buildEssentialItems } from './generate-essentials';
 import { pickDistractors, seededShuffle } from './rng';
@@ -70,18 +71,19 @@ function buildBookItems(): Item[] {
         id: `gen-chapter-${b.id}-${kc.ch}`, kind: 'mcq', topic: 'chapters', tier: 2, book: b.id,
         prompt: `What happens in ${b.name} ${kc.ch}?`,
         answer: kc.what,
-        distractors: pickDistractors(
-          nearbyPool(b.id, (x) => x.keyChapters.map((k) => k.what), kc.what),
-          kc.what, 3, `chwhat-${b.id}-${kc.ch}`,
+        // Chapter Content, so `hard` may stay inside this one book (#36).
+        ...distractorSets(
+          b.id, (x) => x.keyChapters.map((k) => k.what), kc.what,
+          `chwhat-${b.id}-${kc.ch}`, 'book',
         ),
       });
       items.push({
         id: `gen-locate-${b.id}-${kc.ch}`, kind: 'mcq', topic: 'chapters', tier: 2, book: b.id,
         prompt: `Where does this happen? "${kc.what}"`,
         answer: `${b.name} ${kc.ch}`,
-        distractors: pickDistractors(
-          nearbyPool(b.id, (x) => x.keyChapters.map((k) => `${x.name} ${k.ch}`), `${b.name} ${kc.ch}`),
-          `${b.name} ${kc.ch}`, 3, `loc-${b.id}-${kc.ch}`,
+        ...distractorSets(
+          b.id, (x) => x.keyChapters.map((k) => `${x.name} ${k.ch}`), `${b.name} ${kc.ch}`,
+          `loc-${b.id}-${kc.ch}`, 'book',
         ),
       });
     }
@@ -96,12 +98,17 @@ function buildBookItems(): Item[] {
       // The ban is folded into the extract rather than applied afterwards, so
       // the widening in nearbyPool counts only books it can actually offer —
       // filtering after the fact could leave a division short and still stop (#12).
-      const pool = nearbyPool(b.id, (x) => (banned.has(x.name) ? [] : [x.name]), b.name);
+      // It stays inside the extract for all three difficulty pools, for the
+      // same reason.
       items.push({
         id: `gen-event-${b.id}-${slug(ev)}`, kind: 'mcq', topic: 'events', tier: 2, book: b.id,
         prompt: `In which book does this occur: ${ev}?`,
         answer: b.name,
-        distractors: pickDistractors(pool, b.name, 3, `ev-${b.id}-${ev}`),
+        // The answer is a book, so the tightest `hard` can be is the division.
+        ...distractorSets(
+          b.id, (x) => (banned.has(x.name) ? [] : [x.name]), b.name,
+          `ev-${b.id}-${ev}`, 'division',
+        ),
         explain: b.oneLine,
       });
     }
@@ -112,10 +119,7 @@ function buildBookItems(): Item[] {
         id: `gen-verse-${b.id}`, kind: 'mcq', topic: 'chapters', tier: 3, book: b.id,
         prompt: `Which book is this from? "${b.keyVerse.text}"`,
         answer: b.name,
-        distractors: pickDistractors(
-          nearbyPool(b.id, (x) => [x.name], b.name),
-          b.name, 3, `kv-${b.id}`,
-        ),
+        ...distractorSets(b.id, (x) => [x.name], b.name, `kv-${b.id}`, 'book'),
         explain: `${b.keyVerse.ref} (ESV)`,
       });
     }

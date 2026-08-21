@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { TOPIC_LABELS, type Item } from '../data/types';
+import { TOPIC_LABELS, type Difficulty, type Item } from '../data/types';
 import type { Grade } from '../lib/srs';
 import { shuffle } from '../lib/rng';
 import { isReference, referenceMatches } from '../lib/reference';
@@ -11,6 +11,8 @@ interface Props {
   onToggleStar?: () => void;
   /** Shown top-right, e.g. "12 / 40". */
   counter?: string;
+  /** Which of the item's option sets to offer (#36). Omitted means medium. */
+  difficulty?: Difficulty;
 }
 
 /** Loose comparison so "3 days" and "three days" both count. */
@@ -39,7 +41,7 @@ function matches(input: string, item: Item): boolean {
   return targets.some((t) => t === got || (t.length > 4 && got.length > 4 && (t.includes(got) || got.includes(t))));
 }
 
-export default function QuestionCard({ item, onGrade, starred, onToggleStar, counter }: Props) {
+export default function QuestionCard({ item, onGrade, starred, onToggleStar, counter, difficulty }: Props) {
   const [picked, setPicked] = useState<string | null>(null);
   const [typed, setTyped] = useState('');
   const [revealed, setRevealed] = useState(false);
@@ -59,10 +61,20 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
   /** Named the reference unprompted — the card grades itself Easy on advance. */
   const [bonusEarned, setBonusEarned] = useState(false);
 
+  /**
+   * The setting chooses which of the item's option sets is offered (#36).
+   *
+   * `medium` has no entry of its own — it *is* `distractors` — and plenty of
+   * items carry no alternates at all, because the essentials lists and the
+   * hand-written extras draw their options from somewhere other than the
+   * canon. Both cases land on the same fallback.
+   */
+  const wrong = item.distractorsBy?.[difficulty ?? 'medium'] ?? item.distractors ?? [];
+
   const options = useMemo(
-    () => (item.kind === 'mcq' ? shuffle([item.answer, ...(item.distractors ?? [])]) : []),
+    () => (item.kind === 'mcq' ? shuffle([item.answer, ...wrong]) : []),
     // Reshuffle per item so the answer is not always in the same slot.
-    [item.id],
+    [item.id, difficulty],
   );
 
   useEffect(() => {

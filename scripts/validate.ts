@@ -12,7 +12,7 @@ import { ESSENTIALS, ESSENTIAL_ALIASES, ESSENTIAL_ENTRY_COUNT } from '../src/dat
 import { LISTS } from '../src/data/extras';
 import { ESSENTIAL_ITEM_IDS } from '../src/lib/generate-essentials';
 import { TOPIC_LABELS } from '../src/data/types';
-import type { Item } from '../src/data/types';
+import type { Difficulty, Item } from '../src/data/types';
 import { allItems } from '../src/lib/generate';
 
 const items = allItems();
@@ -34,6 +34,19 @@ hard('items with an empty prompt or answer', items.filter((i) => !i.prompt.trim(
 hard('mcq items with fewer than 3 distractors', items.filter((i) => i.kind === 'mcq' && (i.distractors?.length ?? 0) < 3), (i: Item) => i.id);
 hard('mcq items whose answer is also a distractor', items.filter((i) => i.distractors?.includes(i.answer)), (i: Item) => `${i.id} | ${i.prompt}`);
 hard('mcq items with duplicate distractors', items.filter((i) => i.distractors && dupes(i.distractors).length > 0), (i: Item) => i.id);
+// The easy and hard option sets (#36) are generated content in exactly the way
+// the medium set is, and the card swaps one in wholesale at render. The three
+// gates above only ever look at `distractors`, so a leaked answer or a short
+// pool in an alternate set would ship invisibly — to anyone who had moved off
+// the default setting, which is the whole point of having it.
+(['easy', 'hard'] as Difficulty[]).forEach((level) => {
+  const withSet = items.filter((i) => i.distractorsBy?.[level]);
+  const optionsOf = (i: Item) => i.distractorsBy![level]!;
+  hard(`mcq items with fewer than 3 ${level} distractors`, withSet.filter((i) => optionsOf(i).length < 3), (i: Item) => i.id);
+  hard(`mcq items whose answer is also a ${level} distractor`, withSet.filter((i) => optionsOf(i).includes(i.answer)), (i: Item) => `${i.id} | ${i.prompt}`);
+  hard(`mcq items with duplicate ${level} distractors`, withSet.filter((i) => dupes(optionsOf(i)).length > 0), (i: Item) => i.id);
+});
+
 hard('order items with a duplicated step', items.filter((i) => i.kind === 'order' && i.sequence && dupes(i.sequence).length > 0), (i: Item) => i.id);
 hard('order items with fewer than 3 steps', items.filter((i) => i.kind === 'order' && (i.sequence?.length ?? 0) < 3), (i: Item) => i.id);
 hard('items pointing at a book that does not exist', items.filter((i) => i.book && !BOOKS.some((b) => b.id === i.book)), (i: Item) => `${i.id} -> ${i.book}`);

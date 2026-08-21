@@ -4,7 +4,9 @@ import { ITEM, daysFromNow, daysUntil, dueCard, expectBooted, expectStat, leechC
 
 test.describe('progress and settings', () => {
   test('session limits are editable and survive a reload', async ({ page }) => {
-    await openAs(page, {}, 'progress');
+    // These three fields moved to the Settings panel in #36; the ids are
+    // unchanged, so only the tab they are reached through differs.
+    await openAs(page, {}, 'settings');
 
     await page.locator('#nl').fill('35');
     await page.locator('#sl').fill('120');
@@ -18,7 +20,7 @@ test.describe('progress and settings', () => {
   });
 
   test('the quiz date drives the countdown in the header', async ({ page }) => {
-    await openAs(page, {}, 'progress');
+    await openAs(page, {}, 'settings');
 
     await page.locator('#exam2').fill(daysFromNow(30));
 
@@ -26,12 +28,12 @@ test.describe('progress and settings', () => {
     expect((await readStore(page)).settings.examDate).toBe(daysFromNow(30));
   });
 
-  test('the study plan and Progress share one quiz date', async ({ page }) => {
+  test('the study plan and Settings share one quiz date', async ({ page }) => {
     await openAs(page, {}, 'plan');
 
     await page.locator('#exam').fill(daysFromNow(45));
 
-    await page.getByRole('button', { name: 'Progress' }).click();
+    await page.getByRole('button', { name: 'Settings' }).click();
     await expect(page.locator('#exam2')).toHaveValue(daysFromNow(45));
   });
 

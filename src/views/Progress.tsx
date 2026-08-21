@@ -4,10 +4,10 @@ import { allItems } from '../lib/generate';
 import { isLeech, strength } from '../lib/srs';
 import { exportStore, importStore, todayISO } from '../lib/storage';
 import type { StoreApi } from '../lib/useStore';
-import { Card, CountUp, Field, Meter, color, space, sx } from '../ui';
+import { Card, CountUp, Meter, color, space, sx } from '../ui';
 
 export default function Progress({ api }: { api: StoreApi }) {
-  const { store, cards, updateSettings, replaceStore, reset, user } = api;
+  const { store, cards, replaceStore, reset, user } = api;
   const items = allItems();
   const fileRef = useRef<HTMLInputElement>(null);
   const [note, setNote] = useState('');
@@ -154,32 +154,9 @@ export default function Progress({ api }: { api: StoreApi }) {
         </div>
       )}
 
-      <div className="section">
-        <h2>Settings</h2>
-        <Card corners>
-          <div className="grid three">
-            <Field label="Quiz date" htmlFor="exam2">
-              <input id="exam2" className="ctl" type="date" style={{ width: '100%' }}
-                value={store.settings.examDate}
-                onChange={(e) => updateSettings({ examDate: e.target.value })} />
-            </Field>
-            <Field label="New cards per session" htmlFor="nl">
-              <input id="nl" className="ctl" type="number" min={5} max={100} style={{ width: '100%' }}
-                value={store.settings.newLimit}
-                onChange={(e) => updateSettings({ newLimit: Number(e.target.value) })} />
-            </Field>
-            <Field label="Max cards per session" htmlFor="sl">
-              <input id="sl" className="ctl" type="number" min={10} max={300} style={{ width: '100%' }}
-                value={store.settings.sessionLimit}
-                onChange={(e) => updateSettings({ sessionLimit: Number(e.target.value) })} />
-            </Field>
-          </div>
-          <p className="tiny muted" style={sx({ marginTop: space[4] })}>
-            Review intervals are capped so no card is scheduled past your quiz date without one more
-            look at it.
-          </p>
-        </Card>
-      </div>
+      {/* The quiz date and the session limits used to live here as a "Settings"
+          section. They moved to the Settings panel (#36) so there is one place
+          to look for a preference. */}
 
       <div className="section">
         <h2>Your data</h2>

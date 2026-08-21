@@ -3,6 +3,7 @@
  * every card comes back at least once before the exam date. A card scheduled for
  * 60 days out is useless when the test is in 40.
  */
+import type { Difficulty } from '../data/types';
 import { shuffle } from './rng';
 
 export type Grade = 0 | 1 | 2 | 3; // again | hard | ok | easy
@@ -94,6 +95,35 @@ export interface QueueOptions {
   newLimit: number;
   /** Max total cards this session. */
   sessionLimit: number;
+  /**
+   * Which cards a truncated session should favour (#36). Absent means
+   * `medium`, which is no weighting at all.
+   */
+  difficulty?: Difficulty;
+}
+
+/**
+ * How far a point of ease can move a card in the queue, expressed in days of
+ * borrowed urgency. Large enough to reorder cards of similar overdue-ness,
+ * small enough that a badly overdue card still leads — the queue's first duty
+ * is that nothing sails past its due date unreviewed.
+ */
+const EASE_LEAN_DAYS = 3;
+
+/**
+ * Selection priority for a due card: lower goes first, and it is the cut at
+ * the session limit that really consumes this.
+ *
+ * `ease` is the scheduler's own record of how hard *this* user finds *this*
+ * card, which makes it the honest signal for the setting: `hard` pulls forward
+ * the cards you keep fumbling, `easy` pulls forward the ones you have nearly
+ * got. `medium` returns the bare due date — the same number buildQueue has
+ * always sorted on, so that path is unchanged rather than merely equivalent.
+ */
+function priority(c: CardState, difficulty: Difficulty): number {
+  if (difficulty === 'medium') return c.due;
+  const lean = difficulty === 'hard' ? 1 : -1;
+  return c.due + lean * (c.ease - 2.5) * EASE_LEAN_DAYS * DAY;
 }
 
 /**
@@ -116,13 +146,19 @@ export function buildQueue(
     else if (c.due <= now) due.push(id);
   }
 
-  due.sort((a, b) => cards[a].due - cards[b].due);
+  const difficulty = opts.difficulty ?? 'medium';
+  due.sort((a, b) => priority(cards[a], difficulty) - priority(cards[b], difficulty));
   const picked = [...due, ...fresh.slice(0, opts.newLimit)];
   // Order matters twice here, for different reasons.
   //
   // Selecting: sort by how overdue a card is, interleave the books, and only
   // then cut to the session limit — so a truncated session still takes the
   // most urgent cards and a spread of books, not the first N of one.
+  //
+  // The difficulty setting leans on that sort and nothing else (#36): it
+  // changes which cards win the cut, not how they are spread or presented.
+  // New cards are left out of the lean deliberately — every one of them has
+  // the same seeded ease, so there is no signal there to weight on.
   //
   // Presenting: shuffle what survived. The selection above is deterministic,
   // so without this you meet the same cards in the same order every day and
