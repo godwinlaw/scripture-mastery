@@ -593,8 +593,37 @@ textarea.input { min-height: 90px; resize: vertical; width: 100%; }
 .seg-opt:hover { color: var(--color-text); }
 .seg-opt[aria-checked='true'], .seg-opt[aria-pressed='true'], .seg-opt.active { background: var(--color-accent-fill); color: var(--color-on-accent); }
 
-/* header theme switch: sized down to sit with the countdown + sign-out chrome */
-.theme-seg .seg-opt { padding: 5px 11px; font-size: 12px; }
+/* A card is a flex column, so a stretch-aligned control would run the full
+   plate width; a segmented switch should stay the width of its own options. */
+.card > .seg { align-self: flex-start; }
+
+/* The notes under a segmented choice in the settings panel (#36). All the
+   options stay legible at once — the current one is the only one lit — because
+   the reader is comparing what the settings *do*, not confirming a label. */
+.choice-notes { display: grid; gap: 2px; margin: 0; }
+.choice-notes > div {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 14px;
+  padding: 9px 12px;
+  border-left: 2px solid transparent;
+  color: color-mix(in srgb, var(--color-text) 52%, transparent);
+  transition: background var(--dur-tap) var(--ease-out), color var(--dur-tap) var(--ease-out);
+}
+.choice-notes > div.is-current {
+  border-left-color: var(--color-accent);
+  background: var(--tint-surface);
+  color: var(--color-text);
+}
+.choice-notes dt {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+}
+.choice-notes dd { margin: 0; font-size: 13px; line-height: 1.55; }
 
 /* ==================================================================== data */
 table.data { width: 100%; border-collapse: collapse; font-size: 14px; }

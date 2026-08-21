@@ -1208,6 +1208,19 @@ export function nearbyPool(
 }
 
 /**
+ * Every candidate in the canon, both Testaments, with no regard for where the
+ * question came from — the one pool that is allowed to cross the seam.
+ *
+ * This exists for the `easy` setting alone (#36). Offering a Pauline epistle
+ * against a question about Leviticus is precisely the mismatch the widening
+ * rule above was written to prevent, and precisely what makes an easy card
+ * easy: the wrong options are wrong on sight.
+ */
+export function canonPool(extract: (b: Book) => string[], answer: string): string[] {
+  return [...new Set(BOOKS.flatMap(extract))].filter((s) => s !== answer);
+}
+
+/**
  * The prophets are the one stretch of the canon where a book's summary is the
  * thing worth knowing: seventeen books with overlapping vocabulary, and no
  * narrative spine to hang them on, so "which book is this?" is a real question

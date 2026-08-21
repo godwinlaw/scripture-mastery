@@ -1,10 +1,17 @@
 import type { CardState } from './srs';
+import type { Difficulty } from '../data/types';
 
 export interface Settings {
   /** ISO date of the quiz. Drives the study plan and the SRS interval clamp. */
   examDate: string;
   newLimit: number;
   sessionLimit: number;
+  /**
+   * How tightly wrong options are drawn, and which cards the queue favours.
+   * Defaults to `medium`, which is the behaviour that predates the setting,
+   * so a store written before #36 back-fills to no change at all.
+   */
+  difficulty: Difficulty;
 }
 
 export interface SessionLog {
@@ -26,6 +33,7 @@ export const DEFAULT_SETTINGS: Settings = {
   examDate: '2026-10-31',
   newLimit: 20,
   sessionLimit: 60,
+  difficulty: 'medium',
 };
 
 export function emptyStore(): Store {

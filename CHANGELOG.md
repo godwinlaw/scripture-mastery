@@ -7,6 +7,42 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A Settings panel, and a difficulty you can choose** ([#36]). Settings had
+  been scattered — the study fields inside Progress, the theme switch in the
+  header, the quiz date in two places — so there was no one screen to go to.
+  There is now: a **Settings** tab holding Study, Difficulty and Display.
+
+  **Difficulty decides where a question's wrong answers come from.** *Medium*
+  is what the trainer has always done and remains the default, so nothing
+  changes unless you ask it to: options are drawn from books near the answer's
+  own, never crossing the Old/New Testament seam ([#10], [#12]). *Easy* draws
+  from anywhere in the canon — a Colossians verse against a Leviticus question
+  is not a hard choice, which is the point. *Hard* draws Chapter Content
+  options from the answer's **own book** only, so nothing is given away by
+  context, and Events options from its own division.
+
+  Where a strict pool cannot fill four options it widens a division at a time
+  rather than offering three, because a three-choice question is *easier* than
+  a four-choice one — falling short would invert the setting instead of
+  sharpening it. All three option sets are generated up front and stored on the
+  item, rather than rebuilding the bank when the setting changes: item ids are
+  what SRS history is keyed on, so a bank that regenerated per difficulty would
+  detach every card you have ever reviewed the moment you touched the control.
+
+  Difficulty also leans the review queue, using the per-card ease the scheduler
+  already tracks — *hard* spends its time on what you keep missing, *easy* on
+  what you answer well. The lean shifts a card's effective due date by at most
+  a few days, so it reorders cards of similar urgency without ever letting a
+  badly overdue one slip. Selection still runs before the session cut, and the
+  order questions are asked in is still random ([#11]).
+
+  Verified across the whole bank: of the Chapter Content and Events questions,
+  **zero** medium or hard options cross the Testament seam, easy ones
+  deliberately do, and no alternate set is thinner than the medium one. The
+  content-integrity checks now cover the easy and hard sets too — previously
+  they only ever inspected the default one, so a leaked answer would have
+  shipped invisibly to anyone who had moved off it.
+
 - **The app mark now sits in the top bar** ([#34]). The header carried the
   wordmark alone, so the mark that identifies the app on the browser tab, on
   the sign-in screen and on an installed tile was missing from the one surface
@@ -201,3 +237,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#23]: https://github.com/godwinlaw/scripture-mastery/issues/23
 
 [#34]: https://github.com/godwinlaw/scripture-mastery/issues/34
+
+[#36]: https://github.com/godwinlaw/scripture-mastery/issues/36

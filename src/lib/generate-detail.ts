@@ -1,6 +1,7 @@
-import { BOOKS, isPropheticBook, nearbyPool } from '../data/books';
+import { BOOKS, isPropheticBook } from '../data/books';
 import { DETAILS, type BookDetail, type DetailEvent } from '../data/details';
 import type { Item } from '../data/types';
+import { distractorSets } from './distractors';
 import { pickDistractors, seededShuffle } from './rng';
 
 const bookName = new Map(BOOKS.map((b) => [b.id, b.name]));
@@ -75,20 +76,26 @@ function eventItems(d: BookDetail): Item[] {
     const shared = (refCount.get(e.ref) ?? 0) > 1;
 
     // Episode → what happened. The hardest and most useful form.
+    //
+    // Own book first, as before. The fallback used to be the whole canon; it is
+    // now the surrounding division, widening only as needed (#12). That rule is
+    // this question's medium set, so it is kept here rather than handed to
+    // distractorSets — the helper still supplies the easy and hard alternates.
+    const whatSets = distractorSets(
+      d.book,
+      (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.what),
+      e.what, `evw-${key}`, 'division',
+    );
     items.push({
       id: `det-ev-what-${key}`, kind: 'mcq', topic: 'events', tier: 2, book: d.book,
       prompt: shared
         ? `${ref(d, e.ref)} — what happens in the episode known as "${e.name}"?`
         : `${ref(d, e.ref)} — what happens?`,
       answer: e.what,
-      distractors: pickDistractors(
-        // Own book first, as before. The fallback used to be the whole canon;
-        // it is now the surrounding division, widening only as needed (#12).
-        ownWhats.length >= 6
-          ? ownWhats
-          : nearbyPool(d.book, (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.what), e.what),
-        e.what, 3, `evw-${key}`,
-      ),
+      distractors: ownWhats.length >= 6
+        ? pickDistractors(ownWhats, e.what, 3, `evw-${key}`)
+        : whatSets.distractors,
+      distractorsBy: whatSets.distractorsBy,
       explain: [e.detail, e.where ? `Where: ${e.where}.` : null].filter(Boolean).join(' '),
     });
 
@@ -97,13 +104,10 @@ function eventItems(d: BookDetail): Item[] {
       id: `det-ev-ref-${key}`, kind: 'mcq', topic: 'chapters', tier: 3, book: d.book,
       prompt: `Where does this happen? "${e.what}"`,
       answer: `${abbr} ${e.ref}`,
-      distractors: pickDistractors(
-        nearbyPool(
-          d.book,
-          (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => `${bookAbbr.get(x.id)} ${y.ref}`),
-          `${abbr} ${e.ref}`,
-        ),
-        `${abbr} ${e.ref}`, 3, `evr-${key}`,
+      ...distractorSets(
+        d.book,
+        (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => `${bookAbbr.get(x.id)} ${y.ref}`),
+        `${abbr} ${e.ref}`, `evr-${key}`, 'book',
       ),
       explain: `${e.name} — ${ref(d, e.ref)}.`,
     });
@@ -114,13 +118,16 @@ function eventItems(d: BookDetail): Item[] {
       const banned = booksWithEventName(e.name);
       // Same-division books, widening only as far as it must — "Miriam's
       // leprosy" should offer the books of Moses, not Colossians (#12). The
-      // ban is folded in so the widening counts only offerable books.
-      const pool = nearbyPool(d.book, (x) => (banned.has(x.name) ? [] : [x.name]), name);
+      // ban is folded in so the widening counts only offerable books, in every
+      // difficulty's pool alike.
       items.push({
         id: `det-ev-book-${key}`, kind: 'mcq', topic: 'events', tier: 2, book: d.book,
         prompt: `In which book do we read about this: ${e.name}?`,
         answer: name,
-        distractors: pickDistractors(pool, name, 3, `evb-${key}`),
+        ...distractorSets(
+          d.book, (x) => (banned.has(x.name) ? [] : [x.name]), name,
+          `evb-${key}`, 'division',
+        ),
         explain: `${ref(d, e.ref)} — ${e.what}.`,
       });
     }
@@ -161,16 +168,15 @@ function eventItems(d: BookDetail): Item[] {
 
     // The detail that separates this episode from every similar one.
     if (e.detail) {
-      const details = nearbyPool(
-        d.book,
-        (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.detail).filter((y): y is string => !!y),
-        e.detail,
-      );
       items.push({
         id: `det-ev-detail-${key}`, kind: 'mcq', topic: 'events', tier: 3, book: d.book,
         prompt: `Which detail belongs to this episode: ${e.name} (${ref(d, e.ref)})?`,
         answer: e.detail,
-        distractors: pickDistractors(details, e.detail, 3, `evd-${key}`),
+        ...distractorSets(
+          d.book,
+          (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.detail).filter((y): y is string => !!y),
+          e.detail, `evd-${key}`, 'division',
+        ),
         explain: e.what,
       });
     }
@@ -344,9 +350,9 @@ function frameItems(d: BookDetail): Item[] {
       id: `det-verse-${d.book}-${i}`, kind: 'mcq', topic: 'chapters', tier: 3, book: d.book,
       prompt: `Where is this from? "${v.text}"`,
       answer: v.ref,
-      distractors: pickDistractors(
-        nearbyPool(d.book, (x) => (detailByBook.get(x.id)?.verses ?? []).map((y) => y.ref), v.ref),
-        v.ref, 3, `vs-${d.book}-${i}`,
+      ...distractorSets(
+        d.book, (x) => (detailByBook.get(x.id)?.verses ?? []).map((y) => y.ref),
+        v.ref, `vs-${d.book}-${i}`, 'book',
       ),
       explain: `${name} — ${d.purpose}`,
     });

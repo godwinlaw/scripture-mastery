@@ -5,13 +5,13 @@ import Quiz from './views/Quiz';
 import Library from './views/Library';
 import Plan from './views/Plan';
 import Progress from './views/Progress';
+import Settings from './views/Settings';
 import { useStore } from './lib/useStore';
 import { allItems } from './lib/generate';
 import { ALLOWED_DOMAINS, signIn, signOutUser } from './lib/firebase';
 import GoogleMark from './ui/GoogleMark';
-import { BootSplash, MobileGate, Corners, Segmented, useIsMobile } from './ui';
+import { BootSplash, MobileGate, Corners, useIsMobile } from './ui';
 import { copy } from './copy';
-import { useThemeMode, type ThemeMode } from './lib/theme';
 
 const TABS = [
   { id: 'home', label: 'Dashboard' },
@@ -20,16 +20,10 @@ const TABS = [
   { id: 'library', label: 'Reference' },
   { id: 'plan', label: 'Study Plan' },
   { id: 'progress', label: 'Progress' },
+  { id: 'settings', label: 'Settings' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
-
-/** Light default, then Dark, then follow-the-OS System. */
-const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
-  { label: copy.theme.light, value: 'light' },
-  { label: copy.theme.dark, value: 'dark' },
-  { label: copy.theme.system, value: 'system' },
-];
 
 /** How long the boot mark stays up at minimum, so it reads as a screen and not
  *  a flicker. Never blocks past a genuine load that outlasts it. */
@@ -46,7 +40,6 @@ export default function App() {
   const [tab, setTab] = useState<TabId>(currentHash);
   const [authError, setAuthError] = useState('');
   const [splashHeld, setSplashHeld] = useState(true);
-  const [themeMode, setTheme] = useThemeMode();
 
   useEffect(() => {
     const onHash = () => setTab(currentHash());
@@ -177,13 +170,8 @@ export default function App() {
             <strong>{api.daysLeft.toLocaleString()}</strong> day{api.daysLeft === 1 ? '' : 's'} until{' '}
             {examDateLabel}
           </div>
-          <Segmented
-            className="theme-seg"
-            ariaLabel={copy.theme.label}
-            options={THEME_OPTIONS}
-            value={themeMode}
-            onChange={setTheme}
-          />
+          {/* The theme switch used to sit here; it moved into the Settings
+              panel with the rest of the preferences (#36). */}
           <button className="btn sm" title={api.user?.email ?? ''} onClick={() => signOutUser()}>
             {copy.header.signOut}
           </button>
@@ -209,6 +197,7 @@ export default function App() {
         {tab === 'library' && <Library />}
         {tab === 'plan' && <Plan api={api} />}
         {tab === 'progress' && <Progress api={api} />}
+        {tab === 'settings' && <Settings api={api} />}
       </main>
     </div>
   );

@@ -9,6 +9,7 @@ const TABS = [
   { label: 'Reference', hash: 'library', heading: 'Reference' },
   { label: 'Study Plan', hash: 'plan', heading: 'Study Plan' },
   { label: 'Progress', hash: 'progress', heading: 'Last 14 days' },
+  { label: 'Settings', hash: 'settings', heading: 'Study' },
 ];
 
 const tab = (page: Page, label: string) => page.getByRole('navigation').getByRole('button', { name: label });

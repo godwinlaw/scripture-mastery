@@ -16,6 +16,12 @@ export default function Plan({ api }: { api: StoreApi }) {
       <div className="section">
         <div className="spread">
           <h2 style={sx({ margin: 0 })}>Study Plan</h2>
+          {/* This stays out of the Settings panel (#36) rather than being
+              deduplicated into it: the quiz date is the single input this whole
+              view is computed from, the schedule below rebuilds as you change
+              it, and the empty state's advice ("move it forward") is only
+              actionable with the field in reach. Same setting, written from two
+              places — the store is the one copy. */}
           <Field label="Quiz date" htmlFor="exam">
             <input
               id="exam"

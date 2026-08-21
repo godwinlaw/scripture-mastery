@@ -47,6 +47,18 @@ export interface Book {
   hook?: string;
 }
 
+/**
+ * How tightly wrong options are drawn, and which cards the review queue
+ * favours (#36).
+ *
+ * `medium` is what the app has always done — options from the answer's own
+ * division, widening outward, never crossing the Old/New Testament seam — so
+ * it is the default and an existing user sees no change.
+ */
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
+export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard'];
+
 export type QuestionKind =
   | 'mcq'      // pick one of four
   | 'type'     // type the answer
@@ -63,6 +75,17 @@ export interface Item {
   answer: string;
   /** Wrong options for mcq. Generated pools keep these plausible. */
   distractors?: string[];
+  /**
+   * Alternate option sets for the easy and hard settings (#36).
+   *
+   * All three sets are baked in at generation rather than regenerating the
+   * bank when the setting changes, because `id` has to stay stable — SRS
+   * history is keyed on it, so a bank that regenerated per difficulty would
+   * detach every card the moment someone toggled the control. Keeping
+   * `distractors` as the medium set also means every existing reader keeps
+   * working untouched; only the render site consults this.
+   */
+  distractorsBy?: Partial<Record<Difficulty, string[]>>;
   /** For 'order' questions: the correct sequence. */
   sequence?: string[];
   /** Accepted alternate spellings for 'type' questions. */

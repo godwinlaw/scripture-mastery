@@ -205,6 +205,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
           starred={store.starred.includes(item.id)}
           onToggleStar={() => toggleStar(item.id)}
           counter={`${pos + 1} / ${queue.length}`}
+          difficulty={store.settings.difficulty}
         />
       </div>
       <div className="row" style={{ marginTop: space[4] }}>
