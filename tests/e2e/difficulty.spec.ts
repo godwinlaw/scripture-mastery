@@ -15,7 +15,21 @@
 import { expect, test } from '@playwright/test';
 import { BOOKS, BOOKS_BY_ID } from '../../src/data/books';
 import { allItems } from '../../src/lib/generate';
-import { openAs, readStore, expectBooted } from './harness';
+import { DIFFICULTY_SPEC } from '../../src/lib/difficulty';
+import { daysFromNow, ITEM, openAs, readStore, soloQueue, expectBooted } from './harness';
+
+/** Options naming a book on the other side of the seam. */
+function crossings2(
+  options: string[] | undefined,
+  ownTestament: string,
+  byName: Map<string, { testament: string }>,
+): number {
+  if (!options) return 0;
+  return options.filter((o) => {
+    const book = byName.get(o);
+    return book !== undefined && book.testament !== ownTestament;
+  }).length;
+}
 
 const BOOK_BY_NAME = new Map(BOOKS.map((b) => [b.name, b]));
 
@@ -87,6 +101,189 @@ test.describe('difficulty — option scoping', () => {
     // than four — which would invert hard mode rather than sharpen it.
     expect(thin.map((i) => i.id)).toEqual([]);
   });
+});
+
+/**
+ * #38 — the setting stopped being a distractor-swap and became an axis.
+ *
+ * Before it, two thirds of the bank carried no alternate option sets at all:
+ * every `people`, `places`, `relationships`, `book-order`, `numbers`,
+ * `timeline` and `summaries` question fell back to its medium set, and plenty
+ * of those pools were canon-wide. So `hard` quietly offered New Testament
+ * options against Old Testament questions — 637 of them, measured — which is
+ * the complaint that started this. The tests below are the floor that stops
+ * that regressing.
+ */
+test.describe('difficulty — scoping across the whole bank', () => {
+  const mcq = allItems().filter((i) => i.kind === 'mcq');
+  const BY_NAME = new Map(BOOKS.map((b) => [b.name, b]));
+
+  /**
+   * Topics whose options are book *names*, so a Testament can be read off them.
+   *
+   * People questions are excluded deliberately even though their options are
+   * strings: Luke, James, Job and Zechariah are each both a person and a book,
+   * so matching option text against the canon there measures the collision, not
+   * a seam crossing.
+   */
+  const BOOK_ANSWER_TOPICS = new Set(['chapters', 'events', 'summaries']);
+
+  test('hard never offers an option from the other Testament', () => {
+    let crossings = 0;
+    const offenders: string[] = [];
+
+    for (const item of mcq) {
+      if (!item.book || !BOOK_ANSWER_TOPICS.has(item.topic)) continue;
+      const own = BOOKS_BY_ID[item.book]?.testament;
+      if (!own) continue;
+      const c = crossings2(item.distractorsBy?.hard, own, BY_NAME);
+      crossings += c;
+      if (c && offenders.length < 5) offenders.push(`${item.id} | ${item.prompt}`);
+    }
+
+    expect(crossings, `hard crossings, e.g. ${offenders.join(' ; ')}`).toBe(0);
+  });
+
+  /**
+   * Book Order is the one family where the Testament seam is the wrong fence:
+   * "which book immediately follows Malachi?" has a New Testament answer to an
+   * Old Testament question, so scoping by Testament would identify the answer
+   * without knowing the canon at all. What makes it hard is *canonical
+   * distance* — Ezra against Nehemiah, Esther and Chronicles is a question;
+   * Ezra against Matthew is a free point.
+   */
+  test('book-order draws hard options from canonical neighbours, and easy ones from far away', () => {
+    const bookOrder = mcq.filter((i) => i.topic === 'book-order' && i.book);
+    expect(bookOrder.length).toBeGreaterThan(0);
+
+    let farOnHard = 0;
+    let nearOnEasy = 0;
+    for (const item of bookOrder) {
+      const subject = BOOKS_BY_ID[item.book!];
+      if (!subject) continue;
+      for (const o of item.distractorsBy?.hard ?? []) {
+        const b = BY_NAME.get(o);
+        if (b && Math.abs(b.order - subject.order) > 8) farOnHard++;
+      }
+      for (const o of item.distractorsBy?.easy ?? []) {
+        const b = BY_NAME.get(o);
+        if (b && Math.abs(b.order - subject.order) <= 4) nearOnEasy++;
+      }
+    }
+
+    expect(farOnHard, 'a hard book-order option more than 8 positions away').toBe(0);
+    expect(nearOnEasy, 'an easy book-order option among the answer’s neighbours').toBe(0);
+  });
+
+  /**
+   * `pickDistractors` excludes the answer but never knew about the *subject*,
+   * so "Which book immediately precedes Leviticus?" offered Leviticus — an
+   * option that is wrong for a reason the question itself gives away.
+   */
+  test('no question offers the book it is asking about', () => {
+    const offenders: string[] = [];
+    for (const item of mcq) {
+      if (item.topic !== 'book-order' || !item.book) continue;
+      const subject = BOOKS_BY_ID[item.book]?.name;
+      if (!subject) continue;
+      const every = [
+        ...(item.distractors ?? []),
+        ...(item.distractorsBy?.easy ?? []),
+        ...(item.distractorsBy?.hard ?? []),
+      ];
+      if (every.includes(subject)) offenders.push(item.id);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test('almost every question carries all three option sets', () => {
+    const withHard = mcq.filter((i) => i.distractorsBy?.hard).length;
+    // A floor, not an equality: the handful of hand-authored items in
+    // src/data/extras.ts draw their options from somewhere other than the
+    // canon and legitimately have none. Before #38 this was 4,554 of 5,926.
+    expect(withHard / mcq.length).toBeGreaterThan(0.99);
+  });
+
+  test('hard is never thinner than medium, which would invert the setting', () => {
+    const thin = mcq.filter(
+      (i) => i.distractorsBy?.hard && i.distractorsBy.hard.length < (i.distractors ?? []).length,
+    );
+    expect(thin.map((i) => i.id)).toEqual([]);
+  });
+
+  test('hard offers more choices than medium, and easy fewer', () => {
+    const rendered = (item: (typeof mcq)[number], d: 'easy' | 'medium' | 'hard') => {
+      const pool = d === 'medium'
+        ? item.distractors ?? []
+        : item.distractorsBy?.[d] ?? item.distractors ?? [];
+      return Math.min(pool.length, DIFFICULTY_SPEC[d].wrongOptions) + 1;
+    };
+    // The dial that costs nothing in item stability and is felt on every card:
+    // a three-option question is a coin flip after one elimination.
+    expect(mcq.every((i) => rendered(i, 'easy') === 3)).toBe(true);
+    expect(mcq.every((i) => rendered(i, 'medium') === 4)).toBe(true);
+    expect(mcq.filter((i) => rendered(i, 'hard') === 6).length / mcq.length).toBeGreaterThan(0.99);
+  });
+
+  test('no alternate set contains the answer it is meant to be wrong about', () => {
+    const leaks = mcq.filter(
+      (i) => (i.distractorsBy?.easy ?? []).includes(i.answer)
+        || (i.distractorsBy?.hard ?? []).includes(i.answer),
+    );
+    expect(leaks.map((i) => i.id)).toEqual([]);
+  });
+});
+
+/**
+ * The dial a member actually feels, card by card (#38).
+ *
+ * Option scoping is invisible unless you already know the canon; option *count*
+ * is not. Three choices is a coin flip after one elimination, six is a real
+ * question, and neither costs anything in item stability — the bank stays
+ * difficulty-blind and the render site slices.
+ */
+test.describe('difficulty — what reaches the card', () => {
+  const CHOICES = { easy: 3, medium: 4, hard: 6 } as const;
+
+  for (const [difficulty, expected] of Object.entries(CHOICES)) {
+    test(`${difficulty} puts ${expected} choices on the card`, async ({ page }) => {
+      await openAs(page, { store: { ...soloQueue(ITEM.mcq), settings: {
+        examDate: daysFromNow(60), newLimit: 0, sessionLimit: 1, difficulty,
+      } } }, 'review');
+      await page.getByRole('button', { name: 'Start review session' }).click();
+
+      await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+      await expect(page.locator('.choice')).toHaveCount(expected);
+    });
+  }
+
+  /**
+   * A reference question opens with a chance to name it from memory before any
+   * options appear (#14). Naming is strictly harder than recognising, so easy
+   * skips the prompt and goes straight to recognition; medium and hard ask.
+   *
+   * `gen-locate-joshua-6` is a `gen-locate` item, so its answer is a reference.
+   */
+  const REF_ITEM = 'gen-locate-joshua-6';
+  const refSeed = (difficulty: string) => ({
+    ...soloQueue(REF_ITEM),
+    settings: { examDate: daysFromNow(60), newLimit: 0, sessionLimit: 1, difficulty },
+  });
+
+  test('easy shows the options straight away', async ({ page }) => {
+    await openAs(page, { store: refSeed('easy') }, 'review');
+    await page.getByRole('button', { name: 'Start review session' }).click();
+
+    await expect(page.locator('.choice')).toHaveCount(3);
+  });
+
+  test('medium asks for the reference before showing any options', async ({ page }) => {
+    await openAs(page, { store: refSeed('medium') }, 'review');
+    await page.getByRole('button', { name: 'Start review session' }).click();
+
+    await expect(page.locator('.choice')).toHaveCount(0);
+  });
+
 });
 
 test.describe('difficulty — the control', () => {
