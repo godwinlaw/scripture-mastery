@@ -74,6 +74,12 @@ export default function Review({ api }: { api: StoreApi }) {
    * while `start` would happily widen and hand over a full session. The button
    * has to follow the queue's rule, not the plates'.
    */
+  /** The new-card limit after the difficulty's own scaling — what buildQueue will take. */
+  const newToday = Math.max(
+    0,
+    Math.round(store.settings.newLimit * specFor(store.settings.difficulty).newLimitFactor),
+  );
+
   const counts = useMemo(() => {
     const now = Date.now();
     const inScope = scopedIds ? new Set(scopedIds) : null;
@@ -184,7 +190,13 @@ export default function Review({ api }: { api: StoreApi }) {
             <span className="k">Due now</span>
           </Card>
           <Card className="stat">
-            <span className="n"><CountUp value={Math.min(counts.fresh, store.settings.newLimit)} /></span>
+            {/*
+              * The plate has to promise the number the session will actually
+              * take. The setting scales the new-card limit — hard introduces
+              * half again as much — so reading the raw setting here would say
+              * 20 and then deal 30 (#38).
+              */}
+            <span className="n"><CountUp value={Math.min(counts.fresh, newToday)} /></span>
             <span className="k">New today</span>
           </Card>
           <Card className="stat">

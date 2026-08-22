@@ -276,7 +276,11 @@ function eventItems(d: BookDetail): Item[] {
         ...distractorSets(
           d.book,
           (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.detail).filter((y): y is string => !!y),
-          e.detail, `evd-${key}`, 'division',
+          // The detail is a fact from *inside* one episode, so the tightest
+          // honest pool is the other details that book records — unlike
+          // "in which book does this happen?", where the answer is a book and
+          // the division is as tight as it can get.
+          e.detail, `evd-${key}`, 'book',
         ),
         explain: e.what,
       });
