@@ -34,7 +34,7 @@ const DIFFICULTY_OPTIONS = DIFFICULTIES.map((value) => ({
 
 /**
  * The follow-the-plan switch is a boolean, but it is rendered as the same
- * two-option Segmented the rest of this panel uses (#38) rather than a
+ * two-option Segmented the rest of this panel uses (#40) rather than a
  * checkbox: a checkbox states one side and leaves the other implied, and the
  * choice here is genuinely between two study strategies, not between a
  * behaviour and its absence.
@@ -45,7 +45,7 @@ const FOLLOW_PLAN_OPTIONS = [
 ] as const;
 
 /**
- * The bounds the two number fields already advertise through `min`/`max` (#38).
+ * The bounds the two number fields already advertise through `min`/`max` (#40).
  *
  * They live here rather than inline on the inputs alone because until now they
  * were decorative: a `min` attribute stops the spinner and the browser's own
@@ -62,7 +62,7 @@ const LIMITS = {
  * The value to commit for a limit field, or null for "do not commit anything".
  *
  * `Number('')` is 0 and `Number('-')` is NaN, and both used to go straight into
- * the store (#38). A committed `sessionLimit: 0` makes `buildQueue` return an
+ * the store (#40). A committed `sessionLimit: 0` makes `buildQueue` return an
  * empty array, so "Start review session" jumped to "Session complete — 0
  * answered"; and select-all-then-retype produces exactly that empty string as
  * an intermediate, so it took no misuse at all to hit it.
@@ -84,7 +84,7 @@ function limitToCommit(raw: string, bounds: { min: number; max: number }): numbe
  * — the one place this app deliberately departs from SM-2, guaranteeing every
  * card is seen at least once more before the quiz — simply stops applying, and
  * cards start scheduling past the exam date never to return. Nothing on screen
- * says so beyond a "NaN days until Invalid Date" in the header (#38).
+ * says so beyond a "NaN days until Invalid Date" in the header (#40).
  */
 function isUsableExamDate(raw: string): boolean {
   return raw !== '' && Number.isFinite(new Date(`${raw}T23:59:59`).getTime());
@@ -97,7 +97,7 @@ export default function Settings({ api }: { api: StoreApi }) {
 
   /**
    * What the three inputs *show*, which is deliberately not the same thing as
-   * what the store holds (#38).
+   * what the store holds (#40).
    *
    * Clamping the rendered value instead would make the fields miserable to
    * edit: clear "60" to type "120" and a store-driven value snaps you back to
@@ -183,7 +183,7 @@ export default function Settings({ api }: { api: StoreApi }) {
           <p className="tiny muted" style={sx({ marginTop: space[4], marginBottom: 0 })}>
             {study.clampNote}
           </p>
-          {/* Sits with the limits rather than in a section of its own (#38):
+          {/* Sits with the limits rather than in a section of its own (#40):
               this is the fourth answer to "how much, and which part, does the
               trainer put in front of me today?" and reads as a stranger
               anywhere else. */}

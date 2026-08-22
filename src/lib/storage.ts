@@ -14,7 +14,7 @@ export interface Settings {
   difficulty: Difficulty;
   /**
    * Whether the daily review draws only from the phase the study plan is
-   * currently in (#38).
+   * currently in (#40).
    *
    * Defaults to `true` — unlike `difficulty`, this one deliberately changes
    * behaviour for an account that predates it, because a plan the app ignored
@@ -26,9 +26,9 @@ export interface Settings {
   followPlan: boolean;
   /**
    * ISO date (`YYYY-MM-DD`) the study plan is measured from, or `''` when this
-   * account has never had one recorded (#38).
+   * account has never had one recorded (#40).
    *
-   * The plan was decorative until #38 gated the daily review on it, and the
+   * The plan was decorative until #40 gated the daily review on it, and the
    * moment it stopped being decorative `buildSchedule`'s default start —
    * `new Date()` — became a bug: re-anchoring to "today" on every call puts
    * today inside week 1 forever, so the plan could never advance past Phase 1.

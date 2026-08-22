@@ -189,7 +189,7 @@ a:hover { color: var(--color-accent-700); text-decoration: underline; }
   outline-offset: 2px;
 }
 
-/* Said to a screen reader, not drawn (#38).
+/* Said to a screen reader, not drawn (#40).
    `display: none` would take it away from both, which is the opposite of the
    point — this is for text the page already communicates by position, colour
    or layout to everyone who can see it: the shell's one <h1>, the ordering
@@ -513,7 +513,7 @@ input.answer {
 .order-item.correct { border-color: var(--color-accent); background: var(--tint-accent); }
 .order-item.wrong { border-color: var(--color-error); background: var(--tint-error); }
 /* The same verdict again, in a channel that survives a colour-blind eye and a
-   monochrome print (#38). Border and tint alone said "right" and "wrong" in
+   monochrome print (#40). Border and tint alone said "right" and "wrong" in
    hue only — red and green at that, the one pair most likely to read as the
    same grey. The glyph carries its own `role="img"` label, so it is a third
    channel as well: shape, position, and spoken text. */

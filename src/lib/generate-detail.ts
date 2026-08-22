@@ -18,7 +18,7 @@ const allAudiences = [...new Set(DETAILS.map((d) => d.audience))];
 const allWritten = [...new Set(DETAILS.map((d) => d.written))];
 
 /**
- * The rings every hard chain in this file walks, tightest first (#38).
+ * The rings every hard chain in this file walks, tightest first (#40).
  *
  * Until now the raw `pickDistractors` sites below drew from one of the
  * canon-wide arrays above (or, at best, from the whole book), so the setting
@@ -230,7 +230,7 @@ function eventItems(d: BookDetail): Item[] {
       // just from `others`. A tighter pool that let a genuine participant
       // through would be offering a second right answer, and validate.ts only
       // ever compares options against `answer` itself, so nothing downstream
-      // would catch it (#38).
+      // would catch it (#40).
       const notPresent = (n: string) => !e.who.includes(n);
       items.push({
         id: `det-ev-who-${key}`, kind: 'mcq', topic: 'people', tier: 2, book: d.book,
@@ -238,7 +238,7 @@ function eventItems(d: BookDetail): Item[] {
         answer,
         // Medium has always been every figure in the canon, which makes this a
         // which-book question in disguise. Hard offers the other people this
-        // book's own episodes put on stage, so it asks who did *this* (#38).
+        // book's own episodes put on stage, so it asks who did *this* (#40).
         ...scopedSets(answer, `evwho-${key}`, {
           medium: others,
           easy: [() => others],
@@ -257,7 +257,7 @@ function eventItems(d: BookDetail): Item[] {
         answer: e.where,
         // Hard offers the other places this book's own episodes happen: Sinai
         // against Kadesh, Nebo and the Red Sea is a where-in-Exodus question;
-        // Sinai against Patmos and Antioch is a which-Testament one (#38).
+        // Sinai against Patmos and Antioch is a which-Testament one (#40).
         ...scopedSets(e.where, `evwhere-${key}`, {
           medium: places,
           easy: [() => places],
@@ -347,7 +347,7 @@ function figureItems(d: BookDetail): Item[] {
       // Medium keeps its old rule exactly — this book's deeds when the cast is
       // big enough, the canon's otherwise. Hard always starts from this book,
       // so the small-cast books stop pitting a Ruth deed against a Revelation
-      // one merely because Ruth lists fewer than six figures (#38).
+      // one merely because Ruth lists fewer than six figures (#40).
       ...scopedSets(f.did, `figd-${key}`, {
         medium: ownDeeds.length >= 6 ? ownDeeds : allFigureDeeds,
         easy: [() => allFigureDeeds],
@@ -365,7 +365,7 @@ function figureItems(d: BookDetail): Item[] {
         // Medium is already this book's own cast, so hard cannot sit tighter;
         // what it adds is the extra two options. A four-figure book cannot fill
         // six slots from its own list, and the chain widens to the division
-        // rather than let the hardest setting render the shortest card (#38).
+        // rather than let the hardest setting render the shortest card (#40).
         ...scopedSets(f.name, `figw-${key}`, {
           medium: d.figures.map((x) => x.name),
           easy: [() => allFigureNames],
@@ -425,7 +425,7 @@ function frameItems(d: BookDetail): Item[] {
       // Only the prophets ask this (#9), and the prophets are exactly where a
       // canon-wide pool gives the game away: "why was Joel written?" against
       // Philemon and Leviticus answers itself. Hard keeps it among the other
-      // Minor Prophets, whose stated purposes genuinely overlap (#38).
+      // Minor Prophets, whose stated purposes genuinely overlap (#40).
       ...scopedSets(d.purpose, `pur-${d.book}`, {
         medium: allPurposes,
         easy: [() => allPurposes],
@@ -454,7 +454,7 @@ function frameItems(d: BookDetail): Item[] {
     // Dates are the clearest case for scoping: books in one division were
     // written within decades of each other, so the division's dates are the
     // options a reader actually has to weigh. The canon's span a millennium,
-    // which quietly turns this into an OT-or-NT question (#38).
+    // which quietly turns this into an OT-or-NT question (#40).
     ...scopedSets(d.written, `wr-${d.book}`, {
       medium: allWritten,
       easy: [() => allWritten],
@@ -500,7 +500,7 @@ function frameItems(d: BookDetail): Item[] {
       // `writtenFrom` is recorded almost only for the Pauline epistles, so the
       // division ring and the canon-wide pool are nearly the same handful of
       // cities. The scoping is honest but thin here; the widening and the
-      // thinness guard are what keep the card full (#38).
+      // thinness guard are what keep the card full (#40).
       ...scopedSets(d.writtenFrom, `frm-${d.book}`, {
         medium: froms,
         easy: [() => froms],
@@ -551,7 +551,7 @@ function crossBookItems(): Item[] {
       // This item is deliberately cross-book, so medium spans the canon. Hard
       // narrows to the cast of the book the episode came from: the golden calf
       // against Aaron, Joshua and Hur is a question about Exodus; against
-      // Nehemiah and Titus it is a question about the table of contents (#38).
+      // Nehemiah and Titus it is a question about the table of contents (#40).
       ...scopedSets(answer, `xw-${d.book}-${e.name}`, {
         medium: others,
         easy: [() => others],

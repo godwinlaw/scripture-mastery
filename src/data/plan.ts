@@ -103,7 +103,7 @@ export interface PlannedWeek {
  *
  * The `new Date()` default stays for the sake of a bare "what would a plan
  * starting today look like?" call, but it is no longer what the app relies on
- * (#38): every caller passes the member's stored anchor, because a schedule
+ * (#40): every caller passes the member's stored anchor, because a schedule
  * that re-anchors to today on each render is a schedule whose week 1 never
  * ends. Prefer `currentWeek` / `currentPhase`, which require the anchor.
  */
@@ -157,7 +157,7 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
 /**
  * The week the calendar is currently sitting in, clamped to the schedule's ends.
  *
- * Two views computed this inline and identically (#38) — Dashboard to name the
+ * Two views computed this inline and identically (#40) — Dashboard to name the
  * phase on its hero card, Plan to mark a row `now` — and a third caller then
  * arrived in Review, which is where a duplicated definition of "today" stops
  * being a tidiness problem and starts being a correctness one: the daily queue
@@ -196,7 +196,7 @@ export function currentWeek(
 ): PlannedWeek | null {
   // A hand-edited or imported `planStart` can be junk; an Invalid Date here
   // would make every week boundary NaN and every comparison false, so fall
-  // back to `now` — the pre-#38 behaviour, which is at least well-defined.
+  // back to `now` — the pre-#40 behaviour, which is at least well-defined.
   const parsed = new Date(`${planStartISO}T00:00:00`);
   const schedule = buildSchedule(examISO, Number.isNaN(parsed.getTime()) ? now : parsed);
   if (schedule.length === 0) return null;

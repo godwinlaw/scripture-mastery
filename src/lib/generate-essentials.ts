@@ -51,7 +51,7 @@ function slug(s: string): string {
  * other entries of its own list — and nothing else. That is a perfectly good
  * medium set, but with no `distractorsBy` on the item the render site has
  * nothing to swap in, so the easy/medium/hard control was inert across the
- * whole must-know section: three settings, one question (#38).
+ * whole must-know section: three settings, one question (#40).
  *
  * The medium set is not what changes here. `scopedSets` is handed the same
  * pool and the same seed the call site used before, so `Item.distractors` is
@@ -111,7 +111,7 @@ function family(list: EssentialList): EssentialList[] {
  * Each ring contains the one before it. `layeredPool` takes a ring whole, so a
  * ring that dropped its own list's entries on the way out would hand a widened
  * hard card *easier* options than the medium card it replaces — the exact
- * inversion the layered shape exists to prevent (#38).
+ * inversion the layered shape exists to prevent (#40).
  *
  * The widening is gated on the reason it exists. Its whole job is to stop hard
  * rendering *fewer or easier* choices than medium, so a list that already beats
@@ -120,7 +120,7 @@ function family(list: EssentialList): EssentialList[] {
  * shows and all four are dates. Widened, that card read
  * "~1500 BC / 46 / Ehud / 7 / Jephthah / Elisha" — the answer was the only date
  * on screen, a giveaway, and hard came out easier than medium. Tight and one
- * short beats padded and shape-mismatched (#38).
+ * short beats padded and shape-mismatched (#40).
  *
  * The rings below are therefore live code for a list too short to beat medium
  * on its own — four entries or fewer, which none currently is — and every list
@@ -205,7 +205,7 @@ function isRenaming(a: string, b: string): boolean {
  * sibling's phrasing of the same periods, and falls back to the list's own
  * groups when the renaming guard thins that below three. Easy is genuinely
  * easier here mostly because it renders two wrong options where hard renders
- * five — an honest limit of the data rather than of the scoping (#38).
+ * five — an honest limit of the data rather than of the scoping (#40).
  */
 function groupHardChain(list: EssentialList, answer: string): (() => string[])[] {
   const own = groupPool(list);

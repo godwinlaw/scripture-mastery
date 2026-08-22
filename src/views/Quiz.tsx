@@ -15,7 +15,7 @@ import type { StoreApi } from '../lib/useStore';
 type Scope = 'plan' | 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
 
 /**
- * The plan-aware scope (#38).
+ * The plan-aware scope (#40).
  *
  * The daily review now follows the study plan; a quiz is where you go to test
  * yourself on demand, so it keeps every other scope untouched and simply adds
@@ -45,7 +45,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
   /**
    * The anchor is the persisted plan start rather than today: a schedule that
    * begins today always puts today in week 1, which is what pinned the whole
-   * app to Phase 1 (#38). `currentPhase` is total, so there is always a phase
+   * app to Phase 1 (#40). `currentPhase` is total, so there is always a phase
    * to point the quiz at.
    */
   const phase = currentPhase(store.settings.examDate, planStartOf(store));

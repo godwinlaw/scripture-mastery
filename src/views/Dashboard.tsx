@@ -53,7 +53,7 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
       .sort((a, b) => a.pct - b.pct);
   }, [cards, items]);
 
-  // "Which week is it?" is one question with one answer (#38), and the daily
+  // "Which week is it?" is one question with one answer (#40), and the daily
   // review now depends on it too — so it lives in data/plan.ts rather than
   // being re-derived here.
   //

@@ -26,7 +26,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * The date the study plan is measured from — the other end of the interval
- * `examTimeOf` gives, and the fix for #38.
+ * `examTimeOf` gives, and the fix for #40.
  *
  * `buildSchedule` defaults its start to `new Date()`, which was harmless while
  * the plan was only drawn on screen and fatal once the daily review began

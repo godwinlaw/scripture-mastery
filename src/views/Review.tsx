@@ -43,7 +43,7 @@ export default function Review({ api }: { api: StoreApi }) {
    * can switch the plan off here. The anchor is the persisted plan start, not
    * today: passing `new Date()` is what pinned every member to Phase 1
    * forever, because today is always inside week 1 of a schedule that begins
-   * today (#38).
+   * today (#40).
    *
    * Every decision below reads this one value, so the screen cannot claim to
    * be following a phase the queue is ignoring.
@@ -154,7 +154,7 @@ export default function Review({ api }: { api: StoreApi }) {
     // A failed card comes back at the end of the session rather than disappearing,
     // but only twice — otherwise a card you cannot get keeps the session open forever.
     //
-    // On hard it does not come back at all (#38): a second look minutes after
+    // On hard it does not come back at all (#40): a second look minutes after
     // the first is recognition, not recall, and hard's whole premise is that you
     // meet the card again cold. The cap still governs wherever requeueing is on.
     if (g === 0 && specFor(store.settings.difficulty).requeueMissed && (requeues[id] ?? 0) < 2) {
@@ -194,7 +194,7 @@ export default function Review({ api }: { api: StoreApi }) {
               * The plate has to promise the number the session will actually
               * take. The setting scales the new-card limit — hard introduces
               * half again as much — so reading the raw setting here would say
-              * 20 and then deal 30 (#38).
+              * 20 and then deal 30 (#40).
               */}
             <span className="n"><CountUp value={Math.min(counts.fresh, newToday)} /></span>
             <span className="k">New today</span>
@@ -267,7 +267,7 @@ export default function Review({ api }: { api: StoreApi }) {
         <Meter value={pos} max={queue.length} label={`${pos} of ${queue.length} answered`} />
       </div>
       {/*
-        Keyed on the queue position, not the item id (#38).
+        Keyed on the queue position, not the item id (#40).
 
         A missed card is appended to the queue, and when it was the last entry
         the copy lands immediately after itself: `queue[pos + 1] === queue[pos]`.

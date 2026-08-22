@@ -53,7 +53,7 @@ export default function App() {
   }, []);
 
   /**
-   * Give the switched-to view the caret (#38).
+   * Give the switched-to view the caret (#40).
    *
    * `<main key={tab}>` throws the old view away and builds a new one, which is
    * exactly right for the animation and exactly wrong for anyone who is not
@@ -223,7 +223,7 @@ export default function App() {
       </nav>
 
       {/*
-        Two separate holes, closed together (#38).
+        Two separate holes, closed together (#40).
 
         `aria-label` gives `<main>` a name, so the focus move above lands
         somewhere that announces *which* view arrived rather than an anonymous

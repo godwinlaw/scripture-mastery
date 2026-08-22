@@ -8,7 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - **Difficulty became a real setting, and the study plan started driving what
-  you study** ([#38]).
+  you study** ([#40]).
 
   **The setting was doing almost nothing.** It swapped a question's wrong
   options and leaned the review queue by ease — and only on the third of the
@@ -50,7 +50,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   for fine detail first, and does not hand a missed card back inside the same
   session — you meet it again tomorrow, cold.
 
-- **The study plan now decides what your daily review asks you** ([#38]). The
+- **The study plan now decides what your daily review asks you** ([#40]). The
   five phases have always been rendered on the Plan tab, and the Dashboard has
   always named the current one, but nothing filtered the queue by them, so
   following the plan was left entirely to your own discipline. The daily review
@@ -149,7 +149,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- **Missing the last card of a review session graded it three times** ([#38]).
+- **Missing the last card of a review session graded it three times** ([#40]).
   A missed card is requeued to the end of the session; when it *was* the end,
   the next card had the same id, the card component was never remounted, and
   its reset never ran. The card came back already answered — no retrieval,
@@ -159,12 +159,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   leech, and skewed the accuracy on your Progress tab. The session card is now
   keyed on its position in the queue rather than on the item.
 
-- **Six questions offered the book they were asking about** ([#38]). "Which
+- **Six questions offered the book they were asking about** ([#40]). "Which
   book immediately precedes Leviticus?" listed Leviticus among the choices.
   Distractor selection excluded the *answer* but had never been told about the
   book named in the prompt.
 
-- **Clearing a field in Settings wrote a broken value** ([#38]). The number
+- **Clearing a field in Settings wrote a broken value** ([#40]). The number
   inputs committed `0` for an emptied field, so a moment's editing of Max cards
   per session could commit `0` and send "Start review session" straight to a
   finished session. Worse, clearing the quiz date committed an empty string:
@@ -175,7 +175,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   The fields are now clamped on commit rather than on screen, so they are still
   comfortable to edit.
 
-- **A wrong option could be a second correct answer** ([#38]). Event questions
+- **A wrong option could be a second correct answer** ([#40]). Event questions
   excluded the people who took part from their wrong options, but only from the
   medium pool. Tightening the hard pool to the same book would have started
   offering genuine participants as wrong answers — a defect no content check
@@ -201,7 +201,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- **Accessibility** ([#38]). The app had no `<h1>` and never moved focus when
+- **Accessibility** ([#40]). The app had no `<h1>` and never moved focus when
   you changed tabs, so a screen-reader user activating Quiz heard nothing and
   was left in the navigation. Ordering questions signalled a correctly placed
   row by border colour alone, the ordering buttons dropped focus at the ends of
@@ -209,7 +209,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   are fixed.
 
 - **Exporting your progress** no longer risks a silent no-op in Firefox and
-  Safari ([#38]): the download link is placed in the document before it is
+  Safari ([#40]): the download link is placed in the document before it is
   clicked, and its blob is released a tick later rather than immediately.
 
 - **The sign-in screen shows the mark, the verse, and Google's own glyph**
@@ -348,4 +348,4 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#34]: https://github.com/godwinlaw/scripture-mastery/issues/34
 
 [#36]: https://github.com/godwinlaw/scripture-mastery/issues/36
-[#38]: https://github.com/godwinlaw/scripture-mastery/issues/38
+[#40]: https://github.com/godwinlaw/scripture-mastery/pull/40

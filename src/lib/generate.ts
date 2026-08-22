@@ -29,7 +29,7 @@ function siblingNames(bookId: string): string[] {
 
 /*
  * ---------------------------------------------------------------------------
- * Scoped option pools (#38)
+ * Scoped option pools (#40)
  * ---------------------------------------------------------------------------
  *
  * Difficulty used to bite on roughly a third of the bank: the questions routed
@@ -137,7 +137,7 @@ function placePools(pl: Place, extract: (x: Place) => string[]): (() => string[]
  * correct one out without the reader knowing a thing about the canon. What
  * makes these hard is proximity in the running order: Ezra against Nehemiah,
  * Esther and Chronicles is a question; Ezra against Matthew is a free point.
- * Hence `neighborBooks`/`distantBooks`, which cross the seam on purpose (#38).
+ * Hence `neighborBooks`/`distantBooks`, which cross the seam on purpose (#40).
  *
  * Two further notes on the medium set:
  *
@@ -209,7 +209,7 @@ function buildBookItems(): Item[] {
         answer: b.name,
         // Medium already draws from the division (`siblingNames`); hard keeps
         // that and widens only when a five-book division cannot fill six
-        // choices, easy goes canon-wide (#38).
+        // choices, easy goes canon-wide (#40).
         ...scopedSets(b.name, `s2b-${b.id}`, {
           medium: siblingNames(b.id),
           easy: [() => bookNames],
@@ -374,7 +374,7 @@ function buildPeopleItems(): Item[] {
   // field from people in the answer's own book, then era, then Testament, so
   // the wrong fathers are other fathers from the same story. Easy keeps the
   // canon-wide list these questions have always used — a father from Acts
-  // against a question about Genesis is wrong on sight (#38).
+  // against a question about Genesis is wrong on sight (#40).
   for (const p of PEOPLE) {
     if (p.father && allFathers.length >= 4) {
       items.push({
@@ -522,7 +522,7 @@ function buildTimelineItems(): Item[] {
       prompt: `Which era of biblical history is this? ${e.summary}`,
       answer: e.name,
       // Eras are one ordered spine, so "near" is `seq` and nothing else: hard
-      // offers the eras either side of this one, easy the ones an age away (#38).
+      // offers the eras either side of this one, easy the ones an age away (#40).
       ...scopedSets(e.name, `era-${e.id}`, {
         medium: eraNames,
         easy: [eraNamesBeyond(e, 4), () => eraNames],
@@ -592,7 +592,7 @@ function buildListItems(): Item[] {
         // question inverts the usual logic: a member of some *other* list is
         // also "not part of ${list.title}", so the canon-wide pool that makes
         // every other card easy would put a second correct answer on this one.
-        // Difficulty here is the number of choices, not their provenance (#38).
+        // Difficulty here is the number of choices, not their provenance (#40).
         ...scopedSets(decoy, `notd-${list.id}-${di}`, {
           medium: list.items,
           easy: [() => list.items],

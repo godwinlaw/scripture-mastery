@@ -104,9 +104,9 @@ export interface QueueOptions {
   sessionLimit: number;
   /**
    * Which cards the session takes, and in what order it opens new ground
-   * (#36, #38). It now drives three things, not one: how hard the cut at the
+   * (#36, #40). It now drives three things, not one: how hard the cut at the
    * session limit leans on per-card ease, how many new cards the limit really
-   * allows, and — the point of #38 — the order unseen material is drawn in.
+   * allows, and — the point of #40 — the order unseen material is drawn in.
    *
    * Absent means today's behaviour exactly: no ease lean, no reordering, the
    * configured new-card limit taken at face value. That is deliberately *not*
@@ -141,7 +141,7 @@ export interface QueueOptions {
  * pulls forward the ones you have nearly got.
  *
  * The magnitude of the lean now comes from the difficulty spec rather than a
- * constant here (#38), so the setting can say *how much* it leans and not just
+ * constant here (#40), so the setting can say *how much* it leans and not just
  * which way. It is still measured in days of borrowed urgency, and still kept
  * small enough that a badly overdue card leads regardless — the queue's first
  * duty is that nothing sails past its due date unreviewed.
@@ -188,20 +188,20 @@ export function buildQueue(
   // The difficulty setting leans on that sort (#36): it changes which due
   // cards win the cut. Due cards only — every new card carries the same seeded
   // ease, so there is no signal there to weight on. What decides *which* new
-  // cards get introduced is orderNew (#38), a separate question the ease lean
+  // cards get introduced is orderNew (#40), a separate question the ease lean
   // cannot answer.
   //
   // Presenting: shuffle what survived. The selection above is deterministic,
   // so without this you meet the same cards in the same order every day and
   // start recalling the sequence rather than the answer (#11). Note this is
-  // the presentation shuffle, not #38's: it reorders one session's cards after
+  // the presentation shuffle, not #40's: it reorders one session's cards after
   // the cut, and cannot change which cards were introduced in the first place.
   return shuffle(interleave(picked).slice(0, opts.sessionLimit));
 }
 
 /**
  * Choose which unseen cards this session introduces, and take the difficulty's
- * share of them (#38).
+ * share of them (#40).
  *
  * The complaint this answers: "build the frame is great in going through all of
  * the books but it's in order — for hard mode it's too easy to predict." It was
@@ -242,7 +242,7 @@ function orderNew(fresh: string[], opts: QueueOptions, spec: DifficultySpec, now
   // on Isaiah instead of Genesis. Walking the books in order *is* easy mode's
   // pedagogy — the frame has to be built front to back — so nothing is allowed
   // to reorder it. The settings that shuffle or spread have already given up
-  // canonical position, and there the bias costs nothing (#38).
+  // canonical position, and there the bias costs nothing (#40).
   if (meta && spec.tierBias !== 'balanced' && spec.newOrder !== 'canonical') {
     const dir = spec.tierBias === 'foundation-first' ? 1 : -1;
     // Array.prototype.sort is stable per spec (ES2019+), which is load-bearing

@@ -1245,7 +1245,7 @@ export const TOTAL_CHAPTERS = BOOKS.reduce((n, b) => n + b.chapters, 0); // 1189
  * makes a book-order question hard is *canonical distance*: Ezra against
  * Nehemiah, Esther and Chronicles is a real question; Ezra against Matthew is
  * a free point. So this pool crosses the seam on purpose, and tightens by
- * position instead (#38).
+ * position instead (#40).
  */
 export function neighborBooks(bookId: string, span: number): Book[] {
   const book = BOOKS_BY_ID[bookId];

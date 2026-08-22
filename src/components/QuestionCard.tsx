@@ -13,7 +13,7 @@ interface Props {
   /** Shown top-right, e.g. "12 / 40". */
   counter?: string;
   /**
-   * How hard this card should be to answer (#36, #38). Omitted means medium.
+   * How hard this card should be to answer (#36, #40). Omitted means medium.
    *
    * The card reads three dials off `specFor`: how many wrong options to
    * render, whether a reference question opens on the typed bonus round, and
@@ -49,7 +49,7 @@ function matches(input: string, item: Item): boolean {
 }
 
 /**
- * Does this item's explanation simply state its answer? (#38)
+ * Does this item's explanation simply state its answer? (#40)
  *
  * `explain` was written to be read *after* answering, where naming the answer
  * is the whole job — `gen-who-*` builds it as `"${p.name}: ${p.role}."` against
@@ -86,7 +86,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
   const inputRef = useRef<HTMLInputElement>(null);
 
   /**
-   * What the ordering list last did, spoken (#38).
+   * What the ordering list last did, spoken (#40).
    *
    * Rearranging was a silent operation: the rows moved, the numbers changed,
    * and a screen reader was told none of it. This is written only by `move`,
@@ -108,7 +108,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
    * is strictly harder than recognising one, so getting it this way is worth a
    * grade you would otherwise have to award yourself.
    *
-   * Which is exactly why `easy` skips it (#38): free recall is the hardest
+   * Which is exactly why `easy` skips it (#40): free recall is the hardest
    * thing this app asks for, and asking it of someone who chose the gentlest
    * setting is the wrong first impression. There the choices are on screen
    * immediately. Medium and hard keep the behaviour unchanged.
@@ -123,7 +123,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
   /**
    * `explain` is what the card shows *after* answering — the reason the answer
    * is the answer. On easy it is also offered before, folded away behind a
-   * button (#38): a nudge you can choose to take is a different thing from a
+   * button (#40): a nudge you can choose to take is a different thing from a
    * question with the answer written under it, and taking it costs nothing but
    * the satisfaction of not having needed it.
    *
@@ -133,14 +133,14 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
    *
    * Also absent — control and all, not disabled or emptied — wherever the
    * explanation would hand over the answer, which is most of a third of the
-   * bank (#38). See `explainGivesItAway`. A button that cannot be pressed
+   * bank (#40). See `explainGivesItAway`. A button that cannot be pressed
    * without spoiling the card is worse than no button, and an empty gap where
    * one used to be just asks what went missing.
    */
   const offersHint = spec.hintBeforeAnswer && Boolean(item.explain) && !explainGivesItAway(item);
 
   /**
-   * Which wrong options this card offers — and, now, how many of them (#36, #38).
+   * Which wrong options this card offers — and, now, how many of them (#36, #40).
    *
    * The setting used to do nothing here but swap the set: four choices either
    * way, differing only in how obviously wrong three of them were, which is
@@ -193,7 +193,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     setHintOpen(false);
     // The new card's list has never been touched, so nothing is owed to the
     // live region — and a stale sentence from the last one could otherwise be
-    // read out, or re-read, against a list it does not describe (#38).
+    // read out, or re-read, against a list it does not describe (#40).
     setOrderNote('');
     pendingFocus.current = null;
     if (item.kind === 'type' || hasBonusRound) setTimeout(() => inputRef.current?.focus(), 30);
@@ -253,13 +253,13 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     // Follow the entry, not the slot: the rows are keyed by their text, so
     // React moves the actual DOM node — and a focused node that gets moved
     // loses focus to <body>, whether or not the button it holds ends up
-    // disabled. Restored below, once the new order has rendered (#38).
+    // disabled. Restored below, once the new order has rendered (#40).
     pendingFocus.current = { entry, dir };
     setOrderNote(`${entry}, position ${j + 1} of ${next.length}.`);
   }
 
   /**
-   * Put focus back where the member left it (#38).
+   * Put focus back where the member left it (#40).
    *
    * Walking an entry to the top used to end with focus on nothing: the last
    * press disabled the very button that was pressed, and a keyboard user had
@@ -438,7 +438,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
                 <li key={entry} className={`order-item${cls}`}>
                   <span className="num">{i + 1}</span>
                   <span>{entry}</span>
-                  {/* The verdict for this row in a second channel (#38). The
+                  {/* The verdict for this row in a second channel (#40). The
                       tint and the border said it in colour alone — and in the
                       one pair of colours, red against green, most likely to
                       arrive as two identical greys. `role="img"` with a label
@@ -486,7 +486,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
               inserted with its text already in it is announced by roughly half
               the screen readers that exist. `move` writes the sentence; every
               other render leaves it exactly as it was, which is what keeps
-              this from narrating the whole card (#38). */}
+              this from narrating the whole card (#40). */}
           <p className="sr-only" aria-live="polite">{orderNote}</p>
           {!revealed && (
             <div className="row" style={{ marginTop: 12 }}>
@@ -499,7 +499,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
       {revealed && (
         <div className={`feedback ${wasCorrect ? 'correct' : 'wrong'}`}>
           {/*
-            The verdict, announced (#38).
+            The verdict, announced (#40).
 
             "Correct" and "Not quite" arrived silently: the block is inserted
             after the answer is in, and an insertion is not a change any screen

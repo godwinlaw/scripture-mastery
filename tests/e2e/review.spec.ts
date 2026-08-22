@@ -10,7 +10,7 @@ async function answerMcq(page: Page, label: string) {
 
 test.describe('daily review', () => {
   /**
-   * The three seeded cards straddle the plan's first phase on purpose (#38).
+   * The three seeded cards straddle the plan's first phase on purpose (#40).
    *
    * `ITEM.mcq` is a `book-order` question, which Phase 1 — Build the Frame —
    * asks for. `ITEM.type` is `numbers` and `ITEM.order` is `events`, neither of
@@ -74,7 +74,7 @@ test.describe('daily review', () => {
   });
 
   test('a missed card is requeued and asked again', async ({ page }) => {
-    // Fixed in #38 by keying the session card on the queue position rather than
+    // Fixed in #40 by keying the session card on the queue position rather than
     // `item.id`. When a missed card was requeued as the *very next* card — which
     // is what happens whenever you miss the last card of a session — React
     // reused the component, QuestionCard's reset effect (keyed on the same
@@ -119,7 +119,7 @@ test.describe('daily review', () => {
   test('the running tally updates as the session goes', async ({ page }) => {
     const cards = { [ITEM.mcq]: dueCard(ITEM.mcq), [ITEM.type]: dueCard(ITEM.type) };
     // The plan is off here so the tally is tested on its own terms: the two
-    // seeded cards sit in different phases (#38), and this test is about the
+    // seeded cards sit in different phases (#40), and this test is about the
     // counter, not about which cards the plan admits.
     await openAs(page, { store: { cards, settings: { examDate: daysFromNow(60), newLimit: 0, sessionLimit: 2, followPlan: false } } }, 'review');
     await start(page);

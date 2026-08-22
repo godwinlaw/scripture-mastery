@@ -85,7 +85,7 @@ export function distractorSets(
 ): DistractorSets {
   // `hard` asks for the widest set any setting renders, not `n`: the render
   // site slices down per setting, and a hard card that could only fill three
-  // slots would show fewer choices than medium — easier, not harder (#38).
+  // slots would show fewer choices than medium — easier, not harder (#40).
   return scopedSets(answer, seed, {
     medium: nearbyPool(bookId, extract, answer, n),
     easy: [() => canonPool(extract, answer)],
@@ -106,7 +106,7 @@ export function distractorSets(
  * silently yields a short pool does not make a question harder — it makes it
  * *shorter*, and a three-choice question is easier than a six-choice one. The
  * widening is the guarantee that a `hard` card is never accidentally the
- * easiest card on screen (#38).
+ * easiest card on screen (#40).
  */
 export function layeredPool(
   chain: readonly (() => string[])[],

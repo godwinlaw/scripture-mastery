@@ -1,5 +1,5 @@
 /**
- * The study plan drives what you study (#38).
+ * The study plan drives what you study (#40).
  *
  * The plan has always been *displayed* — Plan.tsx renders the schedule and the
  * Dashboard names the current phase — but nothing filtered the queue by it, so
@@ -82,7 +82,7 @@ test.describe('following the study plan', () => {
   });
 
   test('an account saved before the setting existed follows the plan by default', async ({ page }) => {
-    // The key postdates the store format, so a store written before #38 has no
+    // The key postdates the store format, so a store written before #40 has no
     // such field. It must read as on — the plan is the app's whole premise —
     // rather than leaving the control with nothing selected.
     await openAs(page, {}, 'settings');

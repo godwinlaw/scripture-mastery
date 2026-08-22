@@ -10,7 +10,7 @@ const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 
 export default function Plan({ api }: { api: StoreApi }) {
   const { store, updateSettings, daysLeft } = api;
   // The schedule is drawn from the member's stored plan start, not from today
-  // (#38). Rebuilding it from `new Date()` on every render was what made every
+  // (#40). Rebuilding it from `new Date()` on every render was what made every
   // week between the start and now silently disappear — the first row always
   // said "this week", so the view could only ever show a plan about to begin.
   const planStart = planStartOf(store);
@@ -19,7 +19,7 @@ export default function Plan({ api }: { api: StoreApi }) {
     [store.settings.examDate, planStart],
   );
   // Which row wears the `now` highlight is the same question the Dashboard and
-  // the daily review ask, so it comes from the one helper (#38) and is matched
+  // the daily review ask, so it comes from the one helper (#40) and is matched
   // by index rather than re-testing the date range row by row.
   const active = useMemo(
     () => currentWeek(store.settings.examDate, planStart),
@@ -65,7 +65,7 @@ export default function Plan({ api }: { api: StoreApi }) {
           ) : (
             schedule.map((w, i) => {
               // Weeks can now genuinely be behind you, which they never could
-              // while the schedule restarted at today (#38). Three states, from
+              // while the schedule restarted at today (#40). Three states, from
               // the one `active` index rather than three date tests: done,
               // current, still to come. Deliberately not a new stylesheet rule
               // — `.week.now` already carries the highlight, and a past week

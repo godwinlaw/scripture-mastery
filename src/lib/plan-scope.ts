@@ -1,5 +1,5 @@
 /**
- * Turning a study phase into a set of item ids (#38).
+ * Turning a study phase into a set of item ids (#40).
  *
  * The plan has been decorative since it was written: `buildSchedule` sliced the
  * calendar, Plan drew it, Dashboard named the current phase — and the daily

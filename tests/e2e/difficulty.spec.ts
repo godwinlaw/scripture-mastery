@@ -105,7 +105,7 @@ test.describe('difficulty — option scoping', () => {
 });
 
 /**
- * #38 — the setting stopped being a distractor-swap and became an axis.
+ * #40 — the setting stopped being a distractor-swap and became an axis.
  *
  * Before it, two thirds of the bank carried no alternate option sets at all:
  * every `people`, `places`, `relationships`, `book-order`, `numbers`,
@@ -201,7 +201,7 @@ test.describe('difficulty — scoping across the whole bank', () => {
     const withHard = mcq.filter((i) => i.distractorsBy?.hard).length;
     // A floor, not an equality: the handful of hand-authored items in
     // src/data/extras.ts draw their options from somewhere other than the
-    // canon and legitimately have none. Before #38 this was 4,554 of 5,926.
+    // canon and legitimately have none. Before #40 this was 4,554 of 5,926.
     expect(withHard / mcq.length).toBeGreaterThan(0.99);
   });
 
@@ -236,7 +236,7 @@ test.describe('difficulty — scoping across the whole bank', () => {
 });
 
 /**
- * The dial a member actually feels, card by card (#38).
+ * The dial a member actually feels, card by card (#40).
  *
  * Option scoping is invisible unless you already know the canon; option *count*
  * is not. Three choices is a coin flip after one elimination, six is a real
@@ -244,7 +244,7 @@ test.describe('difficulty — scoping across the whole bank', () => {
  * difficulty-blind and the render site slices.
  */
 /**
- * Which new cards get introduced, and whether you can predict them (#38).
+ * Which new cards get introduced, and whether you can predict them (#40).
  *
  * The complaint: "build the frame is great in going through all of the books
  * but it's in order — for easy mode that's fine but for hard mode it should

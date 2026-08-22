@@ -38,7 +38,7 @@ function readStore(): Store {
     const parsed = JSON.parse(raw) as Partial<Store>;
     // Settings are spread over the defaults rather than taken whole: a seeded
     // fixture writes only the keys its test cares about, so anything added
-    // since (difficulty in #36, followPlan in #38) has to back-fill here just
+    // since (difficulty in #36, followPlan in #40) has to back-fill here just
     // as it does off a Firestore snapshot.
     const base = emptyStore();
     return {

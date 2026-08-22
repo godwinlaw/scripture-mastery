@@ -58,7 +58,7 @@ export const copy = {
    * the mechanism, and all three stay on screen at once — a reader choosing
    * between them needs to compare them, not discover them one at a time.
    *
-   * Those notes were rewritten in #38 because they had gone stale: they still
+   * Those notes were rewritten in #40 because they had gone stale: they still
    * described a setting that only moved wrong answers around, while the control
    * had quietly grown three more effects — how many options a question offers,
    * whether it asks for free recall first, and how new material is introduced.
@@ -96,7 +96,7 @@ export const copy = {
     },
 
     /**
-     * The follow-the-plan switch (#38).
+     * The follow-the-plan switch (#40).
      *
      * The note has one job the help line cannot do: say what happens when the
      * phase runs dry. A reader who thinks a calendar can lock them out of

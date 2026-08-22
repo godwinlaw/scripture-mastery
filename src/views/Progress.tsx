@@ -58,7 +58,7 @@ export default function Progress({ api }: { api: StoreApi }) {
     const a = document.createElement('a');
     a.href = url;
     a.download = `scripture-mastery-progress-${new Date().toISOString().slice(0, 10)}.json`;
-    // Two browser rules this used to break, both silently (#38). Firefox will
+    // Two browser rules this used to break, both silently (#40). Firefox will
     // not honour a programmatic click on an anchor that was never in the
     // document, so the download simply did not happen — no error, no file.
     // And revoking the object URL on the same tick can outrun the download
