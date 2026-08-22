@@ -235,7 +235,15 @@ function orderNew(fresh: string[], opts: QueueOptions, spec: DifficultySpec, now
 
   // Tier bias needs to know each item's tier, and ids do not carry it, so
   // without meta there is nothing to bias on — skip rather than guess.
-  if (meta && spec.tierBias !== 'balanced') {
+  //
+  // `canonical` is exempt, and that exemption is the point rather than an
+  // oversight. Floating tier 1 forward reorders across the whole canon: the
+  // foundational items are scattered through it, so a member on `easy` opened
+  // on Isaiah instead of Genesis. Walking the books in order *is* easy mode's
+  // pedagogy — the frame has to be built front to back — so nothing is allowed
+  // to reorder it. The settings that shuffle or spread have already given up
+  // canonical position, and there the bias costs nothing (#38).
+  if (meta && spec.tierBias !== 'balanced' && spec.newOrder !== 'canonical') {
     const dir = spec.tierBias === 'foundation-first' ? 1 : -1;
     // Array.prototype.sort is stable per spec (ES2019+), which is load-bearing
     // here: it is what makes this a nudge on top of the order above rather

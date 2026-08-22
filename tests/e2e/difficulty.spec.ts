@@ -14,7 +14,8 @@
  */
 import { expect, test } from '@playwright/test';
 import { BOOKS, BOOKS_BY_ID } from '../../src/data/books';
-import { allItems } from '../../src/lib/generate';
+import { allItems, ITEMS_BY_ID } from '../../src/lib/generate';
+import { buildQueue, type ItemMeta } from '../../src/lib/srs';
 import { DIFFICULTY_SPEC } from '../../src/lib/difficulty';
 import { daysFromNow, ITEM, openAs, readStore, soloQueue, expectBooted } from './harness';
 
@@ -242,6 +243,84 @@ test.describe('difficulty — scoping across the whole bank', () => {
  * question, and neither costs anything in item stability — the bank stays
  * difficulty-blind and the render site slices.
  */
+/**
+ * Which new cards get introduced, and whether you can predict them (#38).
+ *
+ * The complaint: "build the frame is great in going through all of the books
+ * but it's in order — for easy mode that's fine but for hard mode it should
+ * not be. It's too easy to predict." It was literally true at every setting.
+ * `fresh` arrives in the bank's generation order, which is canonical, and
+ * `buildQueue` took `fresh.slice(0, newLimit)`. The within-session shuffle
+ * (#11) never touched it, because it only reorders cards already chosen.
+ */
+test.describe('difficulty — how new material is introduced', () => {
+  const items = allItems();
+  const meta: Record<string, ItemMeta> = {};
+  for (const i of items) meta[i.id] = { tier: i.tier, book: i.book };
+
+  const introduced = (difficulty: 'easy' | 'medium' | 'hard', seed: string) =>
+    new Set(buildQueue(items.map((i) => i.id), {}, {
+      newLimit: 10, sessionLimit: 10, difficulty, meta, seed,
+    }));
+
+  const bookSpan = (ids: Set<string>) => {
+    const orders = [...ids]
+      .map((id) => BOOKS_BY_ID[ITEMS_BY_ID.get(id)!.book ?? '']?.order)
+      .filter((n): n is number => typeof n === 'number');
+    return orders.length ? Math.max(...orders) - Math.min(...orders) : 0;
+  };
+
+  test('easy walks the canon from the beginning', () => {
+    const first = introduced('easy', '2026-08-22');
+    const orders = [...first]
+      .map((id) => BOOKS_BY_ID[ITEMS_BY_ID.get(id)!.book ?? '']?.order)
+      .filter((n): n is number => typeof n === 'number');
+
+    // Genesis-first, and tightly clustered — the frame is built front to back.
+    // This is also why the tier bias is not allowed to reorder `canonical`:
+    // floating tier 1 forward opened easy on Isaiah instead of Genesis.
+    expect(Math.min(...orders)).toBe(1);
+    expect(bookSpan(first)).toBeLessThan(10);
+  });
+
+  test('hard draws from across the whole scope instead', () => {
+    expect(bookSpan(introduced('hard', '2026-08-22'))).toBeGreaterThan(20);
+  });
+
+  test('hard deals a different hand each day, where easy deals the same one', () => {
+    const easyToday = introduced('easy', '2026-08-22');
+    const easyTomorrow = introduced('easy', '2026-08-23');
+    const hardToday = introduced('hard', '2026-08-22');
+    const hardTomorrow = introduced('hard', '2026-08-23');
+
+    const overlap = (a: Set<string>, b: Set<string>) => [...a].filter((x) => b.has(x)).length;
+
+    // Easy is deliberately predictable: the same next cards until you clear them.
+    expect(overlap(easyToday, easyTomorrow)).toBe(easyToday.size);
+    // Hard is not. This is the whole complaint, inverted into a guarantee.
+    expect(overlap(hardToday, hardTomorrow)).toBeLessThan(hardToday.size / 2);
+  });
+
+  test('a reload does not deal a different hand mid-session', () => {
+    // Seeded, not Math.random(): unpredictable across days, fixed within one.
+    const a = introduced('hard', '2026-08-22');
+    const b = introduced('hard', '2026-08-22');
+    expect([...a].sort()).toEqual([...b].sort());
+  });
+
+  test('hard introduces more new cards than medium, and easy fewer', () => {
+    // A session limit well above the new-card limit, or the cut hides the
+    // difference this is measuring.
+    const count = (difficulty: 'easy' | 'medium' | 'hard') =>
+      buildQueue(items.map((i) => i.id), {}, {
+        newLimit: 10, sessionLimit: 500, difficulty, meta, seed: 's',
+      }).length;
+
+    expect(count('hard')).toBeGreaterThan(count('medium'));
+    expect(count('easy')).toBeLessThan(count('medium'));
+  });
+});
+
 test.describe('difficulty — what reaches the card', () => {
   const CHOICES = { easy: 3, medium: 4, hard: 6 } as const;
 
