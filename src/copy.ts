@@ -54,11 +54,17 @@ export const copy = {
    * The settings panel (#36).
    *
    * Difficulty is the reason this copy has to work hard: "Easy / Medium / Hard"
-   * says nothing about *what* changes, and what changes here is where a
-   * question's wrong options are drawn from. So every level carries a sentence
-   * describing the mechanism, and all three stay on screen at once — a reader
-   * choosing between them needs to compare them, not discover them one at a
-   * time.
+   * says nothing about *what* changes. So every level carries a note describing
+   * the mechanism, and all three stay on screen at once — a reader choosing
+   * between them needs to compare them, not discover them one at a time.
+   *
+   * Those notes were rewritten in #38 because they had gone stale: they still
+   * described a setting that only moved wrong answers around, while the control
+   * had quietly grown three more effects — how many options a question offers,
+   * whether it asks for free recall first, and how new material is introduced.
+   * Copy that promises less than the code does is the same defect as copy that
+   * promises more; both leave the reader choosing blind. The figures below are
+   * the ones in lib/difficulty.ts (`DIFFICULTY_SPEC`) and have to move with it.
    */
   settings: {
     display: {
@@ -72,21 +78,41 @@ export const copy = {
       heading: 'Difficulty',
       /** accessible name for the Easy/Medium/Hard switch */
       label: 'Default difficulty',
-      help: 'Difficulty decides where a question’s wrong answers come from, and which cards the review queue puts in front of you. It takes effect on the next question you see.',
+      help: 'Difficulty changes four things: where a question’s wrong answers come from, how many options you are offered, whether a reference has to be named from memory first, and how new material is introduced. It takes effect on the next question you see.',
       options: {
         easy: {
           label: 'Easy',
-          note: 'Wrong answers can be drawn from anywhere in the canon, so the right one usually stands out on sight. The queue keeps bringing back the cards you already answer well.',
+          note: 'Three options, with the wrong two drawn from anywhere in the canon — usually wrong on sight. References are never asked from memory, and the explanation is offered as a hint before you answer. New material walks the canon in order, a little at a time.',
         },
         medium: {
           label: 'Medium',
-          note: 'Wrong answers come from books near the answer’s own, and never cross between the Old and New Testaments. This is how the trainer has always worked.',
+          note: 'Four options, with the wrong three drawn from books near the answer’s own and never across the Old/New Testament seam. A reference asks you to name it from memory before the choices appear. New material is interleaved. This is how the trainer has always worked.',
         },
         hard: {
           label: 'Hard',
-          note: 'Wrong answers come only from the same book, so nothing is given away by context. The queue spends most of its time on whatever you keep missing.',
+          note: 'Six options, drawn as close to the answer as the question allows — the same book where there is one, canonical neighbours for book order, the same era or family for people. References are always named from memory first, with no hint. New material comes from anywhere in the current scope in an unpredictable order, half again as much of it, and a card you miss does not come back until tomorrow.',
         },
       },
+    },
+
+    /**
+     * The follow-the-plan switch (#38).
+     *
+     * The note has one job the help line cannot do: say what happens when the
+     * phase runs dry. A reader who thinks a calendar can lock them out of
+     * studying will turn this off and never turn it back on, so the widening
+     * has to be stated up front rather than discovered.
+     */
+    followPlan: {
+      heading: 'Follow the study plan',
+      /** accessible name for the On/Off switch */
+      label: 'Follow the study plan',
+      help: 'Your daily review draws from whichever phase the plan is currently in, rather than from the whole bank at once. Quizzes are unaffected — they still cover whatever you point them at.',
+      options: { on: 'On', off: 'Off' },
+      note: 'The plan works in order — the frame first, then the Old Testament, then the New, then the timeline and mixed review — and this keeps the daily queue inside it. When there is not enough left in the current phase to fill a session, the queue quietly widens to the rest of the bank rather than telling you there is nothing to study.',
+      /** Names the phase the queue is currently drawn from, on the review screen. */
+      activeOn: (phaseName: string) => `Following the study plan: ${phaseName}.`,
+      studyEverything: 'Study everything instead',
     },
 
     study: {

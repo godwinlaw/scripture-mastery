@@ -1,7 +1,7 @@
-import { BOOKS, isPropheticBook } from '../data/books';
+import { BOOKS, BOOKS_BY_ID, booksNear, isPropheticBook, sameTestamentBooks } from '../data/books';
 import { DETAILS, type BookDetail, type DetailEvent } from '../data/details';
-import type { Item } from '../data/types';
-import { distractorSets } from './distractors';
+import type { Book, Item } from '../data/types';
+import { distractorSets, scopedSets } from './distractors';
 import { pickDistractors, seededShuffle } from './rng';
 
 const bookName = new Map(BOOKS.map((b) => [b.id, b.name]));
@@ -16,6 +16,87 @@ const allNumberValues = DETAILS.flatMap((d) => d.numbers?.map((n) => n.value) ??
 const allPurposes = DETAILS.map((d) => d.purpose);
 const allAudiences = [...new Set(DETAILS.map((d) => d.audience))];
 const allWritten = [...new Set(DETAILS.map((d) => d.written))];
+
+/**
+ * The rings every hard chain in this file walks, tightest first (#38).
+ *
+ * Until now the raw `pickDistractors` sites below drew from one of the
+ * canon-wide arrays above (or, at best, from the whole book), so the setting
+ * changed how *many* wrong options a card showed but never how close they sat
+ * to the answer — "hard" was six canon-wide strangers where medium was four.
+ * These rings are what the scoped chains widen through: the book itself, then
+ * its division, then its Testament, never across the seam (the same fence
+ * `nearbyPool` keeps, for the same reason — a Colossians option against a
+ * Leviticus question is a different subject, not a harder one).
+ *
+ * Each ring is a strict superset of the one before, which is what makes
+ * `layeredPool`'s widening monotonic. `booksNear(id, 0)` already contains the
+ * book; `sameTestamentBooks` deliberately does not, so it is added back here.
+ */
+function ownRing(bookId: string): Book[] {
+  const b = BOOKS_BY_ID[bookId];
+  return b ? [b] : [];
+}
+
+function divisionRing(bookId: string): Book[] {
+  return booksNear(bookId, 0);
+}
+
+function testamentRing(bookId: string): Book[] {
+  return [...ownRing(bookId), ...sameTestamentBooks(bookId)];
+}
+
+/** One field out of every detail record in a ring, absent values dropped. */
+function fromDetails(
+  books: Book[],
+  extract: (d: BookDetail) => readonly (string | undefined)[],
+): string[] {
+  return books.flatMap((b) => {
+    const d = detailByBook.get(b.id);
+    return d ? extract(d).filter((s): s is string => !!s) : [];
+  });
+}
+
+/**
+ * The hard chain for anything that lives *inside* a book — its cast, their
+ * deeds, the people and places its episodes name, its numbers.
+ *
+ * The book's own record is the tightest honest pool here: telling Aaron from
+ * Miriam is a Numbers question, telling Aaron from Habakkuk is not a question
+ * at all. Any per-question exclusion belongs inside `extract` rather than
+ * after the fact, so that a ring which cannot actually offer enough options is
+ * seen as short and widened past, instead of looking full and coming up empty.
+ */
+function insideChain(
+  bookId: string,
+  extract: (d: BookDetail) => readonly (string | undefined)[],
+): (() => string[])[] {
+  return [
+    () => fromDetails(ownRing(bookId), extract),
+    () => fromDetails(divisionRing(bookId), extract),
+    () => fromDetails(testamentRing(bookId), extract),
+  ];
+}
+
+/**
+ * The hard chain for whole-book fields — purpose, audience, date, place of
+ * writing.
+ *
+ * There is no own-book ring on purpose: a book has exactly one purpose and it
+ * is the answer, so the tightest pool that can exist is the surrounding
+ * division. That is still a real tightening. "When was Nahum written?" against
+ * the other Minor Prophets' dates is a date question; against the whole canon's
+ * it is an Old-Testament-or-New question, which the prompt already gave away.
+ */
+function aboutChain(
+  bookId: string,
+  extract: (d: BookDetail) => readonly (string | undefined)[],
+): (() => string[])[] {
+  return [
+    () => fromDetails(divisionRing(bookId), extract),
+    () => fromDetails(testamentRing(bookId), extract),
+  ];
+}
 
 function ref(d: BookDetail, r: string): string {
   return `${bookName.get(d.book) ?? d.book} ${r}`;
@@ -145,11 +226,24 @@ function eventItems(d: BookDetail): Item[] {
     if (scoped.length > 0) {
       const answer = scoped[0];
       const others = allFigureNames.filter((n) => !e.who.includes(n));
+      // Everyone the episode actually names is barred from *every* tier, not
+      // just from `others`. A tighter pool that let a genuine participant
+      // through would be offering a second right answer, and validate.ts only
+      // ever compares options against `answer` itself, so nothing downstream
+      // would catch it (#38).
+      const notPresent = (n: string) => !e.who.includes(n);
       items.push({
         id: `det-ev-who-${key}`, kind: 'mcq', topic: 'people', tier: 2, book: d.book,
         prompt: `Who is involved in this? "${e.what}"`,
         answer,
-        distractors: pickDistractors(others, answer, 3, `evwho-${key}`),
+        // Medium has always been every figure in the canon, which makes this a
+        // which-book question in disguise. Hard offers the other people this
+        // book's own episodes put on stage, so it asks who did *this* (#38).
+        ...scopedSets(answer, `evwho-${key}`, {
+          medium: others,
+          easy: [() => others],
+          hard: insideChain(d.book, (x) => x.events.flatMap((y) => y.who).filter(notPresent)),
+        }),
         explain: `${e.name}, ${ref(d, e.ref)}${e.who.length > 1 ? ` — also involved: ${e.who.filter((w) => w !== answer).join(', ')}` : ''}.`,
       });
     }
@@ -161,7 +255,14 @@ function eventItems(d: BookDetail): Item[] {
         id: `det-ev-where-${key}`, kind: 'mcq', topic: 'places', tier: 3, book: d.book,
         prompt: `Where does this take place? "${e.what}"`,
         answer: e.where,
-        distractors: pickDistractors(places, e.where, 3, `evwhere-${key}`),
+        // Hard offers the other places this book's own episodes happen: Sinai
+        // against Kadesh, Nebo and the Red Sea is a where-in-Exodus question;
+        // Sinai against Patmos and Antioch is a which-Testament one (#38).
+        ...scopedSets(e.where, `evwhere-${key}`, {
+          medium: places,
+          easy: [() => places],
+          hard: insideChain(d.book, (x) => x.events.map((y) => y.where)),
+        }),
         explain: `${e.name} — ${ref(d, e.ref)}.`,
       });
     }
@@ -239,9 +340,15 @@ function figureItems(d: BookDetail): Item[] {
       id: `det-fig-did-${key}`, kind: 'mcq', topic: 'people', tier: 2, book: d.book,
       prompt: `In ${name}, what does ${f.name} do?`,
       answer: f.did,
-      distractors: pickDistractors(
-        ownDeeds.length >= 6 ? ownDeeds : allFigureDeeds, f.did, 3, `figd-${key}`,
-      ),
+      // Medium keeps its old rule exactly — this book's deeds when the cast is
+      // big enough, the canon's otherwise. Hard always starts from this book,
+      // so the small-cast books stop pitting a Ruth deed against a Revelation
+      // one merely because Ruth lists fewer than six figures (#38).
+      ...scopedSets(f.did, `figd-${key}`, {
+        medium: ownDeeds.length >= 6 ? ownDeeds : allFigureDeeds,
+        easy: [() => allFigureDeeds],
+        hard: insideChain(d.book, (x) => x.figures.map((y) => y.did)),
+      }),
       explain: f.ref ? `See ${f.ref}.` : undefined,
     });
 
@@ -251,7 +358,15 @@ function figureItems(d: BookDetail): Item[] {
         id: `det-fig-who-${key}`, kind: 'mcq', topic: 'people', tier: 3, book: d.book,
         prompt: `Who is this, in ${name}? "${f.did}"`,
         answer: f.name,
-        distractors: pickDistractors(d.figures.map((x) => x.name), f.name, 3, `figw-${key}`),
+        // Medium is already this book's own cast, so hard cannot sit tighter;
+        // what it adds is the extra two options. A four-figure book cannot fill
+        // six slots from its own list, and the chain widens to the division
+        // rather than let the hardest setting render the shortest card (#38).
+        ...scopedSets(f.name, `figw-${key}`, {
+          medium: d.figures.map((x) => x.name),
+          easy: [() => allFigureNames],
+          hard: insideChain(d.book, (x) => x.figures.map((y) => y.name)),
+        }),
         explain: f.ref,
       });
     }
@@ -275,9 +390,16 @@ function numberItems(d: BookDetail): Item[] {
       id: `det-num-${key}`, kind: 'mcq', topic: 'numbers', tier: 3, book: d.book,
       prompt: `${name} — ${n.of}?`,
       answer: n.value,
-      distractors: pickDistractors(
-        ownValues.length >= 5 ? ownValues : allNumberValues, n.value, 3, `num-${key}`,
-      ),
+      // `numbers` is the sparsest field in the detail layer — most books record
+      // none at all — so even the Testament ring often cannot reach six values
+      // and `scopedSets`' thinness guard tops the hard set up from the wider
+      // pools. That is the intended outcome: a genuinely scoped hard set where
+      // one exists, and a full card rather than a short one where it does not.
+      ...scopedSets(n.value, `num-${key}`, {
+        medium: ownValues.length >= 5 ? ownValues : allNumberValues,
+        easy: [() => allNumberValues],
+        hard: insideChain(d.book, (x) => (x.numbers ?? []).map((y) => y.value)),
+      }),
       explain: n.ref,
     });
   }
@@ -296,7 +418,15 @@ function frameItems(d: BookDetail): Item[] {
       id: `det-purpose-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 2, book: d.book,
       prompt: `Why was ${name} written?`,
       answer: d.purpose,
-      distractors: pickDistractors(allPurposes, d.purpose, 3, `pur-${d.book}`),
+      // Only the prophets ask this (#9), and the prophets are exactly where a
+      // canon-wide pool gives the game away: "why was Joel written?" against
+      // Philemon and Leviticus answers itself. Hard keeps it among the other
+      // Minor Prophets, whose stated purposes genuinely overlap (#38).
+      ...scopedSets(d.purpose, `pur-${d.book}`, {
+        medium: allPurposes,
+        easy: [() => allPurposes],
+        hard: aboutChain(d.book, (x) => [x.purpose]),
+      }),
       explain: `Audience: ${d.audience}.`,
     });
 
@@ -304,7 +434,11 @@ function frameItems(d: BookDetail): Item[] {
       id: `det-audience-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
       prompt: `Who was ${name} written to?`,
       answer: d.audience,
-      distractors: pickDistractors(allAudiences, d.audience, 3, `aud-${d.book}`),
+      ...scopedSets(d.audience, `aud-${d.book}`, {
+        medium: allAudiences,
+        easy: [() => allAudiences],
+        hard: aboutChain(d.book, (x) => [x.audience]),
+      }),
       explain: d.purpose,
     });
   }
@@ -313,7 +447,15 @@ function frameItems(d: BookDetail): Item[] {
     id: `det-written-${d.book}`, kind: 'mcq', topic: 'timeline', tier: 3, book: d.book,
     prompt: `When was ${name} written?`,
     answer: d.written,
-    distractors: pickDistractors(allWritten, d.written, 3, `wr-${d.book}`),
+    // Dates are the clearest case for scoping: books in one division were
+    // written within decades of each other, so the division's dates are the
+    // options a reader actually has to weigh. The canon's span a millennium,
+    // which quietly turns this into an OT-or-NT question (#38).
+    ...scopedSets(d.written, `wr-${d.book}`, {
+      medium: allWritten,
+      easy: [() => allWritten],
+      hard: aboutChain(d.book, (x) => [x.written]),
+    }),
     explain: `${name}: ${d.purpose}.`,
   });
 
@@ -328,7 +470,19 @@ function frameItems(d: BookDetail): Item[] {
       id: `det-distinctive-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
       prompt: `Which book is this true of? "${d.distinctive}"`,
       answer: name,
-      distractors: pickDistractors(BOOKS.map((b) => b.name), name, 3, `dis-${d.book}`),
+      // The pool here is book names rather than a detail field, so this walks
+      // the rings directly instead of through `aboutChain`. Only prophetic
+      // books ask it, which means the tight ring is the other Major or Minor
+      // Prophets — the seventeen books #9 kept these questions for, and the one
+      // stretch of the canon where "which book is this?" is a real question.
+      ...scopedSets(name, `dis-${d.book}`, {
+        medium: BOOKS.map((b) => b.name),
+        easy: [() => BOOKS.map((b) => b.name)],
+        hard: [
+          () => divisionRing(d.book).map((b) => b.name),
+          () => testamentRing(d.book).map((b) => b.name),
+        ],
+      }),
       explain: d.purpose,
     });
   }
@@ -339,7 +493,15 @@ function frameItems(d: BookDetail): Item[] {
       id: `det-from-${d.book}`, kind: 'mcq', topic: 'places', tier: 3, book: d.book,
       prompt: `Where was ${name} written from?`,
       answer: d.writtenFrom,
-      distractors: pickDistractors(froms, d.writtenFrom, 3, `frm-${d.book}`),
+      // `writtenFrom` is recorded almost only for the Pauline epistles, so the
+      // division ring and the canon-wide pool are nearly the same handful of
+      // cities. The scoping is honest but thin here; the widening and the
+      // thinness guard are what keep the card full (#38).
+      ...scopedSets(d.writtenFrom, `frm-${d.book}`, {
+        medium: froms,
+        easy: [() => froms],
+        hard: aboutChain(d.book, (x) => [x.writtenFrom]),
+      }),
       explain: `${name}, ${d.written}.`,
     });
   }
@@ -374,11 +536,23 @@ function crossBookItems(): Item[] {
   const sample = seededShuffle(soloEvents, 'cross-who').slice(0, 60);
   for (const { d, e } of sample) {
     const answer = e.who[0];
+    // Same exclusion rule as the in-book who-question: nobody the episode
+    // actually involves may surface as a wrong option in any tier, or the card
+    // has two right answers.
+    const others = allFigureNames.filter((n) => !e.who.includes(n));
     items.push({
       id: `det-x-who-${d.book}-${slug(e.name)}`, kind: 'mcq', topic: 'people', tier: 3, book: d.book,
       prompt: `Who is at the center of this event: ${e.name}?`,
       answer,
-      distractors: pickDistractors(allFigureNames.filter((n) => !e.who.includes(n)), answer, 3, `xw-${d.book}-${e.name}`),
+      // This item is deliberately cross-book, so medium spans the canon. Hard
+      // narrows to the cast of the book the episode came from: the golden calf
+      // against Aaron, Joshua and Hur is a question about Exodus; against
+      // Nehemiah and Titus it is a question about the table of contents (#38).
+      ...scopedSets(answer, `xw-${d.book}-${e.name}`, {
+        medium: others,
+        easy: [() => others],
+        hard: insideChain(d.book, (x) => x.figures.map((y) => y.name).filter((n) => !e.who.includes(n))),
+      }),
       explain: `${ref(d, e.ref)} — ${e.what}`,
     });
   }

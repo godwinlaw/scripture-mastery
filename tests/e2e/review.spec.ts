@@ -42,18 +42,15 @@ test.describe('daily review', () => {
     expect(store.log.at(-1)).toMatchObject({ reviewed: 1, correct: 1 });
   });
 
-  test('a missed card is requeued and asked again — currently it comes back pre-answered', async ({ page }) => {
-    // KNOWN BUG (src/views/Review.tsx:127): the session card is keyed on
-    // `item.id`, so when a missed card is requeued as the *very next* card —
-    // which is what happens whenever you miss the last card of a session —
-    // React reuses the component and QuestionCard's reset effect, keyed on the
-    // same `item.id`, never fires. The card returns still revealed, with the
-    // wrong answer in a disabled input: no retrieval, which is the entire point
-    // of requeueing it. Keying on the queue position instead fixes it.
-    // Delete this `test.fail()` once it is fixed — Playwright will flag the
-    // test as unexpectedly passing.
-    test.fail();
-
+  test('a missed card is requeued and asked again', async ({ page }) => {
+    // Fixed in #38 by keying the session card on the queue position rather than
+    // `item.id`. When a missed card was requeued as the *very next* card — which
+    // is what happens whenever you miss the last card of a session — React
+    // reused the component, QuestionCard's reset effect (keyed on the same
+    // `item.id`) never fired, and the card returned still revealed. There was no
+    // retrieval, which is the entire point of requeueing it; worse, the only way
+    // forward was Continue, which graded the same miss again. One miss recorded
+    // three reps and three lapses, one short of the leech threshold.
     await openAs(page, { store: soloQueue(ITEM.mcq) }, 'review');
     await start(page);
 
@@ -73,8 +70,7 @@ test.describe('daily review', () => {
     // Miss it three times; the third must not extend the session again.
     for (let attempt = 1; attempt <= 3; attempt++) {
       await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
-      // Tolerates the requeue bug above: only answer if the card is still open.
-      if (await page.locator('.feedback').count() === 0) await answerMcq(page, 'Deuteronomy');
+      await answerMcq(page, 'Deuteronomy');
       await page.getByRole('button', { name: /^Continue/ }).click();
     }
 

@@ -22,3 +22,6 @@ dist
 
 # Firebase deploy cache
 /.firebase/
+
+# Local Claude Code launch config
+.claude/

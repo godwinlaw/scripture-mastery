@@ -189,6 +189,25 @@ a:hover { color: var(--color-accent-700); text-decoration: underline; }
   outline-offset: 2px;
 }
 
+/* Said to a screen reader, not drawn (#38).
+   `display: none` would take it away from both, which is the opposite of the
+   point — this is for text the page already communicates by position, colour
+   or layout to everyone who can see it: the shell's one <h1>, the ordering
+   list's move announcements. Clipped to a 1px box so it never reserves space
+   and never wraps a line open. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ================================================================== layout */
 .app {
   max-width: 1080px;
@@ -493,6 +512,22 @@ input.answer {
 .order-item button:disabled { opacity: 0.3; cursor: not-allowed; }
 .order-item.correct { border-color: var(--color-accent); background: var(--tint-accent); }
 .order-item.wrong { border-color: var(--color-error); background: var(--tint-error); }
+/* The same verdict again, in a channel that survives a colour-blind eye and a
+   monochrome print (#38). Border and tint alone said "right" and "wrong" in
+   hue only — red and green at that, the one pair most likely to read as the
+   same grey. The glyph carries its own `role="img"` label, so it is a third
+   channel as well: shape, position, and spoken text. */
+.order-item .mark {
+  margin-left: auto;
+  flex: none;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+.order-item.correct .mark { color: var(--color-accent); }
+.order-item.wrong .mark { color: var(--color-error); }
 
 /* ============================================================ tags / pills */
 .pill,

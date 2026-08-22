@@ -1,12 +1,22 @@
-import { BOOKS, isPropheticBook } from '../data/books';
+import {
+  BOOKS,
+  BOOKS_BY_ID,
+  booksNear,
+  distantBooks,
+  isPropheticBook,
+  neighborBooks,
+  sameTestamentBooks,
+} from '../data/books';
 import { PEOPLE, PLACES } from '../data/people';
+import type { Person, Place } from '../data/people';
 import { ERAS, EVENTS } from '../data/timeline';
+import type { Era } from '../data/timeline';
 import { AUTHORED, LIST_DECOYS, LISTS } from '../data/extras';
-import type { Item } from '../data/types';
-import { distractorSets } from './distractors';
+import type { Book, Item } from '../data/types';
+import { distractorSets, scopedSets } from './distractors';
 import { buildDetailItems } from './generate-detail';
 import { buildEssentialItems } from './generate-essentials';
-import { pickDistractors, seededShuffle } from './rng';
+import { pickDistractors } from './rng';
 
 const bookNames = BOOKS.map((b) => b.name);
 
@@ -15,6 +25,170 @@ function siblingNames(bookId: string): string[] {
   const b = BOOKS.find((x) => x.id === bookId)!;
   const sameDivision = BOOKS.filter((x) => x.division === b.division && x.id !== b.id).map((x) => x.name);
   return sameDivision.length >= 3 ? sameDivision : bookNames.filter((n) => n !== b.name);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Scoped option pools (#38)
+ * ---------------------------------------------------------------------------
+ *
+ * Difficulty used to bite on roughly a third of the bank: the questions routed
+ * through `distractorSets` carried easy and hard alternates, and everything
+ * else fell back to one canon-wide `pickDistractors` draw at every setting.
+ * That is why "hard" did not feel hard — a question about Leviticus would
+ * happily offer Philemon, which is not a harder question, just a different
+ * subject you can rule out without knowing anything.
+ *
+ * The helpers below give every remaining family the same shape the existing
+ * ones already have: `hard` is a chain of pool builders ordered tightest-first
+ * that `layeredPool` widens through only when the tight pool cannot fill a
+ * six-choice card, and `easy` is the widest pool available, because the point
+ * of easy is wrong options that are wrong on sight.
+ *
+ * `medium` is never touched. It is what lands in `Item.distractors`, which
+ * validate.ts, the content-contract spec and every card rendered at the default
+ * setting read, so each call below passes the *identical* pool expression and
+ * seed the generator used before, and `scopedSets` reproduces the old value
+ * exactly.
+ */
+
+/**
+ * The rings a book-shaped question tightens through: the answer's own division,
+ * one division further out, its Testament, then the whole canon.
+ *
+ * This is the same fence `nearbyPool` uses for the medium pools, for the same
+ * reason (#10, #12) — a wrong option only tests anything if it is a plausible
+ * neighbour. Book-order questions are the documented exception; see
+ * `bookOrderSets`.
+ */
+function bookRings(bookId: string): (() => Book[])[] {
+  return [
+    () => booksNear(bookId, 0),
+    () => booksNear(bookId, 1),
+    () => sameTestamentBooks(bookId),
+    () => BOOKS,
+  ];
+}
+
+/** `bookRings` projected through `extract`, ready to hand to `scopedSets`. */
+function bookPools(bookId: string, extract: (b: Book) => string[]): (() => string[])[] {
+  return bookRings(bookId).map((ring) => () => ring().flatMap(extract));
+}
+
+/**
+ * The rings a People or Relationships question tightens through: the figures of
+ * the answer's own book, then of its era, then of its Testament, then everyone.
+ *
+ * Book first rather than era first because "who is this?" is nearly always
+ * answered from a story, and the people you confuse with Gideon are the other
+ * judges in Judges — not everyone who happens to sit in the same century.
+ */
+function peopleRings(p: Person): (() => Person[])[] {
+  const testament = BOOKS_BY_ID[p.book]?.testament;
+  return [
+    () => PEOPLE.filter((x) => x.book === p.book),
+    () => PEOPLE.filter((x) => x.era === p.era),
+    () => PEOPLE.filter((x) => BOOKS_BY_ID[x.book]?.testament === testament),
+    () => PEOPLE,
+  ];
+}
+
+/**
+ * `peopleRings` projected through `extract`.
+ *
+ * Any per-question exclusion belongs inside `extract`, not after the pool is
+ * built — the same lesson #12 recorded for events. A ring that looks full and
+ * only loses its illegal entries afterwards stops the widening early and leaves
+ * the card short.
+ */
+function peoplePools(p: Person, extract: (x: Person) => string[]): (() => string[])[] {
+  return peopleRings(p).map((ring) => () => ring().flatMap(extract));
+}
+
+/**
+ * The rings a Places question tightens through.
+ *
+ * `Place` carries a `book` and an `era` and nothing finer — no region, no
+ * coordinates — so locality here means "belongs to the same stretch of the
+ * story", which is the association a reader actually has. Gethsemane against
+ * Golgotha and the Mount of Olives is a real question; Gethsemane against Ur is
+ * not.
+ */
+function placeRings(pl: Place): (() => Place[])[] {
+  const testament = BOOKS_BY_ID[pl.book]?.testament;
+  return [
+    () => PLACES.filter((x) => x.book === pl.book),
+    () => PLACES.filter((x) => x.era === pl.era),
+    () => PLACES.filter((x) => BOOKS_BY_ID[x.book]?.testament === testament),
+    () => PLACES,
+  ];
+}
+
+function placePools(pl: Place, extract: (x: Place) => string[]): (() => string[])[] {
+  return placeRings(pl).map((ring) => () => ring().flatMap(extract));
+}
+
+/**
+ * Book-order questions are the one family where the Testament seam is the wrong
+ * fence, and canonical distance is the right one.
+ *
+ * "Which book immediately follows Malachi?" has a New Testament answer to an
+ * Old Testament question, so scoping the options by Testament would mark the
+ * correct one out without the reader knowing a thing about the canon. What
+ * makes these hard is proximity in the running order: Ezra against Nehemiah,
+ * Esther and Chronicles is a question; Ezra against Matthew is a free point.
+ * Hence `neighborBooks`/`distantBooks`, which cross the seam on purpose (#38).
+ *
+ * Two further notes on the medium set:
+ *
+ *  - The subject book was showing up as a wrong option on its own question —
+ *    "Which book immediately precedes Leviticus?" offered Leviticus, because
+ *    `pickDistractors` only excludes the *answer*. It has to come out of every
+ *    pool, medium included.
+ *  - It cannot come out of the medium *pool*, though. `seededShuffle` is a
+ *    function of the array handed to it, so dropping one of 66 names reshuffles
+ *    all 130 book-order cards — including the four-option Genesis card the
+ *    content contract pins. So medium draws one extra and drops the subject
+ *    after the fact: the 124 cards that never had the bug keep their exact
+ *    options, and only the six that did are corrected.
+ */
+function bookOrderSets(subject: Book, answer: string, seed: string): Pick<Item, 'distractors' | 'distractorsBy'> {
+  const notSubject = (n: string) => n !== subject.name;
+  const names = (books: Book[]) => books.map((b) => b.name).filter(notSubject);
+  const wholeCanon = bookNames.filter(notSubject);
+
+  const distractors = pickDistractors(bookNames, answer, 4, seed).filter(notSubject).slice(0, 3);
+
+  // `scopedSets` recomputes the medium draw from the pool it is given, which is
+  // the un-post-filtered version; only its alternates are wanted here, so the
+  // corrected `distractors` above is the one that ships.
+  const { distractorsBy } = scopedSets(answer, seed, {
+    medium: wholeCanon,
+    easy: [() => names(distantBooks(subject.id, 12)), () => wholeCanon],
+    hard: [
+      () => names(neighborBooks(subject.id, 4)),
+      () => names(neighborBooks(subject.id, 8)),
+      () => names(sameTestamentBooks(subject.id)),
+      () => wholeCanon,
+    ],
+  });
+
+  return { distractors, distractorsBy };
+}
+
+/**
+ * The rings a Timeline question tightens through, by `seq`.
+ *
+ * Eras are a single ordered spine, so "near" means adjacent in that spine and
+ * nothing else: the Divided Kingdom against the United Kingdom and the Exile is
+ * a real question, against Creation it is not.
+ */
+function eraPools(e: Era, within: number): () => string[] {
+  return () => ERAS.filter((x) => x.id !== e.id && Math.abs(x.seq - e.seq) <= within).map((x) => x.name);
+}
+
+function eraNamesBeyond(e: Era, span: number): () => string[] {
+  return () => ERAS.filter((x) => Math.abs(x.seq - e.seq) > span).map((x) => x.name);
 }
 
 function buildBookItems(): Item[] {
@@ -33,7 +207,14 @@ function buildBookItems(): Item[] {
         id: `gen-summary-to-book-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 1, book: b.id,
         prompt: `Which book is this? "${b.oneLine}"`,
         answer: b.name,
-        distractors: pickDistractors(siblingNames(b.id), b.name, 3, `s2b-${b.id}`),
+        // Medium already draws from the division (`siblingNames`); hard keeps
+        // that and widens only when a five-book division cannot fill six
+        // choices, easy goes canon-wide (#38).
+        ...scopedSets(b.name, `s2b-${b.id}`, {
+          medium: siblingNames(b.id),
+          easy: [() => bookNames],
+          hard: bookPools(b.id, (x) => [x.name]),
+        }),
         explain: b.hook,
       });
 
@@ -41,19 +222,30 @@ function buildBookItems(): Item[] {
         id: `gen-theme-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 2, book: b.id,
         prompt: `What is the central theme of ${b.name}?`,
         answer: b.theme,
-        distractors: pickDistractors(BOOKS.map((x) => x.theme), b.theme, 3, `theme-${b.id}`),
+        // Themes of neighbouring prophets overlap heavily, which is exactly
+        // what makes them a hard set and a canon-wide draw an easy one.
+        ...scopedSets(b.theme, `theme-${b.id}`, {
+          medium: BOOKS.map((x) => x.theme),
+          easy: [() => BOOKS.map((x) => x.theme)],
+          hard: bookPools(b.id, (x) => [x.theme]),
+        }),
         explain: b.oneLine,
       });
     }
 
     // --- Position in canon
+    const nextAnswer = b.order < 66 ? BOOKS[b.order].name : 'Nothing — it is the last book of the Bible';
+    const nextSets = bookOrderSets(b, nextAnswer, `next-${b.id}`);
     items.push({
       id: `gen-position-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
       prompt: `Which book immediately follows ${b.name}?`,
-      answer: b.order < 66 ? BOOKS[b.order].name : 'Nothing — it is the last book of the Bible',
-      distractors: b.order < 66
-        ? pickDistractors(bookNames, BOOKS[b.order].name, 3, `next-${b.id}`)
-        : ['Jude', '3 John', '2 Peter'],
+      answer: nextAnswer,
+      // Revelation's medium options are authored, not drawn — the answer there
+      // is a sentence rather than a book, and the three near-misses at the end
+      // of the canon are the whole question. Only the alternates are generated.
+      ...(b.order < 66
+        ? nextSets
+        : { distractors: ['Jude', '3 John', '2 Peter'], distractorsBy: nextSets.distractorsBy }),
     });
 
     if (b.order > 1) {
@@ -61,7 +253,7 @@ function buildBookItems(): Item[] {
         id: `gen-prev-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
         prompt: `Which book immediately precedes ${b.name}?`,
         answer: BOOKS[b.order - 2].name,
-        distractors: pickDistractors(bookNames, BOOKS[b.order - 2].name, 3, `prev-${b.id}`),
+        ...bookOrderSets(b, BOOKS[b.order - 2].name, `prev-${b.id}`),
       });
     }
 
@@ -138,21 +330,35 @@ function buildPeopleItems(): Item[] {
       id: `gen-who-${p.id}`, kind: 'mcq', topic: 'people', tier: 1, book: p.book,
       prompt: `Who is this? ${p.clue}.`,
       answer: p.name,
-      distractors: pickDistractors(names, p.name, 3, `who-${p.id}`),
+      ...scopedSets(p.name, `who-${p.id}`, {
+        medium: names,
+        easy: [() => names],
+        hard: peoplePools(p, (x) => [x.name]),
+      }),
       explain: `${p.name}: ${p.role}.`,
     });
     items.push({
       id: `gen-role-${p.id}`, kind: 'mcq', topic: 'people', tier: 2, book: p.book,
       prompt: `Who was ${p.name}?`,
       answer: p.role,
-      distractors: pickDistractors(roles, p.role, 3, `role-${p.id}`),
+      ...scopedSets(p.role, `role-${p.id}`, {
+        medium: roles,
+        easy: [() => roles],
+        hard: peoplePools(p, (x) => [x.role]),
+      }),
       explain: p.clue,
     });
     items.push({
       id: `gen-personbook-${p.id}`, kind: 'mcq', topic: 'people', tier: 3, book: p.book,
       prompt: `In which book do we primarily read about ${p.name}?`,
       answer: BOOKS.find((b) => b.id === p.book)!.name,
-      distractors: pickDistractors(bookNames, BOOKS.find((b) => b.id === p.book)!.name, 3, `pb-${p.id}`),
+      // The answer here is a book, so this scopes like a book question rather
+      // than a people one: same division first, then the Testament.
+      ...scopedSets(BOOKS.find((b) => b.id === p.book)!.name, `pb-${p.id}`, {
+        medium: bookNames,
+        easy: [() => bookNames],
+        hard: bookPools(p.book, (x) => [x.name]),
+      }),
     });
   }
 
@@ -164,13 +370,22 @@ function buildPeopleItems(): Item[] {
   const allTribes = [...new Set(PEOPLE.map((p) => p.tribe).filter((x): x is string => !!x))];
   const allDeaths = [...new Set(PEOPLE.map((p) => p.died).filter((x): x is string => !!x))];
 
+  // Every relationship question scopes the same way: hard draws the *same*
+  // field from people in the answer's own book, then era, then Testament, so
+  // the wrong fathers are other fathers from the same story. Easy keeps the
+  // canon-wide list these questions have always used — a father from Acts
+  // against a question about Genesis is wrong on sight (#38).
   for (const p of PEOPLE) {
     if (p.father && allFathers.length >= 4) {
       items.push({
         id: `gen-father-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 2, book: p.book,
         prompt: `Who was the father of ${p.name}?`,
         answer: p.father,
-        distractors: pickDistractors(allFathers, p.father, 3, `fa-${p.id}`),
+        ...scopedSets(p.father, `fa-${p.id}`, {
+          medium: allFathers,
+          easy: [() => allFathers],
+          hard: peoplePools(p, (x) => (x.father ? [x.father] : [])),
+        }),
         explain: `${p.name}: ${p.role}.`,
       });
     }
@@ -179,7 +394,11 @@ function buildPeopleItems(): Item[] {
         id: `gen-mother-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 3, book: p.book,
         prompt: `Who was the mother of ${p.name}?`,
         answer: p.mother,
-        distractors: pickDistractors(allMothers, p.mother, 3, `mo-${p.id}`),
+        ...scopedSets(p.mother, `mo-${p.id}`, {
+          medium: allMothers,
+          easy: [() => allMothers],
+          hard: peoplePools(p, (x) => (x.mother ? [x.mother] : [])),
+        }),
         explain: `${p.name}: ${p.role}.`,
       });
     }
@@ -188,7 +407,11 @@ function buildPeopleItems(): Item[] {
         id: `gen-spouse-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 2, book: p.book,
         prompt: `Who was married to ${p.name}?`,
         answer: p.spouse,
-        distractors: pickDistractors(allSpouses, p.spouse, 3, `sp-${p.id}`),
+        ...scopedSets(p.spouse, `sp-${p.id}`, {
+          medium: allSpouses,
+          easy: [() => allSpouses],
+          hard: peoplePools(p, (x) => (x.spouse ? [x.spouse] : [])),
+        }),
         explain: p.clue,
       });
     }
@@ -201,7 +424,17 @@ function buildPeopleItems(): Item[] {
           id: `gen-child-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 3, book: p.book,
           prompt: `Which of these was a child of ${p.name}?`,
           answer: child,
-          distractors: pickDistractors(otherChildren, child, 3, `ch-${p.id}`),
+          // The "not one of p's own children" ban lives inside the extract, not
+          // after the pool is built, so a tight ring that is full of siblings
+          // widens instead of quietly shipping a card with a second right
+          // answer on it (#12).
+          ...scopedSets(child, `ch-${p.id}`, {
+            medium: otherChildren,
+            easy: [() => otherChildren],
+            hard: peoplePools(p, (x) =>
+              x.id === p.id ? [] : (x.children ?? []).filter((c) => !p.children!.includes(c)),
+            ),
+          }),
           explain: `${p.name}’s children: ${p.children.join(', ')}.`,
         });
       }
@@ -211,7 +444,11 @@ function buildPeopleItems(): Item[] {
         id: `gen-tribe-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 3, book: p.book,
         prompt: `Which tribe did ${p.name} belong to?`,
         answer: p.tribe,
-        distractors: pickDistractors(allTribes, p.tribe, 3, `tr-${p.id}`),
+        ...scopedSets(p.tribe, `tr-${p.id}`, {
+          medium: allTribes,
+          easy: [() => allTribes],
+          hard: peoplePools(p, (x) => (x.tribe ? [x.tribe] : [])),
+        }),
         explain: p.role,
       });
     }
@@ -220,7 +457,11 @@ function buildPeopleItems(): Item[] {
         id: `gen-died-${p.id}`, kind: 'mcq', topic: 'people', tier: 3, book: p.book,
         prompt: `How did ${p.name} die?`,
         answer: p.died,
-        distractors: pickDistractors(allDeaths, p.died, 3, `di-${p.id}`),
+        ...scopedSets(p.died, `di-${p.id}`, {
+          medium: allDeaths,
+          easy: [() => allDeaths],
+          hard: peoplePools(p, (x) => (x.died ? [x.died] : [])),
+        }),
         explain: p.clue,
       });
     }
@@ -232,7 +473,13 @@ function buildPeopleItems(): Item[] {
           id: `gen-aka-${p.id}`, kind: 'mcq', topic: 'people', tier: 3, book: p.book,
           prompt: `By what other name is ${p.name} known?`,
           answer: aka,
-          distractors: pickDistractors(others, aka, 3, `aka-${p.id}`),
+          // p's own aliases are excluded inside the extract for the same reason
+          // as the children ban above: every one of them is a right answer.
+          ...scopedSets(aka, `aka-${p.id}`, {
+            medium: others,
+            easy: [() => others],
+            hard: peoplePools(p, (x) => (x.id === p.id ? [] : x.alsoKnownAs ?? [])),
+          }),
           explain: p.clue,
         });
       }
@@ -244,13 +491,21 @@ function buildPeopleItems(): Item[] {
       id: `gen-place-${pl.id}`, kind: 'mcq', topic: 'places', tier: 2,
       prompt: `Which place is this? ${pl.what}.`,
       answer: pl.name,
-      distractors: pickDistractors(PLACES.map((x) => x.name), pl.name, 3, `pl-${pl.id}`),
+      ...scopedSets(pl.name, `pl-${pl.id}`, {
+        medium: PLACES.map((x) => x.name),
+        easy: [() => PLACES.map((x) => x.name)],
+        hard: placePools(pl, (x) => [x.name]),
+      }),
     });
     items.push({
       id: `gen-placewhat-${pl.id}`, kind: 'mcq', topic: 'places', tier: 3,
       prompt: `What is ${pl.name} known for?`,
       answer: pl.what,
-      distractors: pickDistractors(PLACES.map((x) => x.what), pl.what, 3, `plw-${pl.id}`),
+      ...scopedSets(pl.what, `plw-${pl.id}`, {
+        medium: PLACES.map((x) => x.what),
+        easy: [() => PLACES.map((x) => x.what)],
+        hard: placePools(pl, (x) => [x.what]),
+      }),
     });
   }
 
@@ -266,14 +521,24 @@ function buildTimelineItems(): Item[] {
       id: `gen-era-${e.id}`, kind: 'mcq', topic: 'timeline', tier: 2,
       prompt: `Which era of biblical history is this? ${e.summary}`,
       answer: e.name,
-      distractors: pickDistractors(eraNames, e.name, 3, `era-${e.id}`),
+      // Eras are one ordered spine, so "near" is `seq` and nothing else: hard
+      // offers the eras either side of this one, easy the ones an age away (#38).
+      ...scopedSets(e.name, `era-${e.id}`, {
+        medium: eraNames,
+        easy: [eraNamesBeyond(e, 4), () => eraNames],
+        hard: [eraPools(e, 2), eraPools(e, 4), () => eraNames],
+      }),
       explain: `${e.name}: ${e.span}.`,
     });
     items.push({
       id: `gen-erabooks-${e.id}`, kind: 'mcq', topic: 'timeline', tier: 3,
       prompt: `During which era does ${e.markers[0]} occur?`,
       answer: e.name,
-      distractors: pickDistractors(eraNames, e.name, 3, `erab-${e.id}`),
+      ...scopedSets(e.name, `erab-${e.id}`, {
+        medium: eraNames,
+        easy: [eraNamesBeyond(e, 4), () => eraNames],
+        hard: [eraPools(e, 2), eraPools(e, 4), () => eraNames],
+      }),
       explain: e.summary,
     });
   }
@@ -308,6 +573,12 @@ function buildTimelineItems(): Item[] {
 function buildListItems(): Item[] {
   const items: Item[] = [];
 
+  // Members of every *other* standing list — the "wrong on sight" pool that
+  // makes a positional question easy. It is deliberately not used for the
+  // NOT-in-this-list cards below; see the note there.
+  const otherListItems = (id: string) =>
+    LISTS.filter((l) => l.id !== id).flatMap((l) => l.items);
+
   for (const list of LISTS) {
     // Membership: which of these does NOT belong? One authored decoy against
     // three real members.
@@ -317,7 +588,16 @@ function buildListItems(): Item[] {
         id: `gen-list-not-${list.id}-${di}`, kind: 'mcq', topic: 'summaries', tier: 2,
         prompt: `Which of these is NOT part of ${list.title}?`,
         answer: decoy,
-        distractors: seededShuffle(list.items, `notd-${list.id}-${di}`).slice(0, 3),
+        // All three settings draw from this list and only this list. A NOT
+        // question inverts the usual logic: a member of some *other* list is
+        // also "not part of ${list.title}", so the canon-wide pool that makes
+        // every other card easy would put a second correct answer on this one.
+        // Difficulty here is the number of choices, not their provenance (#38).
+        ...scopedSets(decoy, `notd-${list.id}-${di}`, {
+          medium: list.items,
+          easy: [() => list.items],
+          hard: [() => list.items],
+        }),
         explain: `${list.title} — ${list.note}: ${list.items.join(', ')}.`,
       });
     });
@@ -337,7 +617,15 @@ function buildListItems(): Item[] {
           id: `gen-list-pos-${list.id}-${idx}`, kind: 'mcq', topic: 'summaries', tier: 3,
           prompt: `In ${list.title}, what is #${idx + 1}?`,
           answer: entry,
-          distractors: pickDistractors(list.items, entry, 3, `pos-${list.id}-${idx}`),
+          // Medium is already the tightest honest pool — the other members of
+          // this same list — so hard keeps it and only widens if a short list
+          // cannot fill six choices. Easy is where the setting earns its keep:
+          // an item from a different list is wrong without knowing the order.
+          ...scopedSets(entry, `pos-${list.id}-${idx}`, {
+            medium: list.items,
+            easy: [() => otherListItems(list.id)],
+            hard: [() => list.items, () => [...list.items, ...otherListItems(list.id)]],
+          }),
           explain: list.note,
         });
       });

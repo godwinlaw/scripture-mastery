@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Dashboard from './views/Dashboard';
 import Review from './views/Review';
 import Quiz from './views/Quiz';
@@ -51,6 +51,36 @@ export default function App() {
     const t = window.setTimeout(() => setSplashHeld(false), SPLASH_MIN_MS);
     return () => window.clearTimeout(t);
   }, []);
+
+  /**
+   * Give the switched-to view the caret (#38).
+   *
+   * `<main key={tab}>` throws the old view away and builds a new one, which is
+   * exactly right for the animation and exactly wrong for anyone who is not
+   * looking at the screen: focus stayed on the nav button it was pressed from,
+   * nothing was announced, and the only way to discover the page had changed
+   * was to tab blindly forward through it. Moving focus into `<main>` — which
+   * carries the view's name, see its `aria-label` below — announces the new
+   * view and starts the next Tab at the top of it.
+   *
+   * Deliberately not on first paint: the app has only just loaded, focus
+   * belongs wherever the browser put it, and yanking it would also fire on
+   * every deep link into a tab. The ref burns the mount and fires on genuine
+   * changes only.
+   *
+   * `:focus { outline: none }` is already the house rule, so a mouse user sees
+   * nothing; a keyboard user still gets the `:focus-visible` ring, which is the
+   * half worth keeping.
+   */
+  const mainRef = useRef<HTMLElement>(null);
+  const settled = useRef(false);
+  useEffect(() => {
+    if (!settled.current) {
+      settled.current = true;
+      return;
+    }
+    mainRef.current?.focus();
+  }, [tab]);
 
   function go(next: string) {
     window.location.hash = next;
@@ -143,6 +173,8 @@ export default function App() {
     );
   }
 
+  const viewLabel = TABS.find((t) => t.id === tab)?.label ?? '';
+
   const examDateLabel = new Date(`${api.store.settings.examDate}T12:00`).toLocaleDateString(
     undefined,
     { month: 'long', day: 'numeric' },
@@ -190,7 +222,28 @@ export default function App() {
         ))}
       </nav>
 
-      <main key={tab} className="screen">
+      {/*
+        Two separate holes, closed together (#38).
+
+        `aria-label` gives `<main>` a name, so the focus move above lands
+        somewhere that announces *which* view arrived rather than an anonymous
+        region. It names the tab, matching the nav item that was just pressed.
+
+        The `<h1>` is the document's one and only, and it names the app rather
+        than the view. Every view opens at `<h2>`, which left the outline with
+        no top at all — a screen reader's heading list started midway down.
+        Naming the *app* here is both the conventional shape (h1 the place, h2
+        the section) and the only one that is safe from the shell: an h1 that
+        repeated the view's name would sit alongside the view's own `<h2>`
+        saying the same words, and the views are a shared surface this change
+        has no business restructuring.
+
+        Visually hidden, not decorative — the header already prints the app
+        name and the nav already marks the current tab, so a third visible copy
+        would be noise to everyone who can see the other two.
+      */}
+      <main key={tab} className="screen" ref={mainRef} tabIndex={-1} aria-label={viewLabel}>
+        <h1 className="sr-only">{copy.appName}</h1>
         {tab === 'home' && <Dashboard api={api} go={go} />}
         {tab === 'review' && <Review api={api} />}
         {tab === 'quiz' && <Quiz api={api} />}
