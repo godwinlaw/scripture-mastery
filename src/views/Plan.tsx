@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { buildSchedule, PHASES } from '../data/plan';
+import { buildSchedule, currentWeek, PHASES } from '../data/plan';
 import { TOPIC_LABELS } from '../data/types';
+import { planStartOf } from '../lib/store-ops';
 import type { StoreApi } from '../lib/useStore';
 import { Card, Field, space, sx } from '../ui';
 
@@ -8,8 +9,22 @@ const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 
 
 export default function Plan({ api }: { api: StoreApi }) {
   const { store, updateSettings, daysLeft } = api;
-  const schedule = useMemo(() => buildSchedule(store.settings.examDate), [store.settings.examDate]);
-  const now = new Date();
+  // The schedule is drawn from the member's stored plan start, not from today
+  // (#40). Rebuilding it from `new Date()` on every render was what made every
+  // week between the start and now silently disappear — the first row always
+  // said "this week", so the view could only ever show a plan about to begin.
+  const planStart = planStartOf(store);
+  const schedule = useMemo(
+    () => buildSchedule(store.settings.examDate, new Date(`${planStart}T00:00:00`)),
+    [store.settings.examDate, planStart],
+  );
+  // Which row wears the `now` highlight is the same question the Dashboard and
+  // the daily review ask, so it comes from the one helper (#40) and is matched
+  // by index rather than re-testing the date range row by row.
+  const active = useMemo(
+    () => currentWeek(store.settings.examDate, planStart),
+    [store.settings.examDate, planStart],
+  );
 
   return (
     <div className="stack-in">
@@ -33,7 +48,8 @@ export default function Plan({ api }: { api: StoreApi }) {
           </Field>
         </div>
         <p className="small muted" style={sx({ marginTop: space[3] })}>
-          {daysLeft} days left, split across {schedule.length} weeks. The order matters: the frame
+          {daysLeft} days left. The plan below runs {schedule.length} weeks from the day you
+          started, not from today, so it moves on as the weeks pass. The order matters: the frame
           first, then content, then connections, then mixed review. Detail learned before the frame
           has nothing to attach to.
         </p>
@@ -48,16 +64,23 @@ export default function Plan({ api }: { api: StoreApi }) {
             </p>
           ) : (
             schedule.map((w, i) => {
-              const active = now >= w.start && now <= new Date(w.end.getTime() + 86_400_000);
+              // Weeks can now genuinely be behind you, which they never could
+              // while the schedule restarted at today (#40). Three states, from
+              // the one `active` index rather than three date tests: done,
+              // current, still to come. Deliberately not a new stylesheet rule
+              // — `.week.now` already carries the highlight, and a past week
+              // only needs to read as receded, so it dims and says so.
+              const isNow = w.index === active?.index;
+              const isPast = active != null && w.index < active.index;
               return (
                 <div
-                  className={`week${active ? ' now' : ''} item-in`}
-                  style={sx({ '--stagger-i': i })}
+                  className={`week${isNow ? ' now' : ''} item-in`}
+                  style={sx({ '--stagger-i': i, opacity: isPast ? 0.5 : undefined })}
                   key={w.index}
                 >
                   <div>
                     <div className="when">{fmt(w.start)} – {fmt(w.end)}</div>
-                    <div className="tiny muted">{w.label}</div>
+                    <div className="tiny muted">{w.label}{isPast ? ' · past' : ''}</div>
                   </div>
                   <div>
                     <strong className="small">{w.phase.name.replace(/^Phase \d+ — /, '')}</strong>

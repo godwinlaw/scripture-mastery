@@ -1234,3 +1234,41 @@ export function isPropheticBook(bookId: string): boolean {
 
 /** Chapter totals — useful as a self-check that the data stayed intact. */
 export const TOTAL_CHAPTERS = BOOKS.reduce((n, b) => n + b.chapters, 0); // 1189
+
+/**
+ * Books within `span` canonical positions of `bookId`, excluding it.
+ *
+ * Book-order questions are the one place the Testament seam is not the right
+ * fence. "Which book immediately follows Malachi?" has a New Testament answer
+ * to an Old Testament question, so scoping those options by Testament would
+ * make the correct one identifiable without knowing the canon at all. What
+ * makes a book-order question hard is *canonical distance*: Ezra against
+ * Nehemiah, Esther and Chronicles is a real question; Ezra against Matthew is
+ * a free point. So this pool crosses the seam on purpose, and tightens by
+ * position instead (#40).
+ */
+export function neighborBooks(bookId: string, span: number): Book[] {
+  const book = BOOKS_BY_ID[bookId];
+  if (!book) return [];
+  return BOOKS.filter(
+    (b) => b.id !== bookId && Math.abs(b.order - book.order) <= span,
+  );
+}
+
+/**
+ * Books at least `span` canonical positions away from `bookId` — the mirror of
+ * `neighborBooks`, and what makes an easy book-order question easy: every wrong
+ * option sits in a different stretch of the canon entirely.
+ */
+export function distantBooks(bookId: string, span: number): Book[] {
+  const book = BOOKS_BY_ID[bookId];
+  if (!book) return BOOKS;
+  return BOOKS.filter((b) => b.id !== bookId && Math.abs(b.order - book.order) > span);
+}
+
+/** Every book in the same Testament as `bookId`, excluding it. */
+export function sameTestamentBooks(bookId: string): Book[] {
+  const book = BOOKS_BY_ID[bookId];
+  if (!book) return BOOKS;
+  return BOOKS.filter((b) => b.id !== bookId && b.testament === book.testament);
+}

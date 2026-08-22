@@ -4,12 +4,27 @@ import QuestionCard from '../components/QuestionCard';
 import { allItems, ITEMS_BY_ID } from '../lib/generate';
 import { ESSENTIAL_ITEM_IDS } from '../lib/generate-essentials';
 import { BOOKS } from '../data/books';
+import { currentPhase } from '../data/plan';
+import { planStartOf } from '../lib/store-ops';
+import { planScopeIds } from '../lib/plan-scope';
 import { TOPIC_LABELS, type Topic } from '../data/types';
 import { shuffle } from '../lib/rng';
 import { strength, type Grade } from '../lib/srs';
 import type { StoreApi } from '../lib/useStore';
 
-type Scope = 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
+type Scope = 'plan' | 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
+
+/**
+ * The plan-aware scope (#40).
+ *
+ * The daily review now follows the study plan; a quiz is where you go to test
+ * yourself on demand, so it keeps every other scope untouched and simply adds
+ * the plan as one more thing you can point it at. It leads the list because it
+ * is the answer to "what should I be drilling right now?" — and it is dropped
+ * entirely, not greyed out, when the quiz date has passed and there is no
+ * current phase to name.
+ */
+const PLAN_SCOPE_LABEL = 'This week’s plan';
 
 export default function Quiz({ api }: { api: StoreApi }) {
   const { store, cards, answer, toggleStar } = api;
@@ -27,10 +42,20 @@ export default function Quiz({ api }: { api: StoreApi }) {
   const otIds = useMemo(() => new Set(BOOKS.filter((b) => b.testament === 'OT').map((b) => b.id)), []);
   const ntIds = useMemo(() => new Set(BOOKS.filter((b) => b.testament === 'NT').map((b) => b.id)), []);
 
+  /**
+   * The anchor is the persisted plan start rather than today: a schedule that
+   * begins today always puts today in week 1, which is what pinned the whole
+   * app to Phase 1 (#40). `currentPhase` is total, so there is always a phase
+   * to point the quiz at.
+   */
+  const phase = currentPhase(store.settings.examDate, planStartOf(store));
+  const planIds = useMemo(() => planScopeIds(phase, items), [phase, items]);
+
   const pool = useMemo(() => {
     let out = items;
     if (topic !== 'all') out = out.filter((i) => i.topic === topic);
     if (book !== 'all') out = out.filter((i) => i.book === book);
+    if (scope === 'plan') out = out.filter((i) => planIds.has(i.id));
     if (scope === 'OT') out = out.filter((i) => i.book && otIds.has(i.book));
     if (scope === 'NT') out = out.filter((i) => i.book && ntIds.has(i.book));
     if (scope === 'essentials') out = out.filter((i) => ESSENTIAL_ITEM_IDS.has(i.id));
@@ -41,7 +66,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
         .sort((a, b) => strength(cards[a.id]) - strength(cards[b.id]));
     }
     return out;
-  }, [items, topic, book, scope, store.starred, cards, otIds, ntIds]);
+  }, [items, topic, book, scope, planIds, store.starred, cards, otIds, ntIds]);
 
   function start() {
     const picked = scope === 'weak' ? pool.slice(0, length) : shuffle(pool).slice(0, length);
@@ -108,6 +133,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
                 value={scope}
                 onChange={setScope}
                 options={[
+                  { label: PLAN_SCOPE_LABEL, value: 'plan' as const },
                   { label: 'Everything', value: 'all' },
                   { label: 'Old Testament', value: 'OT' },
                   { label: 'New Testament', value: 'NT' },

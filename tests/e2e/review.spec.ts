@@ -9,14 +9,45 @@ async function answerMcq(page: Page, label: string) {
 }
 
 test.describe('daily review', () => {
-  test('the idle screen counts what is due, what is new, and what has been seen', async ({ page }) => {
-    const cards = {
-      [ITEM.mcq]: dueCard(ITEM.mcq),
-      [ITEM.type]: dueCard(ITEM.type),
-      // Not due for a week — should count as seen but not as due.
-      [ITEM.order]: dueCard(ITEM.order, { due: Date.now() + 7 * DAY }),
-    };
-    await openAs(page, { store: { cards, settings: { examDate: daysFromNow(60), newLimit: 5, sessionLimit: 60 } } }, 'review');
+  /**
+   * The three seeded cards straddle the plan's first phase on purpose (#40).
+   *
+   * `ITEM.mcq` is a `book-order` question, which Phase 1 — Build the Frame —
+   * asks for. `ITEM.type` is `numbers` and `ITEM.order` is `events`, neither of
+   * which it does. So the same store reads two different, both-correct ways
+   * depending on whether the plan is being followed, and the pair of tests
+   * below pins each. Counting inside the scope is the honest number: the idle
+   * screen promises a quantity of due cards and then hands over a session, so
+   * if those two disagree the promise is a lie.
+   */
+  const straddlingPlan = {
+    [ITEM.mcq]: dueCard(ITEM.mcq),
+    [ITEM.type]: dueCard(ITEM.type),
+    // Not due for a week — should count as seen but not as due.
+    [ITEM.order]: dueCard(ITEM.order, { due: Date.now() + 7 * DAY }),
+  };
+
+  test('the idle screen counts inside the phase the plan is asking for', async ({ page }) => {
+    await openAs(page, {
+      store: {
+        cards: straddlingPlan,
+        settings: { examDate: daysFromNow(60), newLimit: 5, sessionLimit: 60, followPlan: true },
+      },
+    }, 'review');
+
+    // Only the book-order card is in Phase 1, so it is the only one counted.
+    await expectStat(page, 'Due now', 1);
+    await expectStat(page, 'New today', 5); // capped by the new-card limit
+    await expectStat(page, 'Seen so far', 1);
+  });
+
+  test('turning the plan off counts what is due, what is new, and what has been seen', async ({ page }) => {
+    await openAs(page, {
+      store: {
+        cards: straddlingPlan,
+        settings: { examDate: daysFromNow(60), newLimit: 5, sessionLimit: 60, followPlan: false },
+      },
+    }, 'review');
 
     await expectStat(page, 'Due now', 2);
     await expectStat(page, 'New today', 5); // capped by the new-card limit
@@ -42,18 +73,15 @@ test.describe('daily review', () => {
     expect(store.log.at(-1)).toMatchObject({ reviewed: 1, correct: 1 });
   });
 
-  test('a missed card is requeued and asked again — currently it comes back pre-answered', async ({ page }) => {
-    // KNOWN BUG (src/views/Review.tsx:127): the session card is keyed on
-    // `item.id`, so when a missed card is requeued as the *very next* card —
-    // which is what happens whenever you miss the last card of a session —
-    // React reuses the component and QuestionCard's reset effect, keyed on the
-    // same `item.id`, never fires. The card returns still revealed, with the
-    // wrong answer in a disabled input: no retrieval, which is the entire point
-    // of requeueing it. Keying on the queue position instead fixes it.
-    // Delete this `test.fail()` once it is fixed — Playwright will flag the
-    // test as unexpectedly passing.
-    test.fail();
-
+  test('a missed card is requeued and asked again', async ({ page }) => {
+    // Fixed in #40 by keying the session card on the queue position rather than
+    // `item.id`. When a missed card was requeued as the *very next* card — which
+    // is what happens whenever you miss the last card of a session — React
+    // reused the component, QuestionCard's reset effect (keyed on the same
+    // `item.id`) never fired, and the card returned still revealed. There was no
+    // retrieval, which is the entire point of requeueing it; worse, the only way
+    // forward was Continue, which graded the same miss again. One miss recorded
+    // three reps and three lapses, one short of the leech threshold.
     await openAs(page, { store: soloQueue(ITEM.mcq) }, 'review');
     await start(page);
 
@@ -73,8 +101,7 @@ test.describe('daily review', () => {
     // Miss it three times; the third must not extend the session again.
     for (let attempt = 1; attempt <= 3; attempt++) {
       await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
-      // Tolerates the requeue bug above: only answer if the card is still open.
-      if (await page.locator('.feedback').count() === 0) await answerMcq(page, 'Deuteronomy');
+      await answerMcq(page, 'Deuteronomy');
       await page.getByRole('button', { name: /^Continue/ }).click();
     }
 
@@ -91,7 +118,10 @@ test.describe('daily review', () => {
 
   test('the running tally updates as the session goes', async ({ page }) => {
     const cards = { [ITEM.mcq]: dueCard(ITEM.mcq), [ITEM.type]: dueCard(ITEM.type) };
-    await openAs(page, { store: { cards, settings: { examDate: daysFromNow(60), newLimit: 0, sessionLimit: 2 } } }, 'review');
+    // The plan is off here so the tally is tested on its own terms: the two
+    // seeded cards sit in different phases (#40), and this test is about the
+    // counter, not about which cards the plan admits.
+    await openAs(page, { store: { cards, settings: { examDate: daysFromNow(60), newLimit: 0, sessionLimit: 2, followPlan: false } } }, 'review');
     await start(page);
 
     await expect(page.getByText('0 right · 0 missed')).toBeVisible();
