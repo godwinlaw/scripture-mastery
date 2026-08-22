@@ -7,6 +7,72 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Difficulty became a real setting, and the study plan started driving what
+  you study** ([#38]).
+
+  **The setting was doing almost nothing.** It swapped a question's wrong
+  options and leaned the review queue by ease — and only on the third of the
+  bank that carried alternate option sets at all. Every People, Places, Family,
+  Book Order, Numbers, Timeline and Book Summaries question had none, so it
+  fell back to its medium set, and plenty of those pools were canon-wide. The
+  result: *hard* went on offering New Testament options against Old Testament
+  questions. Measured across the bank, **637 of them**. Every question now
+  carries all three sets — 5,915 of 5,926, the remainder being hand-written
+  items that draw their options from outside the canon — and hard's
+  cross-Testament count is **zero**.
+
+  Each family is scoped as tightly as its own question allows, widening only
+  when the tight pool cannot fill the card. People are drawn from the same
+  book, then the same era; family facts from the same household; eras from
+  adjacent ones. **Book Order is deliberately exempt from the seam rule**:
+  "which book immediately follows Malachi?" has a New Testament answer, so
+  fencing it by Testament would identify the answer without knowing the canon
+  at all. It is scoped by *canonical distance* instead — neighbours within four
+  positions on hard, and books a dozen positions away on easy.
+
+  **Difficulty now changes four things, not one.** How many options you are
+  offered — three, four, or six, which is the dial you feel on every single
+  card. Where the wrong ones come from. Whether a reference has to be named
+  from memory before the choices appear, and whether the explanation is offered
+  as a hint first. And how new material is introduced.
+
+  **New material is no longer introduced in canonical order at every setting.**
+  It always had been: unseen cards arrive in the bank's generation order, the
+  queue took the first *n*, and the within-session shuffle ([#11]) never
+  touched that because it only reorders cards already chosen. So Build the
+  Frame marched Genesis-first no matter what you set — fine on *easy*, where
+  building the frame front to back is the whole pedagogy, and far too
+  predictable on *hard*. Easy still walks the canon from Genesis. Hard now
+  draws from anywhere in the current scope, spanning **27 books where easy
+  spans 3**, with only **2 of 10** cards repeating the following day. The draw
+  is seeded per day rather than random, so a reload does not deal a new hand
+  mid-session. Hard also introduces half again as much new material, reaches
+  for fine detail first, and does not hand a missed card back inside the same
+  session — you meet it again tomorrow, cold.
+
+- **The study plan now decides what your daily review asks you** ([#38]). The
+  five phases have always been rendered on the Plan tab, and the Dashboard has
+  always named the current one, but nothing filtered the queue by them, so
+  following the plan was left entirely to your own discipline. The daily review
+  is now drawn from whichever phase you are in, the Quiz offers **This week's
+  plan** as a scope, and the review screen names the phase before you start
+  rather than letting you discover a short session and read it as a bug. When a
+  phase runs dry the queue quietly widens to the rest of the bank instead of
+  claiming there is nothing to study, and **Study everything instead** sets the
+  plan aside for one session without changing the setting. It can be turned off
+  entirely, and defaults to on.
+
+  Making the plan real exposed why it had been safe to leave decorative:
+  `buildSchedule` anchored its start date to *today* on every call, so today was
+  always inside week 1 and the current phase was always Phase 1. Harmless while
+  nothing consumed it — it is why the Dashboard always read "Week 1" — but as a
+  filter it would have pinned every member to Book Order and Book Summaries,
+  330 of 6,098 questions, until the exam date passed. The schedule is now
+  anchored to a persisted plan start, derived from your earliest recorded
+  session so a returning member is not sent back to the beginning, and a member
+  who has run out of runway lands in Phase 5's mixed review rather than nowhere.
+
+
 - **A Settings panel, and a difficulty you can choose** ([#36]). Settings had
   been scattered — the study fields inside Progress, the theme switch in the
   header, the quiz date in two places — so there was no one screen to go to.
@@ -83,6 +149,38 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Missing the last card of a review session graded it three times** ([#38]).
+  A missed card is requeued to the end of the session; when it *was* the end,
+  the next card had the same id, the card component was never remounted, and
+  its reset never ran. The card came back already answered — no retrieval,
+  which is the entire point of requeueing it — and the only way forward was
+  Continue, which graded the same miss again. One genuine miss recorded three
+  reviews and **three lapses**, one short of the threshold that marks a card a
+  leech, and skewed the accuracy on your Progress tab. The session card is now
+  keyed on its position in the queue rather than on the item.
+
+- **Six questions offered the book they were asking about** ([#38]). "Which
+  book immediately precedes Leviticus?" listed Leviticus among the choices.
+  Distractor selection excluded the *answer* but had never been told about the
+  book named in the prompt.
+
+- **Clearing a field in Settings wrote a broken value** ([#38]). The number
+  inputs committed `0` for an emptied field, so a moment's editing of Max cards
+  per session could commit `0` and send "Start review session" straight to a
+  finished session. Worse, clearing the quiz date committed an empty string:
+  the header rendered "NaN days until Invalid Date", and inside the scheduler
+  the exam clamp — the app's one deliberate deviation from SM-2, which
+  guarantees every card is seen at least once more before the test — silently
+  stopped applying, letting cards schedule past the exam and never come back.
+  The fields are now clamped on commit rather than on screen, so they are still
+  comfortable to edit.
+
+- **A wrong option could be a second correct answer** ([#38]). Event questions
+  excluded the people who took part from their wrong options, but only from the
+  medium pool. Tightening the hard pool to the same book would have started
+  offering genuine participants as wrong answers — a defect no content check
+  can catch, since the checks compare options against *the* answer.
+
 - **The app icon never actually rendered** (found while doing [#23]). Both
   `icon.svg` and `favicon.svg` shipped malformed in [#7]: an XML comment cannot
   contain a literal double hyphen, and the comment documenting the colour
@@ -102,6 +200,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   confusing count mismatch three assertions later.
 
 ### Changed
+
+- **Accessibility** ([#38]). The app had no `<h1>` and never moved focus when
+  you changed tabs, so a screen-reader user activating Quiz heard nothing and
+  was left in the navigation. Ordering questions signalled a correctly placed
+  row by border colour alone, the ordering buttons dropped focus at the ends of
+  the list, and the Correct / Not quite verdict was never announced. All four
+  are fixed.
+
+- **Exporting your progress** no longer risks a silent no-op in Firefox and
+  Safari ([#38]): the download link is placed in the document before it is
+  clicked, and its blob is released a tick later rather than immediately.
 
 - **The sign-in screen shows the mark, the verse, and Google's own glyph**
   ([#23]). The app icon appears at 88px as the app's face rather than a
@@ -239,3 +348,4 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#34]: https://github.com/godwinlaw/scripture-mastery/issues/34
 
 [#36]: https://github.com/godwinlaw/scripture-mastery/issues/36
+[#38]: https://github.com/godwinlaw/scripture-mastery/issues/38
