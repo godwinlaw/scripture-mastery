@@ -99,19 +99,25 @@ Change the date in **Progress → Settings** and the schedule re-plans itself.
 | **Daily Review** | The spaced-repetition queue. This is the main event — clear it daily |
 | **Quiz** | Mixed testing under quiz conditions. Filter by scope, topic, single book, or weak spots |
 | **Reference** | Every book opened to five panes — overview, outline, events, people, terms — plus the timeline, 233 people, 54 places, the must-know lists, and the standing lists |
-| **Study Plan** | Week-by-week schedule from today to your quiz date |
+| **Study Plan** | Week-by-week schedule from the day you started to your quiz date |
 | **Progress** | Mastery by book, stuck items, settings, export/import |
 
-**Keyboard:** `1`–`4` pick an option · `Enter` submits or advances · `1`/`2`/`3`
-grade Hard/Good/Easy after a correct answer.
+**Keyboard:** `1`–`6` pick an option (hard offers six) · `Enter` submits or
+advances · `1`/`2`/`3` grade Hard/Ok/Easy after a correct answer.
 
 ---
 
 ## The study plan
 
-Five phases, weighted and laid onto the actual calendar between today and your
-quiz date. The order is the point — the frame comes first because every later
-fact needs somewhere to attach.
+Five phases, weighted and laid onto the actual calendar between the day you
+started and your quiz date. The order is the point — the frame comes first
+because every later fact needs somewhere to attach.
+
+The plan is not just a reading: with **Follow the study plan** on (the default),
+your daily review is drawn from whichever phase you are currently in, and the
+Quiz offers *This week's plan* as a scope. When a phase runs dry the queue
+widens to the rest of the bank rather than telling you there is nothing to
+study, and **Study everything instead** sets it aside for a single session.
 
 1. **Build the Frame** — all 66 books: order, division, author, one-line summary, outline
 2. **Old Testament Sweep** — outline, key chapters, people and their families, events,
@@ -120,6 +126,29 @@ fact needs somewhere to attach.
 4. **Timeline & Connections** — the 14 eras, the must-know and standing lists, the
    two fall dates, and how each book points to Christ
 5. **Mixed Review & Mock Quizzes** — no new material, weak spots only
+
+---
+
+## Difficulty
+
+The setting in **Settings → Difficulty** changes four things at once. It never
+changes which questions exist — item ids are what review history is keyed on,
+so the bank is generated once and the setting only decides what reaches the
+card and which cards reach you.
+
+| | Easy | Medium | Hard |
+|---|---|---|---|
+| Options offered | 3 | 4 | 6 |
+| Wrong options drawn from | anywhere in the canon | books near the answer's own, never across the Testament seam | as close as the question allows — the same book, canonical neighbours, the same era or family |
+| A reference answer | shown as choices | named from memory first | named from memory first, no hint |
+| Hint before answering | yes | no | no |
+| New material | walks the canon in order | interleaved by book | anywhere in scope, unpredictable, half again as much |
+| A card you miss | comes back this session | comes back this session | comes back tomorrow |
+
+Book Order questions are deliberately exempt from the Testament rule — "which
+book immediately follows Malachi?" has a New Testament answer, so fencing it by
+Testament would give the answer away. They are scoped by canonical distance
+instead.
 
 ---
 

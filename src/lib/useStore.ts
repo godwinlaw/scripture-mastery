@@ -47,8 +47,9 @@ export function useStore() {
         // A document written before a setting existed simply has no value for
         // it, and every reader downstream trusts Settings to be complete. Fill
         // the gaps from the defaults on the way in, the way importStore and the
-        // E2E hook already do, so #36's difficulty control has something to
-        // show an account that predates it.
+        // E2E hook already do, so #36's difficulty control and #40's
+        // follow-the-plan switch have something to show an account that
+        // predates them.
         const data: Store = { ...saved, settings: { ...DEFAULT_SETTINGS, ...saved.settings } };
         storeRef.current = data;
         setStore(data);

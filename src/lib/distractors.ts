@@ -15,6 +15,7 @@
 import { BOOKS_BY_ID, canonPool, nearbyPool } from '../data/books';
 import type { Book, Difficulty } from '../data/types';
 import { pickDistractors } from './rng';
+import { MAX_WRONG_OPTIONS } from './difficulty';
 
 /**
  * How tight `hard` is allowed to be for this question.
@@ -82,11 +83,90 @@ export function distractorSets(
   hardScope: HardScope,
   n = 3,
 ): DistractorSets {
-  return {
-    distractors: pickDistractors(nearbyPool(bookId, extract, answer, n), answer, n, seed),
-    distractorsBy: {
-      easy: pickDistractors(canonPool(extract, answer), answer, n, `${seed}:easy`),
-      hard: pickDistractors(hardPool(bookId, extract, answer, n, hardScope), answer, n, `${seed}:hard`),
-    },
-  };
+  // `hard` asks for the widest set any setting renders, not `n`: the render
+  // site slices down per setting, and a hard card that could only fill three
+  // slots would show fewer choices than medium — easier, not harder (#40).
+  return scopedSets(answer, seed, {
+    medium: nearbyPool(bookId, extract, answer, n),
+    easy: [() => canonPool(extract, answer)],
+    hard: [
+      () => hardPool(bookId, extract, answer, MAX_WRONG_OPTIONS, hardScope),
+      () => hardPool(bookId, extract, answer, n, hardScope),
+      () => nearbyPool(bookId, extract, answer, MAX_WRONG_OPTIONS),
+    ],
+  }, n);
+}
+
+/**
+ * Walk `chain` from its tightest pool outward and return the first that can
+ * supply `n` distinct options other than `answer`; if none can, return the
+ * widest.
+ *
+ * Every scoped pool in the app needs this shape, because tightness that
+ * silently yields a short pool does not make a question harder — it makes it
+ * *shorter*, and a three-choice question is easier than a six-choice one. The
+ * widening is the guarantee that a `hard` card is never accidentally the
+ * easiest card on screen (#40).
+ */
+export function layeredPool(
+  chain: readonly (() => string[])[],
+  answer: string,
+  n: number,
+): string[] {
+  let widest: string[] = [];
+  for (const build of chain) {
+    const pool = [...new Set(build())].filter((s) => s && s !== answer);
+    if (pool.length > widest.length) widest = pool;
+    if (pool.length >= n) return pool;
+  }
+  return widest;
+}
+
+/**
+ * The one entry point every generator uses to bake its three option sets.
+ *
+ * `medium` is passed as a ready-made pool because it has to stay byte-identical
+ * to what the generator produced before — `Item.distractors` is what validate.ts,
+ * the content-contract tests and every existing user's rendered card read, and
+ * item ids are the key SRS history is stored under. `easy` and `hard` are
+ * chains: `hard` tightest-first, widening only when the tight pool cannot fill
+ * the card; `easy` widest-first, because the whole point of easy is options
+ * that are wrong on sight.
+ *
+ * Each set gets its own seed suffix. Without that a wider pool reshuffled by
+ * the same seed lands on nearly the same handful of strings, and the three
+ * settings become three names for one question.
+ */
+export function scopedSets(
+  answer: string,
+  seed: string,
+  pools: {
+    medium: readonly string[];
+    easy: readonly (() => string[])[];
+    hard: readonly (() => string[])[];
+  },
+  n = 3,
+): DistractorSets {
+  const distractors = pickDistractors(pools.medium, answer, n, seed);
+  const floor = distractors.length;
+  const easyPool = layeredPool(pools.easy, answer, Math.max(floor, n));
+  const hardPool = layeredPool(pools.hard, answer, MAX_WRONG_OPTIONS);
+
+  const easy = pickDistractors(easyPool, answer, Math.max(floor, n), `${seed}:easy`);
+  let hard = pickDistractors(hardPool, answer, MAX_WRONG_OPTIONS, `${seed}:hard`);
+
+  // The thinness guard. A hard set shorter than the medium one would render
+  // fewer choices than medium does, inverting the setting. Top it up from the
+  // wider pools rather than shipping a three-choice "hard" question.
+  if (hard.length < floor) {
+    const topUp = pickDistractors(
+      [...hardPool, ...easyPool, ...pools.medium],
+      answer,
+      MAX_WRONG_OPTIONS,
+      `${seed}:hard:topup`,
+    );
+    hard = [...new Set([...hard, ...topUp])].slice(0, MAX_WRONG_OPTIONS);
+  }
+
+  return { distractors, distractorsBy: { easy, hard } };
 }

@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { allItems } from '../lib/generate';
 import { isDue, isNew, strength } from '../lib/srs';
-import { buildSchedule } from '../data/plan';
+import { currentPhase, currentWeek } from '../data/plan';
 import { TOPIC_LABELS, type Topic } from '../data/types';
 import type { StoreApi } from '../lib/useStore';
 import { todayISO } from '../lib/storage';
+import { planStartOf } from '../lib/store-ops';
 import { Card, CountUp, Meter, sx } from '../ui';
 
 export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string) => void }) {
@@ -52,11 +53,30 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
       .sort((a, b) => a.pct - b.pct);
   }, [cards, items]);
 
-  const schedule = useMemo(() => buildSchedule(store.settings.examDate), [store.settings.examDate]);
-  const currentWeek = schedule.find((w) => {
-    const now = new Date();
-    return now >= w.start && now <= new Date(w.end.getTime() + 86_400_000);
-  }) ?? schedule[0];
+  // "Which week is it?" is one question with one answer (#40), and the daily
+  // review now depends on it too — so it lives in data/plan.ts rather than
+  // being re-derived here.
+  //
+  // The anchor is the member's stored plan start, not today. Passing `now` here
+  // is what pinned this card to "Week 1 — Build the Frame" for everyone, on
+  // every day of the plan; the schedule only advances if it is measured from a
+  // fixed origin.
+  const planStart = planStartOf(store);
+  const week = useMemo(
+    () => currentWeek(store.settings.examDate, planStart),
+    [store.settings.examDate, planStart],
+  );
+  // The old fall back to `buildSchedule(...)[0]` is gone: `currentWeek` now
+  // clamps to the schedule's own ends, so it only returns null when there are
+  // no weeks at all (an anchor past the exam date). Naming "Week 1 — Build the
+  // Frame" in that case would contradict `currentPhase`, which answers Phase 5
+  // for exactly the same store — and the review queue below this card obeys
+  // `currentPhase`. So the phase comes from the same helper the queue uses, and
+  // only the week pill — the part with genuinely nothing to say — drops out.
+  const phase = useMemo(
+    () => currentPhase(store.settings.examDate, planStart),
+    [store.settings.examDate, planStart],
+  );
 
   const streak = useMemo(() => {
     const dates = new Set(store.log.filter((l) => l.reviewed > 0).map((l) => l.date));
@@ -90,9 +110,9 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
         <Card corners>
           <div className="spread">
             <div>
-              <span className="pill accent">{currentWeek?.label ?? 'Week 1'}</span>
-              <h2 style={{ margin: '10px 0 4px' }}>{currentWeek?.phase.name}</h2>
-              <p className="small muted" style={{ maxWidth: 620, marginBottom: 0 }}>{currentWeek?.phase.goal}</p>
+              {week && <span className="pill accent">{week.label}</span>}
+              <h2 style={{ margin: '10px 0 4px' }}>{phase.name}</h2>
+              <p className="small muted" style={{ maxWidth: 620, marginBottom: 0 }}>{phase.goal}</p>
             </div>
           </div>
           <div className="row" style={{ marginTop: 18 }}>

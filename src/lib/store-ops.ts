@@ -21,6 +21,52 @@ export function daysLeftUntil(examTime: number, now = Date.now()): number {
   return Math.max(0, Math.ceil((examTime - now) / DAY_MS));
 }
 
+/** `YYYY-MM-DD`, the only shape `planStart` and `SessionLog.date` are ever written in. */
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * The date the study plan is measured from — the other end of the interval
+ * `examTimeOf` gives, and the fix for #40.
+ *
+ * `buildSchedule` defaults its start to `new Date()`, which was harmless while
+ * the plan was only drawn on screen and fatal once the daily review began
+ * filtering on it: re-anchoring to today on every call keeps today inside week
+ * 1 forever, so `currentPhase` answered Phase 1 for every member on every day
+ * until the exam passed. Anchoring needs a fact that does not move, so it lives
+ * here beside `examTimeOf` rather than being re-guessed at each call site.
+ *
+ * Three sources, in order of how much they know:
+ *
+ * 1. `settings.planStart`, when it has been recorded. An explicit answer wins,
+ *    including one deliberately set in the past or the future.
+ * 2. The earliest day in the review log. This is the derivation for every store
+ *    that predates the key, and it is the right one: a member who has been
+ *    studying for six weeks should be six weeks into the plan, not sent back to
+ *    Phase 1 by an upgrade. `min` over the whole log rather than `log[0]`,
+ *    because an imported store's log carries no ordering guarantee — and ISO
+ *    dates compare correctly as strings, so no parsing is needed to pick it.
+ * 3. Today, for a store with no history at all — a genuinely new member, and
+ *    the E2E fixtures, both of which should start at Phase 1.
+ *
+ * A malformed `planStart` (a hand-edited or foreign import) falls through to
+ * the same chain rather than poisoning the schedule with an Invalid Date.
+ *
+ * Note what this means for `applyReset`, which clears the log but keeps
+ * settings: a member who has never had `planStart` written also loses their
+ * anchor and restarts at Phase 1. That is the intended reading of "start over".
+ */
+export function planStartOf(store: Store, now = new Date()): string {
+  const explicit = store.settings.planStart;
+  if (explicit && ISO_DATE.test(explicit)) return explicit;
+
+  let earliest = '';
+  for (const entry of store.log) {
+    if (!ISO_DATE.test(entry.date)) continue;
+    if (!earliest || entry.date < earliest) earliest = entry.date;
+  }
+  return earliest || todayISO(now);
+}
+
 /** Grade one card and fold the result into today's session log. */
 export function applyAnswer(
   store: Store,
