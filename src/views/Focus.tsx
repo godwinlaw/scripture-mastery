@@ -36,7 +36,8 @@
  */
 import { useMemo, useState } from 'react';
 import QuestionCard from '../components/QuestionCard';
-import { allItems, ITEMS_BY_ID } from '../lib/generate';
+import { allItems } from '../lib/generate';
+import { BOOKS } from '../data/books';
 import { DIFFICULTIES, type Difficulty, type Item } from '../data/types';
 import type { FocusTrack } from '../data/tracks';
 import { specFor } from '../lib/difficulty';
@@ -61,19 +62,58 @@ import { Card, Corners, CountUp, Field, Meter, Segmented, sx, space } from '../u
  * whole bank each time a card is graded. Cached by track id rather than built
  * for all tracks eagerly, so an unvisited track costs nothing.
  */
-const SCOPES = new Map<string, { items: Item[]; meta: Record<string, ItemMeta> }>();
+const SCOPES = new Map<string, { items: Item[]; meta: Record<string, ItemMeta>; byId: Map<string, Item> }>();
 
-function scopeFor(track: FocusTrack): { items: Item[]; meta: Record<string, ItemMeta> } {
+
+/**
+ * Draw every option from the tightest pool the item has, whatever the setting.
+ *
+ * Difficulty scopes options relative to the *canon*: medium widens to the
+ * answer's own division, which for a Samuel question means Ruth, Kings and
+ * Chronicles. Inside a track that is not a distractor, it is a hint — you
+ * already know the answer is in these two books, so an option from Ezra
+ * eliminates itself and the question collapses to a guess among whatever is
+ * left. The hard pool is the only one scoped to the book itself, so it is the
+ * one a track should always render: "where does this happen?" becomes a
+ * question about *which chapter*, which is what a two-book exam actually asks.
+ *
+ * The setting is not ignored — it still decides how many options are offered,
+ * whether a reference is recalled from memory first, how much new material
+ * arrives and in what order. It just no longer decides how far outside the
+ * track the wrong answers may come from, because outside the track they are
+ * not wrong answers at all.
+ */
+function tighten(item: Item): Item {
+  const tight = item.distractorsBy?.hard;
+  if (!tight || tight.length === 0) return item;
+  return { ...item, distractors: tight, distractorsBy: { easy: tight, hard: tight } };
+}
+
+function scopeFor(track: FocusTrack): { items: Item[]; meta: Record<string, ItemMeta>; byId: Map<string, Item> } {
   const cached = SCOPES.get(track.id);
   if (cached) return cached;
   const books = new Set(track.books);
+  const bookNames = new Set(BOOKS.map((b) => b.name));
   // `i.book` is the only membership test available and the only one that stays
   // correct: item ids encode a generator prefix, not a book, so matching on the
   // id would quietly miss whole question kinds.
-  const items = allItems().filter((i) => i.book !== undefined && books.has(i.book));
+  const items = allItems()
+    .filter((i) => i.book !== undefined && books.has(i.book))
+    // A question whose *answer* is a book name is free inside a track: you
+    // already know which books you are studying. "In which book does this
+    // occur: Hannah's prayer?" is a real question in a survey of sixty-six and
+    // a coin flip in a survey of two. The survey still asks them; the track
+    // does not, because the whole point of narrowing the scope is that the
+    // remaining questions have to get harder, not easier.
+    .filter((i) => !bookNames.has(i.answer))
+    .map(tighten);
   const meta: Record<string, ItemMeta> = {};
-  for (const item of items) meta[item.id] = { tier: item.tier, book: item.book };
-  const scope = { items, meta };
+  const byId = new Map<string, Item>();
+  for (const item of items) {
+    meta[item.id] = { tier: item.tier, book: item.book };
+    byId.set(item.id, item);
+  }
+  const scope = { items, meta, byId };
   SCOPES.set(track.id, scope);
   return scope;
 }
@@ -85,7 +125,7 @@ const DIFFICULTY_OPTIONS = DIFFICULTIES.map((value) => ({
 
 export default function Focus({ track, api }: { track: FocusTrack; api: StoreApi }) {
   const { store, cards, answer, toggleStar, updateSettings } = api;
-  const { items, meta } = scopeFor(track);
+  const { items, meta, byId } = scopeFor(track);
 
   const [queue, setQueue] = useState<string[]>([]);
   const [pos, setPos] = useState(0);
@@ -340,7 +380,11 @@ export default function Focus({ track, api }: { track: FocusTrack; api: StoreApi
     );
   }
 
-  const item = ITEMS_BY_ID.get(queue[pos])!;
+  // Resolved from the track's own map, not the global one: `scopeFor` rewrites
+  // each item's option pools to the tight, in-book set, and looking the id up
+  // in ITEMS_BY_ID would hand back the untightened original and silently undo
+  // it.
+  const item = byId.get(queue[pos])!;
 
   return (
     <div className="section screen" key="session">

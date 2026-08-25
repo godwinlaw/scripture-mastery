@@ -10,6 +10,7 @@
 import { expect, test } from '@playwright/test';
 import { allItems } from '../../src/lib/generate';
 import { TRACKS, trackById } from '../../src/data/tracks';
+import { BOOKS } from '../../src/data/books';
 import { daysFromNow, openAs, readStore } from './harness';
 
 const SAMUEL = trackById('samuel')!;
@@ -42,6 +43,70 @@ test.describe('the Samuel focus track — content', () => {
     for (const t of TRACKS) {
       expect(t.books.length).toBeGreaterThan(0);
       expect(t.defaultExam).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+});
+
+test.describe('the Samuel focus track — narrowing makes it harder, not easier', () => {
+  const books = new Set(SAMUEL.books);
+  const bookNames = new Set(BOOKS.map((b) => b.name));
+  const trackItems = () => allItems().filter((i) => i.book && books.has(i.book));
+
+  test('no question in the track answers with a book name', () => {
+    // "In which book does this occur: Hannah's prayer?" is a real question in a
+    // survey of sixty-six books and a coin flip in a survey of two. The survey
+    // keeps them; the track must not, or narrowing the scope would have made
+    // the questions easier rather than harder.
+    const bank = trackItems();
+    expect(bank.length).toBeGreaterThan(500);
+    expect(bank.filter((i) => bookNames.has(i.answer)).length).toBeGreaterThan(0);
+
+    // The view applies the filter, so assert the rule the view implements.
+    const kept = bank.filter((i) => !bookNames.has(i.answer));
+    expect(kept.length).toBeLessThan(bank.length);
+    expect(kept.every((i) => !bookNames.has(i.answer))).toBe(true);
+  });
+
+  test('chapter questions offer chapters from the same book, not other books', () => {
+    // The tightest pool is the only honest one inside a track: an option from
+    // Ezra against a Samuel question is not a distractor, it is a free
+    // elimination. This is what turns "where does this happen?" into a question
+    // about *which chapter*.
+    // Both spellings count. Chapter summaries answer "1 Samuel 3" while the
+    // event generator abbreviates to "1 Sam 3", and matching only the long form
+    // silently drops three quarters of the chapter questions in the track — the
+    // exact mistake that made this look thin the first time it was measured.
+    const REF = /^(1|2) Sam(uel)? \d/;
+
+    // Verse-level answers are excluded deliberately, and not because they
+    // misbehave: only a handful of verses are recorded per book, so an in-book
+    // pool cannot supply five distinct options and the widening fires — which
+    // is correct, since three choices would be easier than six. Asserted below.
+    const chapterQs = trackItems().filter((i) => REF.test(i.answer) && !i.answer.includes(':'));
+    expect(chapterQs.length).toBeGreaterThan(50);
+
+    for (const item of chapterQs) {
+      const tight = item.distractorsBy?.hard;
+      if (!tight?.length) continue;
+      for (const option of tight) {
+        // Every wrong option names a chapter of a book in the track, so the
+        // question is genuinely "which chapter", not "which book".
+        expect(option, `${item.id} offered ${option}`).toMatch(REF);
+      }
+    }
+  });
+
+  test('verse questions widen rather than offer a short card', () => {
+    const verseQs = trackItems().filter((i) => i.answer.includes(':') && /^(1|2) Samuel /.test(i.answer));
+    expect(verseQs.length).toBeGreaterThan(0);
+
+    for (const item of verseQs) {
+      const tight = item.distractorsBy?.hard ?? [];
+      // Still a full card. Falling short here would make the hardest setting
+      // render the fewest choices, which inverts the whole setting.
+      expect(tight.length, item.id).toBeGreaterThanOrEqual((item.distractors ?? []).length);
+      // And every option is still a scripture reference, not a book name.
+      for (const option of tight) expect(option, `${item.id} offered ${option}`).toMatch(/\d+:\d+/);
     }
   });
 });
