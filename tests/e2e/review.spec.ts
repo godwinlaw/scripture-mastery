@@ -27,7 +27,7 @@ test.describe('daily review', () => {
     [ITEM.order]: dueCard(ITEM.order, { due: Date.now() + 7 * DAY }),
   };
 
-  test('the idle screen counts inside the phase the plan is asking for', async ({ page }) => {
+  test('the idle screen counts what the session will actually ask', async ({ page }) => {
     await openAs(page, {
       store: {
         cards: straddlingPlan,
@@ -35,10 +35,15 @@ test.describe('daily review', () => {
       },
     }, 'review');
 
-    // Only the book-order card is in Phase 1, so it is the only one counted.
-    await expectStat(page, 'Due now', 1);
+    // Two of the three are due and both sit outside Phase 1 — but the plan
+    // rations new material, not revision, so the session will ask them and the
+    // plate has to say so. Counting due cards by phase would promise one and
+    // then hand over two.
+    await expectStat(page, 'Due now', 2);
     await expectStat(page, 'New today', 5); // capped by the new-card limit
-    await expectStat(page, 'Seen so far', 1);
+    // Progress, not session: all three have been seen, and the third stays
+    // counted even though its topic is outside the current phase.
+    await expectStat(page, 'Seen so far', 3);
   });
 
   test('turning the plan off counts what is due, what is new, and what has been seen', async ({ page }) => {

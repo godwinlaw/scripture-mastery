@@ -80,20 +80,35 @@ export default function Review({ api }: { api: StoreApi }) {
     Math.round(store.settings.newLimit * specFor(store.settings.difficulty).newLimitFactor),
   );
 
+  /**
+   * The three plates answer two different questions, so they are counted two
+   * different ways.
+   *
+   * `due` and `fresh` describe *this session*: what it is about to ask. They
+   * therefore follow the same rule the queue does — revision from anywhere,
+   * new material from the phase — because a plate that promises one number and
+   * then hands over a different one is worse than no plate.
+   *
+   * `seen` describes *your progress*, which is not a property of today's
+   * session at all. Counting it inside the phase would mean the work you did
+   * in Phase 1 disappeared from the screen the week Phase 2 began.
+   */
   const counts = useMemo(() => {
     const now = Date.now();
     const inScope = scopedIds ? new Set(scopedIds) : null;
-    let due = 0, fresh = 0, total = 0, bankActionable = 0;
+    let due = 0, fresh = 0, seen = 0, bankActionable = 0;
     for (const it of items) {
       const c = cards[it.id];
-      const actionable = isNew(c) || isDue(c, now);
-      if (actionable) bankActionable++;
+      if (isNew(c) || isDue(c, now)) bankActionable++;
+      if (!isNew(c)) {
+        seen++;
+        if (isDue(c, now)) due++;
+        continue;
+      }
       if (inScope && !inScope.has(it.id)) continue;
-      total++;
-      if (isNew(c)) fresh++;
-      else if (isDue(c, now)) due++;
+      fresh++;
     }
-    return { due, fresh, total, bankActionable };
+    return { due, fresh, seen, total: items.length, bankActionable };
   }, [cards, items, scopedIds]);
 
   function start(ignorePlan = false) {
@@ -114,10 +129,36 @@ export default function Review({ api }: { api: StoreApi }) {
      * pre-filter preserves order, so the new-card cut is untouched.
      */
     const actionable = (id: string) => isNew(cards[id]) || isDue(cards[id]);
+
+    /**
+     * The plan rations *new* material. It does not get to withhold a card that
+     * is already due.
+     *
+     * Scoping both together silently broke the one guarantee the scheduler
+     * makes. `grade()` clamps every interval so nothing is scheduled past the
+     * quiz date without one more look at it — but a due date is only a promise
+     * if something acts on it. Phases 2 through 4 do not list `book-order`
+     * among their topics, so scoping due cards by phase meant every card built
+     * during Phase 1 fell out of the queue for the five or six weeks those
+     * phases run, however overdue it got. The widening could not save it
+     * either: `withTopUp` fires only when the phase cannot fill a session, and
+     * a phase holding three thousand items always can.
+     *
+     * So the two are scoped separately. New cards come from the phase, which is
+     * what "follow the plan" means — you are not introduced to the Epistles in
+     * week two. Due cards come from wherever they are, which is what spaced
+     * repetition means.
+     */
+    const inScope = scopedIds ? new Set(scopedIds) : null;
+    const admits = (id: string) => {
+      const c = cards[id];
+      if (!isNew(c) && isDue(c)) return true;
+      return isNew(c) && (!inScope || inScope.has(id));
+    };
     const ids =
       ignorePlan || !scopedIds
         ? allIds
-        : withTopUp(scopedIds.filter(actionable), allIds.filter(actionable), sessionLimit);
+        : withTopUp(allIds.filter(admits), allIds.filter(actionable), sessionLimit);
 
     const build = (from: string[]) =>
       buildQueue(from, cards, {
@@ -200,7 +241,7 @@ export default function Review({ api }: { api: StoreApi }) {
             <span className="k">New today</span>
           </Card>
           <Card className="stat">
-            <span className="n"><CountUp value={counts.total - counts.fresh} /></span>
+            <span className="n"><CountUp value={counts.seen} /></span>
             <span className="k">Seen so far</span>
           </Card>
         </div>
