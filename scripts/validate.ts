@@ -33,6 +33,23 @@ hard('duplicate item ids', dupes(items.map((i) => i.id)));
 hard('items with an empty prompt or answer', items.filter((i) => !i.prompt.trim() || !i.answer.trim()), (i: Item) => i.id);
 hard('mcq items with fewer than 3 distractors', items.filter((i) => i.kind === 'mcq' && (i.distractors?.length ?? 0) < 3), (i: Item) => i.id);
 hard('mcq items whose answer is also a distractor', items.filter((i) => i.distractors?.includes(i.answer)), (i: Item) => `${i.id} | ${i.prompt}`);
+/**
+ * A question that contains its own answer cannot be got wrong, so it teaches
+ * nothing and inflates every accuracy figure counting it. `allItems()` drops
+ * these at generation; this gate is what stops a new template quietly
+ * reintroducing them, since nothing else in the suite can see the class — the
+ * checks above all compare options against the answer, never the *prompt*.
+ */
+const leaky = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+hard(
+  'mcq items whose prompt contains their own answer',
+  items.filter((i) => {
+    if (i.kind !== 'mcq') return false;
+    const a = leaky(i.answer);
+    return a.length > 3 && leaky(i.prompt).includes(a);
+  }),
+  (i: Item) => `${i.id} | ${i.prompt} -> ${i.answer}`,
+);
 hard('mcq items with duplicate distractors', items.filter((i) => i.distractors && dupes(i.distractors).length > 0), (i: Item) => i.id);
 // The easy and hard option sets (#36) are generated content in exactly the way
 // the medium set is, and the card swaps one in wholesale at render. The three

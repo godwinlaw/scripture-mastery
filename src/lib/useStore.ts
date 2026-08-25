@@ -76,8 +76,19 @@ export function useStore() {
 
   const examTime = useMemo(() => examTimeOf(store.settings), [store.settings]);
 
+  /**
+   * `at` overrides the date intervals are clamped against.
+   *
+   * The clamp is what guarantees a card is seen once more before the test, so
+   * it has to be the date of the test the card is being studied for. A focus
+   * track sits on its own deadline — the Samuel exam is weeks ahead of the
+   * survey — and grading its cards against the survey date would schedule them
+   * past their own exam. Default is the survey date, so every existing caller
+   * is unchanged.
+   */
   const answer = useCallback(
-    (id: string, g: Grade) => commit(applyAnswer(storeRef.current, id, g, examTime)),
+    (id: string, g: Grade, at: number = examTime) =>
+      commit(applyAnswer(storeRef.current, id, g, at)),
     [examTime, commit],
   );
 

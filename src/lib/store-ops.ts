@@ -9,30 +9,69 @@
  */
 import { todayISO, type Settings, type Store } from './storage';
 import { grade as gradeCard, newCard, type Grade } from './srs';
+import type { FocusTrack } from '../data/tracks';
 
 const DAY_MS = 86_400_000;
 
 /** End of the exam day — the ceiling every SRS interval is clamped under. */
+export function examTimeOf(settings: Settings): number {
+  return new Date(`${settings.examDate}T23:59:59`).getTime();
+}
+
 /**
- * Whether a raw date-input value is safe to commit as an exam date.
+ * Whether a date string is one this module can safely do arithmetic on.
  *
- * An empty or half-typed value parses to `NaN`, and a `NaN` exam time does not
- * announce itself: `examTimeOf` returns it, `srs.grade` computes `daysLeft`
- * from it, and `NaN > 0` is false — so the interval clamp, the one guarantee
- * that every card is seen once more before the quiz, silently stops applying
- * and cards begin scheduling past the exam never to return. Nothing on screen
- * says so beyond a "NaN days until Invalid Date" in the header.
+ * The failure being guarded is silent, which is why it gets a named function
+ * rather than an inline check. `new Date('T23:59:59')` — what an empty date
+ * produces — is NaN, and `srs.grade` writes the exam clamp as
+ * `daysLeft = Math.max(0, Math.ceil((examTime - now) / DAY))` followed by
+ * `daysLeft > 0`. NaN fails that comparison rather than throwing, so the clamp
+ * simply stops applying and cards begin scheduling past the test date never to
+ * return. The one place this app deliberately departs from SM-2 disappears, and
+ * nothing on screen says so. It has bitten this codebase once already (#40).
  *
- * This lives here rather than in a view because the quiz date is editable from
- * two screens, and the first version of this guard was written in only one of
- * them (#41).
+ * It lives beside `examTimeOf` rather than in a view because the quiz date is
+ * editable from two screens, and the first version of this guard was written in
+ * only one of them — so the Study Plan copy of the field went on committing the
+ * bad value unchecked (#41).
  */
 export function isUsableExamDate(raw: string): boolean {
   return raw !== '' && Number.isFinite(new Date(`${raw}T23:59:59`).getTime());
 }
 
-export function examTimeOf(settings: Settings): number {
-  return new Date(`${settings.examDate}T23:59:59`).getTime();
+/**
+ * End of the exam day for one focus track — the ceiling every interval graded
+ * inside that track is clamped under, and the reason `trackExams` exists.
+ *
+ * A focus track is a separate course with a separate test, so grading a Samuel
+ * card against the survey's October date would schedule it straight past the
+ * test it is being studied for. The whole value of the track is that its cards
+ * come back before *its* date.
+ *
+ * Two sources, and a floor under both:
+ *
+ * 1. `settings.trackExams[track.id]`, when the member has set one. An explicit
+ *    answer wins, including one set in the past.
+ * 2. `track.defaultExam`, the date the track ships with.
+ *
+ * An empty or malformed saved value falls through to the default rather than
+ * producing NaN — see `isUsableExamDate` for what a NaN exam time costs. A
+ * track whose own `defaultExam` is malformed would be a bug in tracks.ts, but
+ * the guard covers it too and returns 0 (a time in 1970, which reads as "the
+ * exam has passed" and leaves the clamp off rather than silently disabled) so
+ * that no caller downstream ever has to test for NaN.
+ */
+export function trackExamOf(store: Store, track: FocusTrack): number {
+  const saved = store.settings.trackExams?.[track.id];
+  const chosen = saved && isUsableExamDate(saved) ? saved : track.defaultExam;
+  const t = new Date(`${chosen}T23:59:59`).getTime();
+  return Number.isFinite(t) ? t : 0;
+}
+
+/** The ISO date a track's field should show — what `trackExamOf` resolved, as text. */
+export function trackExamDateOf(store: Store, track: FocusTrack): string {
+  const saved = store.settings.trackExams?.[track.id];
+  return saved && isUsableExamDate(saved) ? saved : track.defaultExam;
 }
 
 export function daysLeftUntil(examTime: number, now = Date.now()): number {

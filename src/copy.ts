@@ -126,6 +126,52 @@ export const copy = {
     },
   },
 
+  /**
+   * The focus track view.
+   *
+   * The copy here has one job the survey's never has: say what a track *is*,
+   * because nothing else on screen will. A second tab that also deals cards and
+   * also counts down to a date invites exactly one wrong reading — that this is
+   * a different study mode, or worse a second copy of the same cards — and a
+   * reader who believes that will study Samuel twice and trust neither number.
+   * So the shared-history line is stated plainly and early rather than left to
+   * be inferred, and the two dates are always named as two dates.
+   *
+   * `name` and `blurb` are not here: they are per-track data and live in
+   * data/tracks.ts, so that adding a track stays a one-file change.
+   */
+  focus: {
+    /** e.g. "6 days until August 30" — the same shape the header speaks in. */
+    countdown: (daysLeft: number, examDateLabel: string) =>
+      `${daysLeft.toLocaleString()} day${daysLeft === 1 ? '' : 's'} until ${examDateLabel}`,
+    examDate: 'Test date',
+    examNote:
+      'This track schedules against its own date, not the survey’s quiz date. Review intervals are capped under it, so nothing in these books is scheduled past the test without one more look at it.',
+    difficultyCaption: 'Difficulty',
+    difficultyNote:
+      'The same setting the rest of the trainer uses, changed from here because this is where you are studying. Move it and Daily Review and Quiz move with it.',
+    sharedHistory:
+      'These are the same cards as your daily review, not copies of them. Study one here and it counts there too — one card, one history, whichever door you came in through.',
+    plates: {
+      due: 'Due now',
+      new: 'New today',
+      seen: 'Seen so far',
+      mastery: 'Mastery',
+    },
+    start: 'Start focus session',
+    /** Shown in place of the button when the track has nothing waiting. */
+    nothingDue:
+      'Nothing in these books is due right now, and there is no new material left to introduce today. Come back tomorrow — or take a mixed quiz, which is not held to the schedule.',
+    session: {
+      completeHeading: 'Session complete',
+      completeBody:
+        'That is everything this track had queued for today. Come back tomorrow, or start another session now.',
+      again: 'Another session',
+      done: 'Done',
+      end: 'End session',
+    },
+  },
+
   boot: {
     steps: ['Indexing the canon', 'Restoring your progress', 'Queueing today’s review'],
   },

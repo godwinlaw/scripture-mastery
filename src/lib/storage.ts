@@ -45,6 +45,31 @@ export interface Settings {
    * instead of two.
    */
   planStart: string;
+  /**
+   * Per-focus-track quiz dates, keyed by track id — `{}` for an account that
+   * has never moved one.
+   *
+   * A focus track is a separate course with a separate test (see
+   * data/tracks.ts), so it cannot share `examDate`: the survey is scheduled
+   * against one date and a Samuel test against another, and a single field
+   * would make setting either one wrong the other. Keyed rather than a second
+   * flat date because tracks are data — a second track is a new entry in
+   * `TRACKS`, and it must not also be a new key here.
+   *
+   * The default is the empty map, not a map pre-filled from `TRACKS`. Same
+   * reasoning as `planStart`: the honest default is not a constant this file
+   * can name, it is the track's own `defaultExam`, and a copy of that value
+   * sitting in every store would go stale the moment the track's date was
+   * corrected. So the map holds only what the member has actually chosen, and
+   * `trackExamOf` in store-ops.ts resolves the rest — including a hand-edited
+   * or unparseable entry, which falls back rather than poisoning the clamp.
+   *
+   * Back-compatibility is the usual one: both hooks and `importStore` spread
+   * `DEFAULT_SETTINGS` underneath the saved settings, so a store written before
+   * this key reads as `{}` rather than `undefined` and every reader still gets
+   * a complete Settings.
+   */
+  trackExams: Record<string, string>;
 }
 
 export interface SessionLog {
@@ -71,10 +96,23 @@ export const DEFAULT_SETTINGS: Settings = {
   // Empty on purpose — see `Settings.planStart`. A literal date here would be
   // wrong for everybody the moment it was written; `planStartOf` resolves it.
   planStart: '',
+  // Empty on purpose — see `Settings.trackExams`. Each track carries its own
+  // default date; `trackExamOf` is what reads it.
+  trackExams: {},
 };
 
 export function emptyStore(): Store {
-  return { cards: {}, settings: { ...DEFAULT_SETTINGS }, log: [], starred: [] };
+  // `trackExams` is cloned rather than carried by reference: the spread of
+  // DEFAULT_SETTINGS is shallow, so every empty store would otherwise share one
+  // map object with the module constant. Nothing mutates it today — settings are
+  // always replaced wholesale — but a shared mutable default is the kind of
+  // thing that is free to prevent and expensive to find.
+  return {
+    cards: {},
+    settings: { ...DEFAULT_SETTINGS, trackExams: { ...DEFAULT_SETTINGS.trackExams } },
+    log: [],
+    starred: [],
+  };
 }
 
 /** Local calendar date, not UTC — otherwise the streak breaks late at night. */
@@ -93,9 +131,13 @@ export function importStore(json: string): Store | null {
   try {
     const parsed = JSON.parse(json) as Partial<Store>;
     if (typeof parsed !== 'object' || parsed === null) return null;
+    const settings = { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) };
+    // Same clone as emptyStore, for the same reason: an import whose settings
+    // predate the key would otherwise carry the module constant's own map.
+    settings.trackExams = { ...settings.trackExams };
     return {
       cards: parsed.cards ?? {},
-      settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
+      settings,
       log: parsed.log ?? [],
       starred: parsed.starred ?? [],
     };

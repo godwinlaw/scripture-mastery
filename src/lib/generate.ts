@@ -488,7 +488,13 @@ function buildPeopleItems(): Item[] {
 
   for (const pl of PLACES) {
     items.push({
-      id: `gen-place-${pl.id}`, kind: 'mcq', topic: 'places', tier: 2,
+      // `book` is carried onto the item, not just held on the Place record.
+      // Anything that scopes by book reads `Item.book` — the study plan's phase
+      // filter, and the focus tracks — and drops what has none. Without this,
+      // every place question sat outside Phases 2 and 3, which both name
+      // `places` as a topic and then scope to a book list, so the topic was
+      // listed in the plan and unreachable from it.
+      id: `gen-place-${pl.id}`, kind: 'mcq', topic: 'places', tier: 2, book: pl.book,
       prompt: `Which place is this? ${pl.what}.`,
       answer: pl.name,
       ...scopedSets(pl.name, `pl-${pl.id}`, {
@@ -498,7 +504,7 @@ function buildPeopleItems(): Item[] {
       }),
     });
     items.push({
-      id: `gen-placewhat-${pl.id}`, kind: 'mcq', topic: 'places', tier: 3,
+      id: `gen-placewhat-${pl.id}`, kind: 'mcq', topic: 'places', tier: 3, book: pl.book,
       prompt: `What is ${pl.name} known for?`,
       answer: pl.what,
       ...scopedSets(pl.what, `plw-${pl.id}`, {
@@ -697,6 +703,38 @@ function slug(s: string): string {
 let cache: Item[] | null = null;
 
 /** The full item bank. Stable ids mean SRS progress survives content edits. */
+
+/**
+ * Questions that hand over their own answer, dropped rather than shipped.
+ *
+ * Several templates paste a cue straight into the prompt, and some cues are
+ * named after the thing being asked about: "In which book does this occur:
+ * Ruth's pledge to Naomi?" answers itself, as does "Who is at the center of
+ * this event: Hannah's vow?". They are not merely easy — they are unanswerable
+ * *wrongly*, so they teach nothing and quietly inflate every accuracy figure
+ * that counts them.
+ *
+ * Dropping rather than rewording is deliberate. The giveaway is a property of
+ * the underlying cue, not of the wording around it, so rewording the template
+ * would only move the leak; and an item that cannot be got wrong has no
+ * business holding a place in a spaced-repetition queue. These ids disappear,
+ * which detaches whatever review history they had — acceptable precisely
+ * because the history is meaningless: nobody ever failed one.
+ *
+ * The length floor keeps short numeric and single-word answers out of it, where
+ * substring matching is noise rather than signal.
+ */
+function givesItselfAway(item: Item): boolean {
+  if (item.kind !== 'mcq') return false;
+  const answer = normalizeForLeak(item.answer);
+  if (answer.length <= 3) return false;
+  return normalizeForLeak(item.prompt).includes(answer);
+}
+
+function normalizeForLeak(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
 export function allItems(): Item[] {
   if (cache) return cache;
   const items = [
@@ -713,7 +751,7 @@ export function allItems(): Item[] {
   cache = items.filter((i) => {
     if (seen.has(i.id)) return false;
     seen.add(i.id);
-    return true;
+    return !givesItselfAway(i);
   });
   return cache;
 }

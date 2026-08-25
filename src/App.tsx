@@ -6,6 +6,8 @@ import Library from './views/Library';
 import Plan from './views/Plan';
 import Progress from './views/Progress';
 import Settings from './views/Settings';
+import Focus from './views/Focus';
+import { TRACKS, trackById } from './data/tracks';
 import { useStore } from './lib/useStore';
 import { allItems } from './lib/generate';
 import { ALLOWED_DOMAINS, signIn, signOutUser } from './lib/firebase';
@@ -13,6 +15,7 @@ import GoogleMark from './ui/GoogleMark';
 import { BootSplash, MobileGate, Corners, useIsMobile } from './ui';
 import { copy } from './copy';
 
+/** The shell's own views — the whole-Bible survey, in the order it teaches. */
 const TABS = [
   { id: 'home', label: 'Dashboard' },
   { id: 'review', label: 'Daily Review' },
@@ -23,15 +26,41 @@ const TABS = [
   { id: 'settings', label: 'Settings' },
 ] as const;
 
-type TabId = (typeof TABS)[number]['id'];
+/**
+ * The nav, survey tabs first and one tab per focus track after them.
+ *
+ * Built from `TRACKS` rather than written out, so adding a track stays a
+ * one-file change in data/tracks.ts: this list feeds the nav, the hash
+ * validation and `<main aria-label>` alike, and none of them names a track.
+ *
+ * Tracks come last on purpose. The survey is the app; a track is a temporary
+ * course bolted alongside it for one test, and putting it before Settings would
+ * claim a permanence it does not have.
+ *
+ * A track id therefore shares a namespace with the tab ids above, and a
+ * collision would shadow a whole view — `trackById` is only consulted once the
+ * built-in tabs have had their turn below. There is no clash today and the ids
+ * above are a closed set of seven words, so this is a note rather than a guard.
+ *
+ * `TabId` is a plain string rather than the union `TABS` could give, because
+ * half of this list now comes from runtime data and a literal union cannot
+ * absorb that. Membership is checked in `currentHash`, which is the only place
+ * an unvalidated value ever enters.
+ */
+const NAV: { id: string; label: string }[] = [
+  ...TABS.map((t) => ({ id: t.id as string, label: t.label as string })),
+  ...TRACKS.map((t) => ({ id: t.id, label: t.name })),
+];
+
+type TabId = string;
 
 /** How long the boot mark stays up at minimum, so it reads as a screen and not
  *  a flicker. Never blocks past a genuine load that outlasts it. */
 const SPLASH_MIN_MS = 1100;
 
 function currentHash(): TabId {
-  const h = window.location.hash.replace('#', '') as TabId;
-  return TABS.some((t) => t.id === h) ? h : 'home';
+  const h = window.location.hash.replace('#', '');
+  return NAV.some((t) => t.id === h) ? h : 'home';
 }
 
 export default function App() {
@@ -84,7 +113,7 @@ export default function App() {
 
   function go(next: string) {
     window.location.hash = next;
-    setTab(next as TabId);
+    setTab(next);
     window.scrollTo({ top: 0 });
   }
 
@@ -173,7 +202,11 @@ export default function App() {
     );
   }
 
-  const viewLabel = TABS.find((t) => t.id === tab)?.label ?? '';
+  const viewLabel = NAV.find((t) => t.id === tab)?.label ?? '';
+
+  // Non-undefined only on a focus-track tab; the built-in views are matched by
+  // id below and never reach this.
+  const focusTrack = trackById(tab);
 
   const examDateLabel = new Date(`${api.store.settings.examDate}T12:00`).toLocaleDateString(
     undefined,
@@ -211,7 +244,7 @@ export default function App() {
       </header>
 
       <nav className="tabs">
-        {TABS.map((t) => (
+        {NAV.map((t) => (
           <button
             key={t.id}
             aria-current={tab === t.id ? 'page' : undefined}
@@ -251,6 +284,7 @@ export default function App() {
         {tab === 'plan' && <Plan api={api} />}
         {tab === 'progress' && <Progress api={api} />}
         {tab === 'settings' && <Settings api={api} />}
+        {focusTrack && <Focus track={focusTrack} api={api} />}
       </main>
     </div>
   );

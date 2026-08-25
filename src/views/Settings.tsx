@@ -16,8 +16,11 @@
 import { useState } from 'react';
 import { DIFFICULTIES, type Difficulty } from '../data/types';
 import { useThemeMode, type ThemeMode } from '../lib/theme';
-import type { StoreApi } from '../lib/useStore';
+// The date guard moved to store-ops when the focus tracks needed it too: the
+// same NaN-exam-time trap applies to a track's test date, and two copies of a
+// check whose whole value is that it is never forgotten is one copy too many.
 import { isUsableExamDate } from '../lib/store-ops';
+import type { StoreApi } from '../lib/useStore';
 import { copy } from '../copy';
 import { Card, Field, Segmented, space, sx } from '../ui';
 
@@ -75,18 +78,6 @@ function limitToCommit(raw: string, bounds: { min: number; max: number }): numbe
   return Math.min(bounds.max, Math.max(bounds.min, Math.round(n)));
 }
 
-/**
- * Whether a date string is one the rest of the app can do arithmetic on.
- *
- * An empty `examDate` is the dangerous one, and quietly so: `examTimeOf` builds
- * `new Date('T23:59:59')` from it, which is NaN, and in `srs.grade` the exam
- * clamp is written `daysLeft = Math.max(0, Math.ceil((examTime - now) / DAY))`
- * followed by `daysLeft > 0`. NaN fails that comparison silently, so the clamp
- * — the one place this app deliberately departs from SM-2, guaranteeing every
- * card is seen at least once more before the quiz — simply stops applying, and
- * cards start scheduling past the exam date never to return. Nothing on screen
- * says so beyond a "NaN days until Invalid Date" in the header (#40).
- */
 export default function Settings({ api }: { api: StoreApi }) {
   const { store, updateSettings } = api;
   const [themeMode, setTheme] = useThemeMode();
