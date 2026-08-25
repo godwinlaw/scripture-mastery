@@ -196,7 +196,9 @@ export function buildQueue(
   // start recalling the sequence rather than the answer (#11). Note this is
   // the presentation shuffle, not #40's: it reorders one session's cards after
   // the cut, and cannot change which cards were introduced in the first place.
-  return shuffle(interleave(picked).slice(0, opts.sessionLimit));
+  // Cut by urgency first, then spread. Interleaving before the cut let the
+  // round-robin decide which cards survived it (#41).
+  return shuffle(interleave(picked.slice(0, opts.sessionLimit), opts.meta));
 }
 
 /**
@@ -262,10 +264,10 @@ function tierOf(id: string, meta: Record<string, ItemMeta>): number {
   return meta[id]?.tier ?? 2;
 }
 
-function bookOf(id: string, meta: Record<string, ItemMeta>): string {
+function bookOf(id: string, meta?: Record<string, ItemMeta>): string {
   // Same fallback key `interleave` uses, so an item missing a book still gets
   // grouped the way the rest of the queue groups it.
-  return meta[id]?.book ?? id.split('-').slice(0, 2).join('-');
+  return meta?.[id]?.book ?? id.split('-').slice(0, 2).join('-');
 }
 
 /**
@@ -297,10 +299,18 @@ function spreadByBook(ids: string[], meta: Record<string, ItemMeta>): string[] {
 }
 
 /** Spread same-prefix items apart so you are not answering six Genesis cards in a row. */
-function interleave(ids: string[]): string[] {
+function interleave(ids: string[], meta?: Record<string, ItemMeta>): string[] {
   const buckets = new Map<string, string[]>();
   for (const id of ids) {
-    const key = id.split('-').slice(0, 2).join('-');
+    // Bucket by book. The id prefix looks like a book key and is not one: it
+    // yields families such as `gen-position` and `det-ev`, each spanning the
+    // whole canon, so nearly the entire bank lands in a handful of buckets that
+    // are all "every book". Round-robin across those does not spread books at
+    // all — and because the session cut happens after this, it also decides
+    // *which* cards survive: a bucket holding two due cards got the same share
+    // as one holding nine hundred, so the most overdue cards were routinely
+    // cut. Falls back to the old key only when meta is absent (#41).
+    const key = bookOf(id, meta) || id.split('-').slice(0, 2).join('-');
     if (!buckets.has(key)) buckets.set(key, []);
     buckets.get(key)!.push(id);
   }

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { buildSchedule, currentWeek, PHASES } from '../data/plan';
+import { isUsableExamDate } from '../lib/store-ops';
 import { TOPIC_LABELS } from '../data/types';
 import { planStartOf } from '../lib/store-ops';
 import type { StoreApi } from '../lib/useStore';
@@ -43,7 +44,13 @@ export default function Plan({ api }: { api: StoreApi }) {
               className="ctl"
               type="date"
               value={store.settings.examDate}
-              onChange={(e) => updateSettings({ examDate: e.target.value })}
+              // Guarded exactly as the Settings copy of this field is: an
+              // emptied or half-typed date commits NaN, which silently disables
+              // the SRS exam clamp (#41).
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (isUsableExamDate(raw)) updateSettings({ examDate: raw });
+              }}
             />
           </Field>
         </div>

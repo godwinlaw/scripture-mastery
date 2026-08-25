@@ -10,7 +10,8 @@
  * says so directly rather than as a puzzling UI failure.
  */
 import { expect, test } from '@playwright/test';
-import { buildQueue, type CardState } from '../../src/lib/srs';
+import { allItems, ITEMS_BY_ID } from '../../src/lib/generate';
+import { buildQueue, type CardState, type ItemMeta } from '../../src/lib/srs';
 
 const DAY = 86_400_000;
 
@@ -65,6 +66,50 @@ test.describe('review queue', () => {
 
     expect(q).toHaveLength(5);
     expect([...q].sort()).toEqual(['card-0', 'card-1', 'card-2', 'card-3', 'card-4']);
+  });
+
+  /**
+   * The same rule, against the shape the real bank actually has (#41).
+   *
+   * The synthetic deck above cannot catch the bug this guards: its ids are
+   * `card-0`, `card-1`… and the spreading step keys on the first two
+   * id segments, so every card became its own bucket and round-robin trivially
+   * preserved the urgency order. The real bank is the opposite shape — 6,098
+   * items across a few dozen id families like `gen-position` and `det-ev`,
+   * each spanning the whole canon — so the round-robin gave a family holding
+   * two due cards the same share as one holding nine hundred. Because the
+   * session cut ran *after* that, the spreading step was silently deciding
+   * which cards survived it, and the most overdue routinely lost.
+   */
+  test('a real backlog still yields the most overdue cards, spread across books', () => {
+    const items = allItems();
+    const meta: Record<string, ItemMeta> = {};
+    for (const i of items) meta[i.id] = { tier: i.tier, book: i.book };
+
+    // 3,000 cards in rotation, overdue by amounts that do not follow bank order.
+    const now = Date.now();
+    const cards: Record<string, CardState> = {};
+    items.slice(0, 3000).forEach((it, n) => {
+      cards[it.id] = {
+        id: it.id, ease: 2.5, interval: 1, reps: 3, lapses: 0,
+        due: now - ((n * 7919) % 600) * DAY, lastSeen: now - DAY, recent: [2, 2],
+      };
+    });
+
+    const limit = 60;
+    const q = buildQueue(items.map((i) => i.id), cards, {
+      newLimit: 0, sessionLimit: limit, difficulty: 'medium', meta, seed: 'fixed',
+    }, now);
+
+    const mostOverdue = new Set(
+      Object.values(cards).sort((a, b) => a.due - b.due).slice(0, limit).map((c) => c.id),
+    );
+    expect(q).toHaveLength(limit);
+    expect(q.filter((id) => mostOverdue.has(id))).toHaveLength(limit);
+
+    // And still spread: taking the most urgent must not mean taking one book.
+    const books = new Set(q.map((id) => ITEMS_BY_ID.get(id)!.book ?? '-'));
+    expect(books.size).toBeGreaterThan(5);
   });
 
   test('new cards are still capped by the new-card limit', () => {

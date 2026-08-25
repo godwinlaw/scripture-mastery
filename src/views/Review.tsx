@@ -206,7 +206,14 @@ export default function Review({ api }: { api: StoreApi }) {
   }
 
   if (!started) {
-    const inPhase = counts.due + counts.fresh;
+    // What the session can actually deal, not what is theoretically available.
+    // `fresh` counts every unseen card in scope, but the queue will only
+    // introduce `newToday` of them — so a phase holding nothing but new cards
+    // with a new-card limit of 0 offered an enabled Start button that dealt an
+    // empty session and jumped straight to "Session complete — 0 answered"
+    // (#41). Settings clamps the limit above 0, but an imported store or one
+    // written by an older build does not have to.
+    const inPhase = counts.due + Math.min(counts.fresh, newToday);
     const canStart = inPhase > 0 || (phase !== null && counts.bankActionable > 0);
     const widening = phase !== null && inPhase === 0 && counts.bankActionable > 0;
     return (
@@ -250,7 +257,7 @@ export default function Review({ api }: { api: StoreApi }) {
             Start review session
           </button>
           {phase && (
-            <button className="btn" onClick={() => start(true)}>
+            <button className="btn" onClick={() => start(true)} disabled={counts.bankActionable === 0}>
               {copy.settings.followPlan.studyEverything}
             </button>
           )}

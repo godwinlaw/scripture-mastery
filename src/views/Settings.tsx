@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { DIFFICULTIES, type Difficulty } from '../data/types';
 import { useThemeMode, type ThemeMode } from '../lib/theme';
 import type { StoreApi } from '../lib/useStore';
+import { isUsableExamDate } from '../lib/store-ops';
 import { copy } from '../copy';
 import { Card, Field, Segmented, space, sx } from '../ui';
 
@@ -86,10 +87,6 @@ function limitToCommit(raw: string, bounds: { min: number; max: number }): numbe
  * cards start scheduling past the exam date never to return. Nothing on screen
  * says so beyond a "NaN days until Invalid Date" in the header (#40).
  */
-function isUsableExamDate(raw: string): boolean {
-  return raw !== '' && Number.isFinite(new Date(`${raw}T23:59:59`).getTime());
-}
-
 export default function Settings({ api }: { api: StoreApi }) {
   const { store, updateSettings } = api;
   const [themeMode, setTheme] = useThemeMode();

@@ -13,6 +13,24 @@ import { grade as gradeCard, newCard, type Grade } from './srs';
 const DAY_MS = 86_400_000;
 
 /** End of the exam day — the ceiling every SRS interval is clamped under. */
+/**
+ * Whether a raw date-input value is safe to commit as an exam date.
+ *
+ * An empty or half-typed value parses to `NaN`, and a `NaN` exam time does not
+ * announce itself: `examTimeOf` returns it, `srs.grade` computes `daysLeft`
+ * from it, and `NaN > 0` is false — so the interval clamp, the one guarantee
+ * that every card is seen once more before the quiz, silently stops applying
+ * and cards begin scheduling past the exam never to return. Nothing on screen
+ * says so beyond a "NaN days until Invalid Date" in the header.
+ *
+ * This lives here rather than in a view because the quiz date is editable from
+ * two screens, and the first version of this guard was written in only one of
+ * them (#41).
+ */
+export function isUsableExamDate(raw: string): boolean {
+  return raw !== '' && Number.isFinite(new Date(`${raw}T23:59:59`).getTime());
+}
+
 export function examTimeOf(settings: Settings): number {
   return new Date(`${settings.examDate}T23:59:59`).getTime();
 }
