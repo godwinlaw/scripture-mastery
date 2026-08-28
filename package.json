@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "A spaced-repetition study system for whole-Bible survey knowledge.",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "dev:e2e": "E2E=1 vite --port 5174 --strictPort",
