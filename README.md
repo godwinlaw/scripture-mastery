@@ -1,7 +1,7 @@
 # Scripture Mastery
 
-A whole-Bible survey trainer built for one job: walking into a quiz at the end of
-October knowing the content of all 66 books.
+A whole-Bible survey trainer built for one job: walking into the quiz, currently
+set for the end of January 2027, knowing the content of all 66 books.
 
 **6,581 questions** generated from structured data: 66 books with a full outline
 and episode list each, 595 dated events, 360 per-book figures, 233 people, 54
@@ -85,7 +85,7 @@ const daysLeft = Math.max(0, Math.ceil((examDate - now) / DAY));
 if (daysLeft > 0) interval = Math.min(interval, Math.max(1, Math.floor(daysLeft / 2)));
 ```
 
-Every card gets at least one more look before the test. As October 31 approaches,
+Every card gets at least one more look before the test. As the quiz date approaches,
 intervals compress automatically and the whole deck converges into daily review.
 Change the date in **Progress → Settings** and the schedule re-plans itself.
 
