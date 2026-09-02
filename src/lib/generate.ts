@@ -12,7 +12,8 @@ import type { Person, Place } from '../data/people';
 import { ERAS, EVENTS } from '../data/timeline';
 import type { Era } from '../data/timeline';
 import { AUTHORED, LIST_DECOYS, LISTS } from '../data/extras';
-import type { Book, Item } from '../data/types';
+import type { Book, Division, Item } from '../data/types';
+import { DIVISION_GUIDES } from '../data/divisions';
 import { distractorSets, scopedSets } from './distractors';
 import { buildDetailItems } from './generate-detail';
 import { buildEssentialItems } from './generate-essentials';
@@ -152,6 +153,53 @@ function placePools(pl: Place, extract: (x: Place) => string[]): (() => string[]
  *    after the fact: the 124 cards that never had the bug keep their exact
  *    options, and only the six that did are corrected.
  */
+/** "1st", "2nd", "3rd", "4th", "11th", "12th", "13th" ... */
+function ordinal(n: number): string {
+  const tens = n % 100;
+  if (tens >= 11 && tens <= 13) return `${n}th`;
+  return `${n}${['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
+}
+
+/** The division as a shelf you can count books on. */
+const SHELF_LABEL: Record<Division, string> = {
+  Law: 'books of the Law',
+  History: 'History books',
+  Wisdom: 'Wisdom books',
+  'Major Prophets': 'Major Prophets',
+  'Minor Prophets': 'Minor Prophets',
+  Gospels: 'Gospels',
+  Acts: 'Acts',
+  'Pauline Epistles': 'letters of Paul',
+  'General Epistles': 'General Epistles',
+  Apocalyptic: 'Apocalyptic',
+};
+
+/**
+ * The explanation behind a book-order card: where the book sits on its shelf,
+ * what stands either side of it, why that shelf is in the order it is, and a
+ * mnemonic for the run. Read after answering, so it names books freely; the
+ * hint-before-answer logic in QuestionCard suppresses it on its own.
+ */
+export function orderExplain(b: Book): string {
+  const shelf = BOOKS.filter((x) => x.division === b.division);
+  const at = shelf.findIndex((x) => x.id === b.id) + 1;
+  const place = shelf.length === 1
+    ? `${b.name} is book ${b.order} of 66 and stands on a shelf of its own.`
+    : `${b.name} is book ${b.order} of 66, the ${ordinal(at)} of the ${shelf.length} ${SHELF_LABEL[b.division]} (${shelf.map((x) => x.name).join(', ')}).`;
+  const edge = (x: Book, side: 'before' | 'after') => {
+    if (x.division === b.division) return x.name;
+    const n = BOOKS.filter((y) => y.division === x.division).length;
+    if (n === 1) return `${x.name}, a shelf of its own`;
+    return `${x.name}, ${side === 'before' ? 'closing' : 'opening'} the ${SHELF_LABEL[x.division]}`;
+  };
+  const prev = BOOKS[b.order - 2];
+  const next = BOOKS[b.order];
+  const before = prev ? `Before it: ${edge(prev, 'before')}.` : 'Before it: nothing; it opens the Bible.';
+  const after = next ? `After it: ${edge(next, 'after')}.` : 'After it: nothing; it closes the Bible.';
+  const g = DIVISION_GUIDES[b.division];
+  return `${place} ${before} ${after} Why this order: ${g.why} Mnemonic: ${g.mnemonic}`;
+}
+
 function bookOrderSets(subject: Book, answer: string, seed: string): Pick<Item, 'distractors' | 'distractorsBy'> {
   const notSubject = (n: string) => n !== subject.name;
   const names = (books: Book[]) => books.map((b) => b.name).filter(notSubject);
@@ -243,6 +291,7 @@ function buildBookItems(): Item[] {
       id: `gen-position-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
       prompt: `Which book immediately follows ${b.name}?`,
       answer: nextAnswer,
+      explain: orderExplain(b),
       // Revelation's medium options are authored, not drawn — the answer there
       // is a sentence rather than a book, and the three near-misses at the end
       // of the canon are the whole question. Only the alternates are generated.
@@ -256,6 +305,7 @@ function buildBookItems(): Item[] {
         id: `gen-prev-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
         prompt: `Which book immediately precedes ${b.name}?`,
         answer: BOOKS[b.order - 2].name,
+        explain: orderExplain(b),
         ...bookOrderSets(b, BOOKS[b.order - 2].name, `prev-${b.id}`),
       });
     }
