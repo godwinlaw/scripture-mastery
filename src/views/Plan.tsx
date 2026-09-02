@@ -141,7 +141,7 @@ export default function Plan({ api }: { api: StoreApi }) {
           </p>
           <p className="small">
             <strong>Review is the whole game.</strong> New material every day without revisiting old
-            material means you arrive in October knowing the last two weeks well and everything else
+            material means you arrive on quiz day knowing the last two weeks well and everything else
             vaguely. The scheduler handles this for you — just clear your due cards.
           </p>
           <p className="small" style={sx({ marginBottom: 0 })}>

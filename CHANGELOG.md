@@ -159,6 +159,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **The Study Plan page no longer assumes an October quiz.** The advice
+  card said you would "arrive in October"; it now says "arrive on quiz day",
+  since the date is a setting and the schedule above it is built from
+  whatever date is set.
+
 - **Three "Which book is this?" cards named their own answer.** Hosea's and
   Haggai's one-line summaries and Malachi's distinctive fact each carried the
   book's name inside the quoted line, so the card was a label rather than a
