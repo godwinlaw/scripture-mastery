@@ -63,7 +63,7 @@ export interface Store {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  examDate: '2026-10-31',
+  examDate: '2027-01-31',
   newLimit: 20,
   sessionLimit: 60,
   difficulty: 'medium',
