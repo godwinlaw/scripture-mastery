@@ -210,6 +210,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Phase 1 of the study plan now includes chapter content.** Following the
+  plan restricted the daily review to book order and summaries, 330 cards,
+  so a 60-card session was nearly all "which book follows". Key chapters
+  (what happens in 2 Samuel 7, where a given episode is found) are part of
+  the frame too, and the part that takes the whole phase to learn, so the
+  phase asks for them from day one. Phases 2 and 3 still sweep chapters
+  testament by testament.
+
 - **The default quiz date moved to 31 January 2027** (was 31 October 2026).
   A fresh install starts with the new date. An existing account whose saved
   date is still the old default, never changed by hand, is moved to the new

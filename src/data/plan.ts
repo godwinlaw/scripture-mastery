@@ -3,8 +3,8 @@ import { BOOKS } from './books';
 
 /**
  * A phased plan built backwards from the exam date. The ordering is deliberate:
- * the frame (order, summaries) comes first, because every later fact has to
- * hang on something. Detail without a frame does not stick.
+ * the frame (order, summaries, key chapters) comes first, because every later
+ * fact has to hang on something. Detail without a frame does not stick.
  */
 export interface Phase {
   id: string;
@@ -22,13 +22,18 @@ export const PHASES: Phase[] = [
   {
     id: 'frame',
     name: 'Phase 1 — Build the Frame',
-    goal: 'Know all 66 books cold: order and one-sentence summary. Nothing else sticks without this.',
+    goal: 'Know all 66 books cold: order, one-sentence summary, and what happens in their key chapters. Nothing else sticks without this.',
     weight: 3,
-    topics: ['book-order', 'summaries'],
+    // Chapters sit here as well as in the two sweeps. Order and summaries
+    // alone are 330 cards, so a daily review of 60 was nearly all "which
+    // book follows", and that is the part of the frame a member learns in a
+    // week; the key chapters are the part that takes the whole phase.
+    topics: ['book-order', 'summaries', 'chapters'],
     scope: 'all',
     drills: [
       'Recite the 66 books in order out loud, daily',
       'Match each book to its one-line summary',
+      'For each book, name its key chapters and what happens in them',
     ],
   },
   {
