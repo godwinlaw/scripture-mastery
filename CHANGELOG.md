@@ -7,6 +7,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A prose check in CI** (`npm run lint:prose`, `scripts/check-prose.mjs`).
+  It fails on any em-dash and on a short list of filler phrases, across every
+  tracked file, so the writing in comments, copy and quiz text stays in a
+  human register. Scripture quotations are excluded by file, not rewritten.
+
+- **Book-order cards now explain themselves.** Missing "Which book immediately
+  precedes Daniel?" used to show the answer and nothing else. The feedback now
+  says where the book sits (book 27 of 66, the 5th of the 5 Major Prophets,
+  with the run listed), what stands either side of it, why that shelf is in
+  the order it is, and a mnemonic for the run. The shelf notes live in a new
+  `src/data/divisions.ts`, one entry per division, and the sentence is built
+  by `orderExplain` in `lib/generate.ts`. Because the text names the answer,
+  the pre-answer hint stays off for these cards, as it already does for any
+  card whose explanation would give the answer away.
+
 - **Difficulty became a real setting, and the study plan started driving what
   you study** ([#40]).
 
