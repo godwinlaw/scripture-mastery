@@ -149,6 +149,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Three "Which book is this?" cards named their own answer.** Hosea's and
+  Haggai's one-line summaries and Malachi's distinctive fact each carried the
+  book's name inside the quoted line, so the card was a label rather than a
+  question. The three lines now say "the prophet" or "this book" instead,
+  and `npm run validate` gains a hard check that fails whenever a quoting
+  book prompt (summary, key verse or distinctive fact) contains the bare
+  title of its answer. "Which book immediately follows 1 Samuel?" is not a
+  quoting prompt and is left alone.
+
 - **Missing the last card of a review session graded it three times** ([#40]).
   A missed card is requeued to the end of the session; when it *was* the end,
   the next card had the same id, the card component was never remounted, and
