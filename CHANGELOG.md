@@ -7,6 +7,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A prose check in CI** (`npm run lint:prose`, `scripts/check-prose.mjs`).
+  It fails on any em-dash and on a short list of filler phrases, across every
+  tracked file, so the writing in comments, copy and quiz text stays in a
+  human register. Scripture quotations are excluded by file, not rewritten.
+
 - **Book-order cards now explain themselves.** Missing "Which book immediately
   precedes Daniel?" used to show the answer and nothing else. The feedback now
   says where the book sits (book 27 of 66, the 5th of the 5 Major Prophets,
