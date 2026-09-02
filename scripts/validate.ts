@@ -13,7 +13,7 @@ import { LISTS } from '../src/data/extras';
 import { ESSENTIAL_ITEM_IDS } from '../src/lib/generate-essentials';
 import { TOPIC_LABELS } from '../src/data/types';
 import type { Difficulty, Item } from '../src/data/types';
-import { allItems } from '../src/lib/generate';
+import { allItems, sameTitle } from '../src/lib/generate';
 
 const items = allItems();
 const problems: string[] = [];
@@ -62,6 +62,15 @@ hard(
     return quoted !== undefined && new RegExp(`\\b${bareTitle(i.answer)}\\b`, 'i').test(quoted);
   }),
   (i: Item) => `${i.id} | ${i.prompt}`,
+);
+
+// A book-order card is a reading test, not a canon test, when the answer is
+// the numbered sequel or prequel of the book in the prompt: "Which book
+// precedes 2 Samuel?" The generator skips those; this keeps them skipped.
+hard(
+  'book-order prompts answered by the numbered sibling of the book asked',
+  items.filter((i) => i.topic === 'book-order' && /^Which book immediately (follows|precedes) (.+)\?$/.test(i.prompt) && sameTitle(i.prompt.replace(/^Which book immediately (follows|precedes) /, '').replace(/\?$/, ''), i.answer)),
+  (i: Item) => `${i.id} | ${i.prompt} -> ${i.answer}`,
 );
 
 hard('order items with a duplicated step', items.filter((i) => i.kind === 'order' && i.sequence && dupes(i.sequence).length > 0), (i: Item) => i.id);

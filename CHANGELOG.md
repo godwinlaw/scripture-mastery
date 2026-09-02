@@ -317,6 +317,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 
+- **Eighteen book-order cards answered by the name in their own prompt.**
+  "Which book immediately precedes 2 Samuel?" and "Which book immediately
+  follows 1 Samuel?" test reading, not the canon, and the same goes for
+  every numbered pair (Kings, Chronicles, Corinthians, Thessalonians,
+  Timothy, Peter) and the run of 1, 2 and 3 John. The generator now skips a
+  follows/precedes card whenever the answer is the numbered sibling of the
+  book asked; the outer edges of each pair ("precedes 1 Samuel", "follows
+  2 Samuel") stay. `npm run validate` gains a hard check so they cannot come
+  back. Bank drops from 6,098 to 6,080.
+
 - **"Christ in Scripture" is no longer a study category** ([#16]). The topic is
   gone from the `Topic` union, the topic labels, both study-plan phases that
   listed it, and the 66 "How does X point to Christ?" questions it generated.

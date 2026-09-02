@@ -233,10 +233,13 @@ function buildBookItems(): Item[] {
       });
     }
 
-    // --- Position in canon
+    // --- Position in canon. A numbered sequel is skipped in both directions:
+    // "Which book follows 1 Samuel?" and "Which book precedes 2 Samuel?" are
+    // answered by the name in the prompt, so they test reading, not the canon.
+    // The pair's outer edges ("precedes 1 Samuel", "follows 2 Samuel") stay.
     const nextAnswer = b.order < 66 ? BOOKS[b.order].name : 'Nothing — it is the last book of the Bible';
     const nextSets = bookOrderSets(b, nextAnswer, `next-${b.id}`);
-    items.push({
+    if (!sameTitle(b.name, nextAnswer)) items.push({
       id: `gen-position-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
       prompt: `Which book immediately follows ${b.name}?`,
       answer: nextAnswer,
@@ -248,7 +251,7 @@ function buildBookItems(): Item[] {
         : { distractors: ['Jude', '3 John', '2 Peter'], distractorsBy: nextSets.distractorsBy }),
     });
 
-    if (b.order > 1) {
+    if (b.order > 1 && !sameTitle(b.name, BOOKS[b.order - 2].name)) {
       items.push({
         id: `gen-prev-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
         prompt: `Which book immediately precedes ${b.name}?`,
@@ -697,6 +700,12 @@ function slug(s: string): string {
 let cache: Item[] | null = null;
 
 /** The full item bank. Stable ids mean SRS progress survives content edits. */
+/** Whether two book names differ only by their number: 1 Samuel and 2 Samuel, 2 John and 3 John. */
+export function sameTitle(a: string, b: string): boolean {
+  const bare = (n: string) => n.replace(/^[123] /, '');
+  return a !== b && bare(a) === bare(b);
+}
+
 export function allItems(): Item[] {
   if (cache) return cache;
   const items = [
