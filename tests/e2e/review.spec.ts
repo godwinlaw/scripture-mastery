@@ -12,7 +12,7 @@ test.describe('daily review', () => {
   /**
    * The three seeded cards straddle the plan's first phase on purpose (#40).
    *
-   * `ITEM.mcq` is a `book-order` question, which Phase 1 — Build the Frame —
+   * `ITEM.mcq` is a `book-order` question, which Phase 1, Build the Frame,
    * asks for. `ITEM.type` is `numbers` and `ITEM.order` is `events`, neither of
    * which it does. So the same store reads two different, both-correct ways
    * depending on whether the plan is being followed, and the pair of tests
@@ -23,7 +23,7 @@ test.describe('daily review', () => {
   const straddlingPlan = {
     [ITEM.mcq]: dueCard(ITEM.mcq),
     [ITEM.type]: dueCard(ITEM.type),
-    // Not due for a week — should count as seen but not as due.
+    // Not due for a week, should count as seen but not as due.
     [ITEM.order]: dueCard(ITEM.order, { due: Date.now() + 7 * DAY }),
   };
 
@@ -35,7 +35,7 @@ test.describe('daily review', () => {
       },
     }, 'review');
 
-    // Two of the three are due and both sit outside Phase 1 — but the plan
+    // Two of the three are due and both sit outside Phase 1, but the plan
     // rations new material, not revision, so the session will ask them and the
     // plate has to say so. Counting due cards by phase would promise one and
     // then hand over two.
@@ -80,8 +80,8 @@ test.describe('daily review', () => {
 
   test('a missed card is requeued and asked again', async ({ page }) => {
     // Fixed in #40 by keying the session card on the queue position rather than
-    // `item.id`. When a missed card was requeued as the *very next* card — which
-    // is what happens whenever you miss the last card of a session — React
+    // `item.id`. When a missed card was requeued as the *very next* card, which
+    // is what happens whenever you miss the last card of a session, React
     // reused the component, QuestionCard's reset effect (keyed on the same
     // `item.id`) never fired, and the card returned still revealed. There was no
     // retrieval, which is the entire point of requeueing it; worse, the only way
@@ -93,7 +93,7 @@ test.describe('daily review', () => {
     await answerMcq(page, 'Deuteronomy');
     await page.getByRole('button', { name: /^Continue/ }).click();
 
-    // The card is back — it should be asked afresh, not shown already answered.
+    // The card is back, it should be asked afresh, not shown already answered.
     await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
     await expect(page.locator('.feedback')).toHaveCount(0);
     await expect(page.locator('.choice').first()).toBeEnabled();

@@ -1,6 +1,6 @@
 import type { Item } from './types';
 
-/** Ordered lists worth knowing cold — these drive sequencing drills. */
+/** Ordered lists worth knowing cold, these drive sequencing drills. */
 export interface OrderedList {
   id: string;
   title: string;
@@ -47,7 +47,7 @@ export const LISTS: OrderedList[] = [
     items: ['Ephesus', 'Smyrna', 'Pergamum', 'Thyatira', 'Sardis', 'Philadelphia', 'Laodicea'],
   },
   {
-    id: 'beatitudes', title: 'The Beatitudes', note: 'Matthew 5:3–10 — "Blessed are…"',
+    id: 'beatitudes', title: 'The Beatitudes', note: 'Matthew 5:3–10, "Blessed are…"',
     ordered: true,
     items: ['the poor in spirit', 'those who mourn', 'the meek', 'those who hunger and thirst for righteousness', 'the merciful', 'the pure in heart', 'the peacemakers', 'those who are persecuted for righteousness’ sake'],
   },
@@ -80,7 +80,7 @@ export const AUTHORED: Item[] = [
   // 'a-count-chapters' ("How many chapters are in the whole Bible?" → 1,189)
   // was removed alongside the per-book chapter counts in #8: same species of
   // question, same topic. The questions below survive because chapters are
-  // only incidental to them — the answer is a book or a chapter's *name*
+  // only incidental to them, the answer is a book or a chapter's *name*
   // ("Psalm 119"), which is survey knowledge, not a tally.
   { id: 'a-longest-chapter', kind: 'type', topic: 'numbers', tier: 2, prompt: 'What is the longest chapter in the Bible?', answer: 'Psalm 119', accepts: ['psalms 119', '119', 'ps 119'], explain: '176 verses, an acrostic where each stanza begins with a successive Hebrew letter.' },
   { id: 'a-shortest-chapter', kind: 'type', topic: 'numbers', tier: 3, prompt: 'What is the shortest chapter in the Bible?', answer: 'Psalm 117', accepts: ['psalms 117', '117', 'ps 117'], explain: 'Just two verses.' },
@@ -95,7 +95,7 @@ export const AUTHORED: Item[] = [
 
   // ---- Cross-book connections
   { id: 'a-no-god-named', kind: 'type', topic: 'summaries', tier: 2, prompt: 'Which book of the Bible never mentions God by name?', answer: 'Esther', accepts: ['esther'], explain: 'God is never named, yet His providence drives the entire plot.' },
-  { id: 'a-joel-pentecost', kind: 'mcq', topic: 'events', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28 — "I will pour out my Spirit on all flesh."' },
+  { id: 'a-joel-pentecost', kind: 'mcq', topic: 'events', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28, "I will pour out my Spirit on all flesh."' },
   { id: 'a-micah-bethlehem', kind: 'mcq', topic: 'events', tier: 3, prompt: 'Which prophet foretold that the Messiah would be born in Bethlehem?', answer: 'Micah', distractors: ['Isaiah', 'Malachi', 'Hosea'], explain: 'Micah 5:2, quoted to Herod by the chief priests in Matthew 2.' },
 
   // ---- Events and people
@@ -131,7 +131,7 @@ export const AUTHORED: Item[] = [
  * Explicit wrong options for "which of these is NOT part of X" questions.
  * Drawing these from other lists automatically produced at least one broken
  * question (Levi is a tribe AND the apostle Matthew's other name), so they are
- * authored instead — plausible, but unambiguously not on the list.
+ * authored instead, plausible, but unambiguously not on the list.
  */
 export const LIST_DECOYS: Record<string, string[]> = {
   plagues: ['Earthquake', 'Fire from heaven', 'Plague of serpents', 'Drought'],

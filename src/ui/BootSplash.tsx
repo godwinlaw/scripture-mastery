@@ -1,8 +1,8 @@
 /**
  * The registration-mark boot screen.
  *
- * Stands in front of the app while it decides where to send you — signed in to
- * the board, or out to the sign-in prompt — so a returning member with restored
+ * Stands in front of the app while it decides where to send you, signed in to
+ * the board, or out to the sign-in prompt, so a returning member with restored
  * progress is never flashed the login for the length of the auth check. The
  * plate is "printed in reverse" (paper marks on an ink ground) to read as the
  * press warming up. Under reduced motion the sweep parks and one step label
@@ -17,7 +17,7 @@ export function BootSplash() {
       className="boot-splash"
       role="status"
       aria-live="polite"
-      aria-label={`${copy.appName} — ${copy.loading}`}
+      aria-label={`${copy.appName}, ${copy.loading}`}
     >
       <div className="scale">
         <Corners />

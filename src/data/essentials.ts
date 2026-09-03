@@ -3,8 +3,8 @@ import type { Testament, Topic } from './types';
 /**
  * The must-know lists.
  *
- * `extras.ts` holds the standing membership lists — the ten plagues, the twelve
- * apostles, the fruit of the Spirit — where the drill is "what belongs on this
+ * `extras.ts` holds the standing membership lists, the ten plagues, the twelve
+ * apostles, the fruit of the Spirit, where the drill is "what belongs on this
  * list." These are different: every entry is a *pair*, a cue and the thing it
  * unlocks. Genesis 22 → the sacrifice of Isaac. Ehud → the left-handed judge.
  * ~1000 BC → David. The drill is the index itself: given the address, name the
@@ -12,13 +12,13 @@ import type { Testament, Topic } from './types';
  *
  * That is why these live apart from the book data even where they overlap it.
  * `books.ts` asks "what happens in Genesis 22?" against distractors drawn from
- * the whole canon — a test of whether you know the story. A chapter index asks
+ * the whole canon, a test of whether you know the story. A chapter index asks
  * the same question against the other eleven Genesis headings, which is a test
  * of whether you know *where* it sits. Both are worth having; neither replaces
  * the other.
  *
  * Duplication is still the thing to watch, so two rules hold:
- *   1. Lists already carried by `extras.ts` are not repeated here — see
+ *   1. Lists already carried by `extras.ts` are not repeated here, see
  *      `ESSENTIAL_ALIASES`, which points at them instead.
  *   2. Chapter-index lists are marked `chapterIndex`, and the generator drops
  *      the forward card for any chapter `books.ts` already names as a key
@@ -45,7 +45,7 @@ export interface EssentialEntry {
 export interface EssentialList {
   id: string;
   title: string;
-  /** Where it comes from — shown under the title and used in explanations. */
+  /** Where it comes from, shown under the title and used in explanations. */
   source: string;
   testament: Testament;
   topic: Topic;
@@ -65,7 +65,7 @@ export interface EssentialList {
   orderAsk?: string;
   /** Which side of the pair the order card sequences. Defaults to the cue. */
   orderBy?: 'cue' | 'what';
-  /** The cue is a chapter of `book` — see rule 2 above. */
+  /** The cue is a chapter of `book`, see rule 2 above. */
   chapterIndex?: boolean;
   entries: EssentialEntry[];
 }
@@ -75,13 +75,13 @@ export const ESSENTIALS: EssentialList[] = [
   {
     id: 'genesis-index',
     title: 'Genesis by chapter',
-    source: 'Genesis — the twelve landmarks',
+    source: 'Genesis, the twelve landmarks',
     testament: 'OT',
     topic: 'chapters',
     book: 'genesis',
     chapterIndex: true,
-    forward: 'Genesis by chapter — what is chapter {cue}?',
-    back: 'Genesis by chapter — which chapter is this? "{what}"',
+    forward: 'Genesis by chapter, what is chapter {cue}?',
+    back: 'Genesis by chapter, which chapter is this? "{what}"',
     entries: [
       { cue: '1', what: 'The creation account' },
       { cue: '2', what: 'The creation of man' },
@@ -107,8 +107,8 @@ export const ESSENTIALS: EssentialList[] = [
     ordered: true,
     orderBy: 'what',
     orderAsk: 'Put the days of creation in order.',
-    forward: 'The seven days of creation — what happened on day {cue}?',
-    back: 'The seven days of creation — on which day? "{what}"',
+    forward: 'The seven days of creation, what happened on day {cue}?',
+    back: 'The seven days of creation, on which day? "{what}"',
     entries: [
       { cue: '1', what: 'Light, separated from darkness' },
       { cue: '2', what: 'The heavens, separated from the waters' },
@@ -116,7 +116,7 @@ export const ESSENTIALS: EssentialList[] = [
       { cue: '4', what: 'Sun, moon, and stars' },
       { cue: '5', what: 'Sea creatures and birds' },
       { cue: '6', what: 'Land animals and man' },
-      { cue: '7', what: 'Rest — the Sabbath, which God made holy' },
+      { cue: '7', what: 'Rest, the Sabbath, which God made holy' },
     ],
   },
   {
@@ -128,8 +128,8 @@ export const ESSENTIALS: EssentialList[] = [
     book: 'judges',
     ordered: true,
     orderAsk: 'Put the major judges in the order they appear in Judges.',
-    forward: 'The major judges — what is {cue} remembered for?',
-    back: 'The major judges — which judge is this? "{what}"',
+    forward: 'The major judges, what is {cue} remembered for?',
+    back: 'The major judges, which judge is this? "{what}"',
     entries: [
       { cue: 'Othniel', what: 'The first judge', note: 'Caleb’s younger relative (Judges 3).' },
       { cue: 'Ehud', what: 'The left-handed judge who killed the very fat King Eglon' },
@@ -147,14 +147,14 @@ export const ESSENTIALS: EssentialList[] = [
     topic: 'people',
     ordered: true,
     orderAsk: 'Put the kings of {group} in order.',
-    groupAsk: 'The major kings — which kingdom did {cue} rule?',
+    groupAsk: 'The major kings, which kingdom did {cue} rule?',
     groupDecoy: 'The kingdom of Edom',
-    forward: 'The major kings — what is {cue} remembered for?',
-    back: 'The major kings — which king is this? "{what}"',
+    forward: 'The major kings, what is {cue} remembered for?',
+    back: 'The major kings, which king is this? "{what}"',
     entries: [
       { cue: 'Saul', what: 'Israel’s first king', group: 'The united kingdom', book: '1-samuel' },
       { cue: 'David', what: 'The second king, a man after God’s own heart', group: 'The united kingdom', book: '2-samuel' },
-      { cue: 'Solomon', what: 'The third king, who built the temple — the kingdom split after him', group: 'The united kingdom', book: '1-kings' },
+      { cue: 'Solomon', what: 'The third king, who built the temple, the kingdom split after him', group: 'The united kingdom', book: '1-kings' },
 
       { cue: 'Jeroboam', what: 'The first king of the north, after the rebellion', group: 'The northern kingdom of Israel', book: '1-kings' },
       { cue: 'Ahab', what: 'The king married to Jezebel', group: 'The northern kingdom of Israel', book: '1-kings' },
@@ -173,9 +173,9 @@ export const ESSENTIALS: EssentialList[] = [
     source: 'Who prophesied when, and to whom',
     testament: 'OT',
     topic: 'people',
-    groupAsk: 'Key prophets — in which period did {cue} prophesy?',
-    forward: 'Key prophets — who did {cue} prophesy to?',
-    back: 'Key prophets — which prophet is this? "{what}"',
+    groupAsk: 'Key prophets, in which period did {cue} prophesy?',
+    forward: 'Key prophets, who did {cue} prophesy to?',
+    back: 'Key prophets, which prophet is this? "{what}"',
     entries: [
       { cue: 'Samuel', what: 'Saul and David', group: 'The united kingdom', book: '1-samuel' },
       { cue: 'Nathan', what: 'David', group: 'The united kingdom', book: '2-samuel' },
@@ -196,8 +196,8 @@ export const ESSENTIALS: EssentialList[] = [
     ordered: true,
     orderBy: 'what',
     orderAsk: 'Put these five anchors in chronological order.',
-    forward: 'The five round numbers — who or what anchors {cue}?',
-    back: 'The five round numbers — roughly when? "{what}"',
+    forward: 'The five round numbers, who or what anchors {cue}?',
+    back: 'The five round numbers, roughly when? "{what}"',
     entries: [
       { cue: '~2000 BC', what: 'Abraham' },
       { cue: '~1500 BC', what: 'Moses' },
@@ -209,13 +209,13 @@ export const ESSENTIALS: EssentialList[] = [
   {
     id: 'psalms-key',
     title: 'Key psalms',
-    source: 'Psalms — the ones quoted by number',
+    source: 'Psalms, the ones quoted by number',
     testament: 'OT',
     topic: 'chapters',
     book: 'psalms',
     chapterIndex: true,
-    forward: 'Key psalms — what is Psalm {cue}?',
-    back: 'Key psalms — which psalm is this? "{what}"',
+    forward: 'Key psalms, what is Psalm {cue}?',
+    back: 'Key psalms, which psalm is this? "{what}"',
     entries: [
       { cue: '1', what: 'Blessed is the man' },
       { cue: '23', what: 'The LORD is my shepherd' },
@@ -235,14 +235,14 @@ export const ESSENTIALS: EssentialList[] = [
   {
     id: 'parables-luke',
     title: 'Key parables in Luke',
-    source: 'Luke — the six a survey quiz expects',
+    source: 'Luke, the six a survey quiz expects',
     testament: 'NT',
     topic: 'chapters',
     book: 'luke',
-    forward: 'Key parables in Luke — where is the parable of {cue}?',
-    back: 'Key parables in Luke — which parable is here? "{what}"',
+    forward: 'Key parables in Luke, where is the parable of {cue}?',
+    back: 'Key parables in Luke, which parable is here? "{what}"',
     entries: [
-      { cue: 'the Four Soils', what: 'Luke 8', note: 'Also Mark 4 and Matthew 13 — the sower.' },
+      { cue: 'the Four Soils', what: 'Luke 8', note: 'Also Mark 4 and Matthew 13, the sower.' },
       { cue: 'the Good Samaritan', what: 'Luke 10' },
       { cue: 'the Rich Fool', what: 'Luke 12' },
       { cue: 'the Great Banquet', what: 'Luke 14' },
@@ -253,12 +253,12 @@ export const ESSENTIALS: EssentialList[] = [
   {
     id: 'parables-matthew',
     title: 'Key parables in Matthew',
-    source: 'Matthew — the six a survey quiz expects',
+    source: 'Matthew, the six a survey quiz expects',
     testament: 'NT',
     topic: 'chapters',
     book: 'matthew',
-    forward: 'Key parables in Matthew — where is the parable of {cue}?',
-    back: 'Key parables in Matthew — which parable is here? "{what}"',
+    forward: 'Key parables in Matthew, where is the parable of {cue}?',
+    back: 'Key parables in Matthew, which parable is here? "{what}"',
     entries: [
       { cue: 'the Wise and Foolish Builders', what: 'Matthew 7' },
       { cue: 'the Treasure in a Field', what: 'Matthew 13' },
@@ -271,17 +271,17 @@ export const ESSENTIALS: EssentialList[] = [
   {
     id: 'john-index',
     title: 'John by chapter',
-    source: 'John — all twenty-one chapters',
+    source: 'John, all twenty-one chapters',
     testament: 'NT',
     topic: 'chapters',
     book: 'john',
     chapterIndex: true,
-    forward: 'John by chapter — what is chapter {cue}?',
-    back: 'John by chapter — which chapter is this? "{what}"',
+    forward: 'John by chapter, what is chapter {cue}?',
+    back: 'John by chapter, which chapter is this? "{what}"',
     entries: [
       { cue: '1', what: 'The Word became flesh; John baptizes' },
       { cue: '2', what: 'The wedding at Cana; cleansing the temple' },
-      { cue: '3', what: 'Nicodemus — "For God so loved the world"' },
+      { cue: '3', what: 'Nicodemus, "For God so loved the world"' },
       { cue: '4', what: 'The Samaritan woman at the well' },
       { cue: '5', what: 'The healing at Bethesda' },
       { cue: '6', what: 'Feeding the five thousand' },
@@ -302,16 +302,16 @@ export const ESSENTIALS: EssentialList[] = [
   {
     id: 'acts-index',
     title: 'Acts by chapter',
-    source: 'Acts — the chapters that carry the story',
+    source: 'Acts, the chapters that carry the story',
     testament: 'NT',
     topic: 'chapters',
     book: 'acts',
     chapterIndex: true,
-    forward: 'Acts by chapter — what is chapter {cue}?',
-    back: 'Acts by chapter — which chapter is this? "{what}"',
+    forward: 'Acts by chapter, what is chapter {cue}?',
+    back: 'Acts by chapter, which chapter is this? "{what}"',
     entries: [
       { cue: '1', what: 'Jesus ascends' },
-      { cue: '2', what: 'Pentecost — the church begins' },
+      { cue: '2', what: 'Pentecost, the church begins' },
       { cue: '3', what: 'The healing at the Beautiful Gate' },
       { cue: '5', what: 'Ananias and Sapphira' },
       { cue: '7', what: 'Stephen martyred' },
@@ -319,20 +319,20 @@ export const ESSENTIALS: EssentialList[] = [
       { cue: '9', what: 'Saul’s conversion' },
       { cue: '11', what: 'The church at Antioch' },
       { cue: '13', what: 'The first missionary journey' },
-      { cue: '16', what: 'The second missionary journey — Timothy joins' },
+      { cue: '16', what: 'The second missionary journey, Timothy joins' },
     ],
   },
   {
     id: 'romans-road',
     title: 'The Romans Road',
-    source: 'Romans — in the order it is presented, not canonical order',
+    source: 'Romans, in the order it is presented, not canonical order',
     testament: 'NT',
     topic: 'chapters',
     book: 'romans',
     ordered: true,
     orderAsk: 'Put the Romans Road verses in the order they are presented.',
-    forward: 'The Romans Road — what is Romans {cue}?',
-    back: 'The Romans Road — which verse is this? "{what}"',
+    forward: 'The Romans Road, what is Romans {cue}?',
+    back: 'The Romans Road, which verse is this? "{what}"',
     entries: [
       { cue: '3:23', what: 'For all have sinned and fall short of the glory of God' },
       { cue: '6:23', what: 'The wages of sin is death' },
@@ -348,13 +348,13 @@ export const ESSENTIALS: EssentialList[] = [
     testament: 'NT',
     topic: 'chapters',
     chapterIndex: true,
-    forward: 'Key epistle chapters — what is {cue} known for?',
-    back: 'Key epistle chapters — which chapter is this? "{what}"',
+    forward: 'Key epistle chapters, what is {cue} known for?',
+    back: 'Key epistle chapters, which chapter is this? "{what}"',
     entries: [
       { cue: '1 Corinthians 1', what: 'The message of the cross is folly to those who are perishing', book: '1-corinthians', ch: '1' },
       { cue: '1 Corinthians 10', what: 'God provides a way of escape with every temptation', book: '1-corinthians', ch: '10' },
       { cue: '1 Corinthians 13', what: 'The love chapter', book: '1-corinthians', ch: '13' },
-      { cue: '1 Corinthians 15', what: 'The resurrection — your labor is not in vain', book: '1-corinthians', ch: '15' },
+      { cue: '1 Corinthians 15', what: 'The resurrection, your labor is not in vain', book: '1-corinthians', ch: '15' },
       { cue: '2 Corinthians 4', what: 'Treasure in jars of clay', book: '2-corinthians', ch: '4' },
       { cue: '2 Corinthians 5', what: 'A new creation; ambassadors for Christ', book: '2-corinthians', ch: '5' },
       { cue: '2 Corinthians 12', what: 'Power made perfect in weakness', book: '2-corinthians', ch: '12' },
@@ -398,7 +398,7 @@ export const ESSENTIALS: EssentialList[] = [
 /**
  * Lists that belong with these but are already carried by `extras.ts`. Pointing
  * at them keeps the must-know set complete on the page without a second copy of
- * the data — and a second copy is exactly how two cards end up disagreeing.
+ * the data, and a second copy is exactly how two cards end up disagreeing.
  */
 export const ESSENTIAL_ALIASES: { title: string; listId: string; why: string }[] = [
   { title: 'The Ten Commandments', listId: 'commandments', why: 'Exodus 20, in order' },

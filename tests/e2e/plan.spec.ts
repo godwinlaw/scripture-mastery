@@ -1,15 +1,15 @@
 /**
  * The study plan drives what you study (#40).
  *
- * The plan has always been *displayed* — Plan.tsx renders the schedule and the
- * Dashboard names the current phase — but nothing filtered the queue by it, so
+ * The plan has always been *displayed*, Plan.tsx renders the schedule and the
+ * Dashboard names the current phase, but nothing filtered the queue by it, so
  * following it was left entirely to the member's own discipline. These tests
  * pin the two halves of making it real: the daily review draws from the phase,
  * and the phase actually advances as the weeks pass.
  *
  * That second half is the one worth guarding hardest. `buildSchedule` defaults
  * its start date to `new Date()`, so a schedule built today always puts today
- * in week 1 — which meant `currentPhase` answered "Phase 1" forever. Harmless
+ * in week 1, which meant `currentPhase` answered "Phase 1" forever. Harmless
  * while the plan was decorative; the moment it gates the queue it would have
  * pinned every member to book-order and summaries, 330 of 6,098 items, until
  * the exam date passed. The anchor is a persisted plan start instead.
@@ -42,7 +42,7 @@ test.describe('following the study plan', () => {
 
   test('a session mixes due cards from anywhere with new cards from the phase', async ({ page }) => {
     // The whole rule in one session. All three seeded cards are due and they
-    // sit in three different phases, so all three are asked — a due date is a
+    // sit in three different phases, so all three are asked, a due date is a
     // promise the queue has to keep. What the phase controls is the material
     // you have never seen, and `newLimit: 0` here holds that at zero so the
     // count is unambiguous.
@@ -59,7 +59,7 @@ test.describe('following the study plan', () => {
    *
    * This is the regression that made the guarantee in `grade()` a lie. Every
    * interval is clamped so nothing is scheduled past the quiz date without one
-   * more look — but a due date only means something if the queue acts on it.
+   * more look, but a due date only means something if the queue acts on it.
    * Phases 2 through 4 do not list `book-order` among their topics, so scoping
    * due cards by phase dropped every card built during Phase 1 for the five or
    * six weeks those phases run. The widening could not rescue it either:
@@ -69,7 +69,7 @@ test.describe('following the study plan', () => {
   test('a card that is due is asked even when its topic is outside the phase', async ({ page }) => {
     await openAs(page, {
       store: {
-        // ITEM.mcq is `book-order`. Phase 2 — the OT sweep — does not cover it.
+        // ITEM.mcq is `book-order`. Phase 2, the OT sweep, does not cover it.
         cards: { [ITEM.mcq]: dueCard(ITEM.mcq) },
         settings: {
           examDate: daysFromNow(60),
@@ -107,9 +107,10 @@ test.describe('following the study plan', () => {
     }, 'review');
 
     await page.getByRole('button', { name: 'Start review session' }).click();
-    // Phase 1 covers book-order and summaries only.
+    // Phase 1 covers book order, summaries and chapter content; the session
+    // shuffles, so any of the three may be dealt first, and nothing else may.
     const kicker = page.locator('.kicker, .pill').first();
-    await expect(kicker).toHaveText(/Book Order|Book Summaries/);
+    await expect(kicker).toHaveText(/Book Order|Book Summaries|Chapter Content/);
   });
 
   test('you can set the plan aside for one session without changing the setting', async ({ page }) => {
@@ -144,7 +145,7 @@ test.describe('following the study plan', () => {
 
   test('an account saved before the setting existed follows the plan by default', async ({ page }) => {
     // The key postdates the store format, so a store written before #40 has no
-    // such field. It must read as on — the plan is the app's whole premise —
+    // such field. It must read as on, the plan is the app's whole premise,
     // rather than leaving the control with nothing selected.
     await openAs(page, {}, 'settings');
     await expect(page.getByRole('radio', { name: 'On' })).toBeChecked();

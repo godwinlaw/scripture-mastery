@@ -1,8 +1,8 @@
 /**
  * Pure store transitions, split out of useStore.
  *
- * The hook owns the transport — Firestore in the app, localStorage in the E2E
- * build — and nothing else. Everything that decides what a store *becomes* when
+ * The hook owns the transport, Firestore in the app, localStorage in the E2E
+ * build, and nothing else. Everything that decides what a store *becomes* when
  * you answer a card, star an item, or change a setting lives here, so both
  * hooks run the same code and a browser test exercises the real logic rather
  * than a re-implementation of it.
@@ -12,13 +12,13 @@ import { grade as gradeCard, newCard, type Grade } from './srs';
 
 const DAY_MS = 86_400_000;
 
-/** End of the exam day — the ceiling every SRS interval is clamped under. */
+/** End of the exam day, the ceiling every SRS interval is clamped under. */
 /**
  * Whether a raw date-input value is safe to commit as an exam date.
  *
  * An empty or half-typed value parses to `NaN`, and a `NaN` exam time does not
  * announce itself: `examTimeOf` returns it, `srs.grade` computes `daysLeft`
- * from it, and `NaN > 0` is false — so the interval clamp, the one guarantee
+ * from it, and `NaN > 0` is false, so the interval clamp, the one guarantee
  * that every card is seen once more before the quiz, silently stops applying
  * and cards begin scheduling past the exam never to return. Nothing on screen
  * says so beyond a "NaN days until Invalid Date" in the header.
@@ -43,7 +43,7 @@ export function daysLeftUntil(examTime: number, now = Date.now()): number {
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * The date the study plan is measured from — the other end of the interval
+ * The date the study plan is measured from, the other end of the interval
  * `examTimeOf` gives, and the fix for #40.
  *
  * `buildSchedule` defaults its start to `new Date()`, which was harmless while
@@ -61,9 +61,9 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
  *    that predates the key, and it is the right one: a member who has been
  *    studying for six weeks should be six weeks into the plan, not sent back to
  *    Phase 1 by an upgrade. `min` over the whole log rather than `log[0]`,
- *    because an imported store's log carries no ordering guarantee — and ISO
+ *    because an imported store's log carries no ordering guarantee, and ISO
  *    dates compare correctly as strings, so no parsing is needed to pick it.
- * 3. Today, for a store with no history at all — a genuinely new member, and
+ * 3. Today, for a store with no history at all, a genuinely new member, and
  *    the E2E fixtures, both of which should start at Phase 1.
  *
  * A malformed `planStart` (a hand-edited or foreign import) falls through to

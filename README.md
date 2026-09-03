@@ -10,19 +10,19 @@ lists holding 145 cue/content pairs.
 
 Every book carries its own outline, its episodes chapter by chapter with the
 people in them, the terms it runs on, the numbers it is known for, and a line on
-how it points to Christ. That is where the depth lives — roughly a hundred
+how it points to Christ. That is where the depth lives, roughly a hundred
 questions per book, rather than thirty.
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm run build    # static output in dist/ — deployable anywhere
+npm run build    # static output in dist/, deployable anywhere
 npm run validate # content-integrity checks over the whole item bank
 npm run test:e2e # Playwright: 82 browser tests over the real UI
 ```
 
 Progress syncs to **Firestore**, keyed to a Google sign-in restricted to
-`acts2.network` and `gpmail.org` accounts — see [Data & sync](#data--sync).
+`acts2.network` and `gpmail.org` accounts, see [Data & sync](#data--sync).
 
 ---
 
@@ -34,7 +34,7 @@ document at `users/{uid}`, live-synced with `onSnapshot` so multiple tabs and
 devices stay current, and cached locally (`persistentLocalCache`) so the app
 still works offline and flushes pending writes when the connection returns.
 
-The domain allowlist is enforced twice — once client-side for a fast UX bounce
+The domain allowlist is enforced twice, once client-side for a fast UX bounce
 (`src/lib/firebase.ts`), and once in `firestore.rules`, which is the copy that
 actually matters since the client check can't be trusted on its own.
 
@@ -48,7 +48,7 @@ actually matters since the client check can't be trusted on its own.
    **Project settings → General → Your apps**.
 
 Export/import (**Progress → Your data**) still round-trips the whole store as a
-JSON file — handy as a manual backup or for moving data outside the two
+JSON file, handy as a manual backup or for moving data outside the two
 allowed domains.
 
 ---
@@ -62,7 +62,7 @@ rated only two as "high utility": practice testing and distributed practice.
 Re-reading a book summary feels productive and mostly isn't. So the app is a
 question engine first and a reference second.
 
-**Spacing beats cramming.** Reviews are scheduled at expanding intervals — the
+**Spacing beats cramming.** Reviews are scheduled at expanding intervals, the
 core of the Leitner system and SM-2. Miss a card and it comes back in a minute;
 know it and it goes to the back of the line.
 
@@ -96,9 +96,9 @@ Change the date in **Progress → Settings** and the schedule re-plans itself.
 | Tab | What it's for |
 |---|---|
 | **Dashboard** | Countdown, cards due, mastery, streak, and the current phase of the plan |
-| **Daily Review** | The spaced-repetition queue. This is the main event — clear it daily |
+| **Daily Review** | The spaced-repetition queue. This is the main event, clear it daily |
 | **Quiz** | Mixed testing under quiz conditions. Filter by scope, topic, single book, or weak spots |
-| **Reference** | Every book opened to five panes — overview, outline, events, people, terms — plus the timeline, 233 people, 54 places, the must-know lists, and the standing lists |
+| **Reference** | Every book opened to five panes, overview, outline, events, people, terms, plus the timeline, 233 people, 54 places, the must-know lists, and the standing lists |
 | **Study Plan** | Week-by-week schedule from the day you started to your quiz date |
 | **Progress** | Mastery by book, stuck items, settings, export/import |
 
@@ -110,7 +110,7 @@ advances · `1`/`2`/`3` grade Hard/Ok/Easy after a correct answer.
 ## The study plan
 
 Five phases, weighted and laid onto the actual calendar between the day you
-started and your quiz date. The order is the point — the frame comes first
+started and your quiz date. The order is the point, the frame comes first
 because every later fact needs somewhere to attach.
 
 The plan is not just a reading: with **Follow the study plan** on (the default),
@@ -119,33 +119,33 @@ Quiz offers *This week's plan* as a scope. When a phase runs dry the queue
 widens to the rest of the bank rather than telling you there is nothing to
 study, and **Study everything instead** sets it aside for a single session.
 
-1. **Build the Frame** — all 66 books: order, division, author, one-line summary, outline
-2. **Old Testament Sweep** — outline, key chapters, people and their families, events,
+1. **Build the Frame**, all 66 books: order, division, author, one-line summary, outline
+2. **Old Testament Sweep**, outline, key chapters, people and their families, events,
    places, and the terms each book runs on, book by book
-3. **New Testament Sweep** — Gospels, Acts, every letter's audience and occasion, Revelation
-4. **Timeline & Connections** — the 14 eras, the must-know and standing lists, the
+3. **New Testament Sweep**, Gospels, Acts, every letter's audience and occasion, Revelation
+4. **Timeline & Connections**, the 14 eras, the must-know and standing lists, the
    two fall dates, and how each book points to Christ
-5. **Mixed Review & Mock Quizzes** — no new material, weak spots only
+5. **Mixed Review & Mock Quizzes**, no new material, weak spots only
 
 ---
 
 ## Difficulty
 
 The setting in **Settings → Difficulty** changes four things at once. It never
-changes which questions exist — item ids are what review history is keyed on,
+changes which questions exist, item ids are what review history is keyed on,
 so the bank is generated once and the setting only decides what reaches the
 card and which cards reach you.
 
 | | Easy | Medium | Hard |
 |---|---|---|---|
 | Options offered | 3 | 4 | 6 |
-| Wrong options drawn from | anywhere in the canon | books near the answer's own, never across the Testament seam | as close as the question allows — the same book, canonical neighbours, the same era or family |
+| Wrong options drawn from | anywhere in the canon | books near the answer's own, never across the Testament seam | as close as the question allows, the same book, canonical neighbours, the same era or family |
 | A reference answer | shown as choices | named from memory first | named from memory first, no hint |
 | Hint before answering | yes | no | no |
 | New material | walks the canon in order | interleaved by book | anywhere in scope, unpredictable, half again as much |
 | A card you miss | comes back this session | comes back this session | comes back tomorrow |
 
-Book Order questions are deliberately exempt from the Testament rule — "which
+Book Order questions are deliberately exempt from the Testament rule, "which
 book immediately follows Malachi?" has a New Testament answer, so fencing it by
 Testament would give the answer away. They are scoped by canonical distance
 instead.
@@ -185,8 +185,8 @@ Acts 12" is a real question and "which book is Peter in" is not.
 ```
 src/
 ├── data/
-│   ├── types.ts      Book, Item, Topic definitions — 14 topics
-│   ├── books.ts      All 66 books — the frame
+│   ├── types.ts      Book, Item, Topic definitions, 14 topics
+│   ├── books.ts      All 66 books, the frame
 │   ├── details/      The detail layer, one file per division
 │   │   ├── types.ts        BookDetail, Section, DetailEvent, Figure, Term
 │   │   ├── law.ts          Genesis–Deuteronomy
@@ -200,12 +200,12 @@ src/
 │   ├── people.ts     233 people (with family, tribe, and death) + 54 places
 │   ├── timeline.ts   14 eras + 29 dated events
 │   ├── extras.ts     13 standing lists + ~60 hand-authored questions
-│   ├── essentials.ts 13 must-know lists — cue → content pairs (chapter indexes,
+│   ├── essentials.ts 13 must-know lists, cue → content pairs (chapter indexes,
 │   │                 judges, kings, prophets, the Romans Road)
 │   └── plan.ts       Phase definitions and calendar builder
 ├── lib/
 │   ├── generate.ts         The frame, people, timeline, and list generators
-│   ├── generate-detail.ts  The detail generators — the bulk of the bank
+│   ├── generate-detail.ts  The detail generators, the bulk of the bank
 │   ├── generate-essentials.ts  The must-know lists, both directions + sequencing
 │   ├── srs.ts              Scheduler, queue building, mastery scoring
 │   ├── storage.ts          Store shape, defaults, export/import
@@ -216,7 +216,7 @@ src/
 └── components/
     └── BookDetailPanel.tsx  A book's five reference panes
 scripts/
-└── validate.ts       27 content-integrity checks — `npm run validate`
+└── validate.ts       27 content-integrity checks, `npm run validate`
 ```
 
 ### Item ids are stable on purpose
@@ -244,7 +244,7 @@ failure. Four of them exist because they caught real bugs.
 **Distractors near the answer.** Chapter-count questions draw wrong options from
 numerically adjacent books. Offering 50 against 3, 5, and 7 tests nothing;
 offering 50 against 66, 36, and 40 tests something. Book-scoped questions draw
-distractors from the same book first — knowing the cast of 2 Samuel is not the
+distractors from the same book first, knowing the cast of 2 Samuel is not the
 same as knowing which of them killed Abner.
 
 **No question with two right answers, across books.** The Transfiguration appears
@@ -261,20 +261,20 @@ episodes, each was offered as a wrong option against the other. Prompts for a
 shared chapter reference now name the episode.
 
 **Hand-authored decoys where automatic ones lie.** Auto-drawing "which is NOT
-part of X" decoys from other lists offered *Levi* as not-an-apostle — but Levi is
+part of X" decoys from other lists offered *Levi* as not-an-apostle, but Levi is
 Matthew's other name. Those decoys live in `LIST_DECOYS` instead.
 
 The ambiguity check itself needed care. Several cards legitimately share a prompt:
 the four "which is NOT one of the Twelve Apostles" cards each pair a different
 decoy with three real apostles, and every one of them has exactly one right
 answer. Flagging shared prompts would have flagged those. The check that actually
-means something is narrower — **one card's correct answer appearing as a wrong
-option on another card asking the same question** — plus identical prompt *and*
+means something is narrower, **one card's correct answer appearing as a wrong
+option on another card asking the same question**, plus identical prompt *and*
 identical option set with different answers. Both currently report zero.
 
 ### Browser tests
 
-`npm run test:e2e` drives the actual app in Chromium — 82 tests over sign-in and
+`npm run test:e2e` drives the actual app in Chromium, 82 tests over sign-in and
 the domain gate, tab routing, all three question kinds, review sessions, quiz
 filters, the reference search, and export/import/reset. A second project runs
 the mobile refusal on an emulated Pixel 5, because the one thing that must never
@@ -285,7 +285,7 @@ Firebase popup, and the emulators need a JVM. So the E2E build swaps two modules
 and nothing else: `src/lib/useStore.ts` and `src/lib/firebase.ts` are replaced by
 `*.e2e.ts` stand-ins that keep the store in localStorage and make sign-in a
 synchronous write. The swap lives in a vite plugin gated on `E2E=1`
-(`vite.config.ts`), so a production build has never heard of it — `npm run build`
+(`vite.config.ts`), so a production build has never heard of it, `npm run build`
 output contains zero E2E code and still ships the real Firebase SDK.
 
 The point of that split is that the stand-in replaces the *transport only*.
@@ -298,7 +298,7 @@ surface changes, the fake stops compiling.
 Tests seed a whole `Store` into localStorage before the app boots and read it
 back afterwards (`tests/e2e/harness.ts`). Where a test needs a known question on
 screen, it seeds one due card with `newLimit: 0` so the queue can only contain
-that one — no shuffling, no flake. The three fixture item ids are pinned by
+that one, no shuffling, no flake. The three fixture item ids are pinned by
 `content-contract.spec.ts`, so if the generator ever retires one, that says so
 directly instead of a dozen UI tests failing for no visible reason.
 
@@ -306,7 +306,7 @@ directly instead of a dozen UI tests failing for no visible reason.
 `test.fail()` for the requeue bug described below; delete the marker when it is
 fixed and Playwright will flag the test as unexpectedly passing.
 
-> Miss the last card of a session and it is requeued — but it comes back already
+> Miss the last card of a session and it is requeued, but it comes back already
 > answered, with the wrong answer still in a disabled input. The session card is
 > keyed on `item.id` (`src/views/Review.tsx:127`), so when the same id repeats
 > back to back React reuses the component and `QuestionCard`'s reset effect,
@@ -323,13 +323,13 @@ fixed and Playwright will flag the test as unexpectedly passing.
 - Verse quotations are **ESV**, kept short and used for identification rather
   than memorization.
 - Dates are approximate and follow common conservative dating. Chapter counts
-  follow the English canon and total 1,189 (929 OT + 260 NT) — checked against
+  follow the English canon and total 1,189 (929 OT + 260 NT), checked against
   those literal figures in `npm run validate`, not against themselves.
 - **Composition dates and authorship** in the detail layer follow what a survey
   course teaches. Where the date is genuinely contested (Joel, Obadiah, Job) the
   entry says so rather than picking one silently.
 - **Where a book's reading is disputed**, both readings are given as terms rather
-  than one being asserted — Song of Solomon carries `Allegorical reading` and
+  than one being asserted, Song of Solomon carries `Allegorical reading` and
   `Literal reading`; Revelation carries `Millennium` with the note that it is
   read three main ways.
 - **The "Christ in this book" line** is one per book and is what a survey quiz
@@ -339,10 +339,10 @@ fixed and Playwright will flag the test as unexpectedly passing.
 
 ## Sources
 
-- [Dunlosky et al. via *The Evidence for Active Recall and Spaced Repetition*](https://recallify.ai/evidence-for-active-recall-and-spaced-repetition/) — practice testing and distributed practice as the two "high utility" techniques
-- [The Leitner System](https://activerecalling.com/blog/leitner-system-flashcards) — expanding-interval review
-- [Spaced Repetition Algorithms: From SM-2 to FSRS](https://www.mindomax.com/spaced-repetition-algorithms) — ease factors and interval computation
-- [CMD Bible Quizzing — Studying Tips](https://cmdbiblequizzing.org/studying-tips/) — short sessions, daily review, recitation aloud
-- [National Bible Bee — Winning Study Habits](https://biblebee.org/wshaft2cw/) — habits of competition winners
-- [Bible quiz (Wikipedia)](https://en.wikipedia.org/wiki/Bible_quiz) — competition formats and question types
-- [OverviewBible — All 66 Books](https://overviewbible.com/books-of-the-bible/) — cross-check on book summaries and groupings
+- [Dunlosky et al. via *The Evidence for Active Recall and Spaced Repetition*](https://recallify.ai/evidence-for-active-recall-and-spaced-repetition/), practice testing and distributed practice as the two "high utility" techniques
+- [The Leitner System](https://activerecalling.com/blog/leitner-system-flashcards), expanding-interval review
+- [Spaced Repetition Algorithms: From SM-2 to FSRS](https://www.mindomax.com/spaced-repetition-algorithms), ease factors and interval computation
+- [CMD Bible Quizzing, Studying Tips](https://cmdbiblequizzing.org/studying-tips/), short sessions, daily review, recitation aloud
+- [National Bible Bee, Winning Study Habits](https://biblebee.org/wshaft2cw/), habits of competition winners
+- [Bible quiz (Wikipedia)](https://en.wikipedia.org/wiki/Bible_quiz), competition formats and question types
+- [OverviewBible, All 66 Books](https://overviewbible.com/books-of-the-bible/), cross-check on book summaries and groupings

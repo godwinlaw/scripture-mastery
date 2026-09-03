@@ -20,7 +20,7 @@ type Scope = 'plan' | 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
  * The daily review now follows the study plan; a quiz is where you go to test
  * yourself on demand, so it keeps every other scope untouched and simply adds
  * the plan as one more thing you can point it at. It leads the list because it
- * is the answer to "what should I be drilling right now?" — and it is dropped
+ * is the answer to "what should I be drilling right now?", and it is dropped
  * entirely, not greyed out, when the quiz date has passed and there is no
  * current phase to name.
  */
@@ -90,7 +90,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
         <h2>Mixed Quiz</h2>
         <p className="muted small">
           Test yourself under quiz conditions. Interleaving topics is harder than drilling one at a
-          time — and that difficulty is what makes it stick. Narrow to a single book when you are
+          time, and that difficulty is what makes it stick. Narrow to a single book when you are
           working through it; leave it on everything once you are consolidating.
         </p>
 

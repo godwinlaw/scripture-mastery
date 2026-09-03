@@ -23,10 +23,10 @@ const allWritten = [...new Set(DETAILS.map((d) => d.written))];
  * Until now the raw `pickDistractors` sites below drew from one of the
  * canon-wide arrays above (or, at best, from the whole book), so the setting
  * changed how *many* wrong options a card showed but never how close they sat
- * to the answer — "hard" was six canon-wide strangers where medium was four.
+ * to the answer, "hard" was six canon-wide strangers where medium was four.
  * These rings are what the scoped chains widen through: the book itself, then
  * its division, then its Testament, never across the seam (the same fence
- * `nearbyPool` keeps, for the same reason — a Colossians option against a
+ * `nearbyPool` keeps, for the same reason, a Colossians option against a
  * Leviticus question is a different subject, not a harder one).
  *
  * Each ring is a strict superset of the one before, which is what makes
@@ -58,7 +58,7 @@ function fromDetails(
 }
 
 /**
- * The hard chain for anything that lives *inside* a book — its cast, their
+ * The hard chain for anything that lives *inside* a book, its cast, their
  * deeds, the people and places its episodes name, its numbers.
  *
  * The book's own record is the tightest honest pool here: telling Aaron from
@@ -79,7 +79,7 @@ function insideChain(
 }
 
 /**
- * The hard chain for whole-book fields — purpose, audience, date, place of
+ * The hard chain for whole-book fields, purpose, audience, date, place of
  * writing.
  *
  * There is no own-book ring on purpose: a book has exactly one purpose and it
@@ -130,7 +130,7 @@ for (const d of DETAILS) {
   }
 }
 
-/** Books whose event list contains an event by this name — excluded from distractors. */
+/** Books whose event list contains an event by this name, excluded from distractors. */
 function booksWithEventName(name: string): Set<string> {
   const key = name.toLowerCase();
   const out = new Set<string>();
@@ -161,7 +161,7 @@ function eventItems(d: BookDetail): Item[] {
     // Own book first, as before. The fallback used to be the whole canon; it is
     // now the surrounding division, widening only as needed (#12). That rule is
     // this question's medium set, so it is kept here rather than handed to
-    // distractorSets — the helper still supplies the easy and hard alternates.
+    // distractorSets, the helper still supplies the easy and hard alternates.
     const whatSets = distractorSets(
       d.book,
       (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.what),
@@ -170,8 +170,8 @@ function eventItems(d: BookDetail): Item[] {
     items.push({
       id: `det-ev-what-${key}`, kind: 'mcq', topic: 'events', tier: 2, book: d.book,
       prompt: shared
-        ? `${ref(d, e.ref)} — what happens in the episode known as "${e.name}"?`
-        : `${ref(d, e.ref)} — what happens?`,
+        ? `${ref(d, e.ref)}, what happens in the episode known as "${e.name}"?`
+        : `${ref(d, e.ref)}, what happens?`,
       answer: e.what,
       distractors: ownWhats.length >= 6
         ? pickDistractors(ownWhats, e.what, 3, `evw-${key}`)
@@ -190,14 +190,14 @@ function eventItems(d: BookDetail): Item[] {
         (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => `${bookAbbr.get(x.id)} ${y.ref}`),
         `${abbr} ${e.ref}`, `evr-${key}`, 'book',
       ),
-      explain: `${e.name} — ${ref(d, e.ref)}.`,
+      explain: `${e.name}, ${ref(d, e.ref)}.`,
     });
 
     // Named episode → book. One item per distinct episode name, and every book
     // that records it is kept out of the distractor pool.
     if (eventNameOwner.get(e.name.toLowerCase()) === d.book) {
       const banned = booksWithEventName(e.name);
-      // Same-division books, widening only as far as it must — "Miriam's
+      // Same-division books, widening only as far as it must, "Miriam's
       // leprosy" should offer the books of Moses, not Colossians (#12). The
       // ban is folded in so the widening counts only offerable books, in every
       // difficulty's pool alike.
@@ -209,7 +209,7 @@ function eventItems(d: BookDetail): Item[] {
           d.book, (x) => (banned.has(x.name) ? [] : [x.name]), name,
           `evb-${key}`, 'division',
         ),
-        explain: `${ref(d, e.ref)} — ${e.what}.`,
+        explain: `${ref(d, e.ref)}, ${e.what}.`,
       });
     }
 
@@ -218,7 +218,7 @@ function eventItems(d: BookDetail): Item[] {
     //
     // The cue is the episode's own summary, and #13 rewrote those to name
     // their subject instead of opening on a bare "He". That is right for the
-    // where- and when- questions, but it hands this one its answer — so any
+    // where- and when- questions, but it hands this one its answer, so any
     // candidate the cue already names is not a candidate here.
     const scoped = e.who.filter(
       (w) => (nameBookCount.get(w)?.size ?? 0) === 1 && !e.what.includes(w),
@@ -244,7 +244,7 @@ function eventItems(d: BookDetail): Item[] {
           easy: [() => others],
           hard: insideChain(d.book, (x) => x.events.flatMap((y) => y.who).filter(notPresent)),
         }),
-        explain: `${e.name}, ${ref(d, e.ref)}${e.who.length > 1 ? ` — also involved: ${e.who.filter((w) => w !== answer).join(', ')}` : ''}.`,
+        explain: `${e.name}, ${ref(d, e.ref)}${e.who.length > 1 ? `, also involved: ${e.who.filter((w) => w !== answer).join(', ')}` : ''}.`,
       });
     }
 
@@ -263,7 +263,7 @@ function eventItems(d: BookDetail): Item[] {
           easy: [() => places],
           hard: insideChain(d.book, (x) => x.events.map((y) => y.where)),
         }),
-        explain: `${e.name} — ${ref(d, e.ref)}.`,
+        explain: `${e.name}, ${ref(d, e.ref)}.`,
       });
     }
 
@@ -277,7 +277,7 @@ function eventItems(d: BookDetail): Item[] {
           d.book,
           (x) => (detailByBook.get(x.id)?.events ?? []).map((y) => y.detail).filter((y): y is string => !!y),
           // The detail is a fact from *inside* one episode, so the tightest
-          // honest pool is the other details that book records — unlike
+          // honest pool is the other details that book records, unlike
           // "in which book does this happen?", where the answer is a book and
           // the division is as tight as it can get.
           e.detail, `evd-${key}`, 'book',
@@ -291,7 +291,7 @@ function eventItems(d: BookDetail): Item[] {
   const ordered = orderableEvents(d);
   for (let i = 0; i + 4 <= ordered.length; i += 4) {
     const window = ordered.slice(i, i + 4);
-    // The span keeps each set's prompt distinct — otherwise seven Genesis cards
+    // The span keeps each set's prompt distinct, otherwise seven Genesis cards
     // all read "Put these events from Genesis in order" and look like one card.
     const span = `${firstChapter(window[0].ref)}–${lastChapter(window[window.length - 1].ref)}`;
     items.push({
@@ -317,7 +317,7 @@ function lastChapter(r: string): string {
 
 /**
  * Events are listed in narrative order already, but two entries sharing a
- * chapter range are not reliably ordered relative to each other — drop the
+ * chapter range are not reliably ordered relative to each other, drop the
  * later one from sequencing drills rather than assert an order we do not know.
  */
 function orderableEvents(d: BookDetail): DetailEvent[] {
@@ -338,13 +338,13 @@ function figureItems(d: BookDetail): Item[] {
   for (const f of d.figures) {
     const key = `${d.book}-${slug(f.name)}`;
     // What did this person do in this book? Distractors come from the same
-    // book first — knowing the cast is not the same as knowing who did what.
+    // book first, knowing the cast is not the same as knowing who did what.
     const ownDeeds = d.figures.map((x) => x.did);
     items.push({
       id: `det-fig-did-${key}`, kind: 'mcq', topic: 'people', tier: 2, book: d.book,
       prompt: `In ${name}, what does ${f.name} do?`,
       answer: f.did,
-      // Medium keeps its old rule exactly — this book's deeds when the cast is
+      // Medium keeps its old rule exactly, this book's deeds when the cast is
       // big enough, the canon's otherwise. Hard always starts from this book,
       // so the small-cast books stop pitting a Ruth deed against a Revelation
       // one merely because Ruth lists fewer than six figures (#40).
@@ -383,7 +383,7 @@ function numberItems(d: BookDetail): Item[] {
   const items: Item[] = [];
   const name = bookName.get(d.book)!;
 
-  // Reads like a flashcard, which is what it is: "Numbers — years of wandering?"
+  // Reads like a flashcard, which is what it is: "Numbers, years of wandering?"
   // Distractors come from this book's own figures when there are enough of them,
   // so the question is "which number in Numbers" rather than "which of these
   // four is obviously not about the wilderness."
@@ -392,10 +392,10 @@ function numberItems(d: BookDetail): Item[] {
     const key = `${d.book}-${slug(n.of)}`;
     items.push({
       id: `det-num-${key}`, kind: 'mcq', topic: 'numbers', tier: 3, book: d.book,
-      prompt: `${name} — ${n.of}?`,
+      prompt: `${name}, ${n.of}?`,
       answer: n.value,
-      // `numbers` is the sparsest field in the detail layer — most books record
-      // none at all — so even the Testament ring often cannot reach six values
+      // `numbers` is the sparsest field in the detail layer, most books record
+      // none at all, so even the Testament ring often cannot reach six values
       // and `scopedSets`' thinness guard tops the hard set up from the wider
       // pools. That is the intended outcome: a genuinely scoped hard set where
       // one exists, and a full card rather than a short one where it does not.
@@ -466,7 +466,7 @@ function frameItems(d: BookDetail): Item[] {
   // "How does X point to Christ?" was generated here as its own topic. #16
   // dropped it as a study category: the answers are interpretive rather than
   // recall, so a four-option quiz was the wrong shape for them. The `christ`
-  // line survives on BookDetail and still reads in the Library panel — it is
+  // line survives on BookDetail and still reads in the Library panel, it is
   // reference material now, not a question.
 
   if (d.distinctive && isPropheticBook(d.book)) {
@@ -477,7 +477,7 @@ function frameItems(d: BookDetail): Item[] {
       // The pool here is book names rather than a detail field, so this walks
       // the rings directly instead of through `aboutChain`. Only prophetic
       // books ask it, which means the tight ring is the other Major or Minor
-      // Prophets — the seventeen books #9 kept these questions for, and the one
+      // Prophets, the seventeen books #9 kept these questions for, and the one
       // stretch of the canon where "which book is this?" is a real question.
       ...scopedSets(name, `dis-${d.book}`, {
         medium: BOOKS.map((b) => b.name),
@@ -520,7 +520,7 @@ function frameItems(d: BookDetail): Item[] {
         d.book, (x) => (detailByBook.get(x.id)?.verses ?? []).map((y) => y.ref),
         v.ref, `vs-${d.book}-${i}`, 'book',
       ),
-      explain: `${name} — ${d.purpose}`,
+      explain: `${name}, ${d.purpose}`,
     });
   });
 
@@ -557,7 +557,7 @@ function crossBookItems(): Item[] {
         easy: [() => others],
         hard: insideChain(d.book, (x) => x.figures.map((y) => y.name).filter((n) => !e.who.includes(n))),
       }),
-      explain: `${ref(d, e.ref)} — ${e.what}`,
+      explain: `${ref(d, e.ref)}, ${e.what}`,
     });
   }
 

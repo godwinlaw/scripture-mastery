@@ -37,7 +37,7 @@ test.describe('reference library', () => {
   test('search reaches into outlines and events, not just titles', async ({ page }) => {
     await openAs(page, {}, 'library');
 
-    // "Babel" is nowhere in a book's name — only inside Genesis's event list.
+    // "Babel" is nowhere in a book's name, only inside Genesis's event list.
     await search(page).fill('Babel');
 
     await expect(page.locator('details.book').filter({ hasText: 'Genesis' })).toHaveCount(1);
