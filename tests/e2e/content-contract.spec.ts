@@ -2,7 +2,7 @@
  * Guards the assumptions the rest of the suite seeds against.
  *
  * The item bank is generated, not authored, so a change to a generator rule can
- * quietly retire an id or change an answer — and every spec that puts a known
+ * quietly retire an id or change an answer, and every spec that puts a known
  * card on screen would start failing for reasons that look like UI bugs. These
  * run in Node against the same modules the app imports, so when the contract
  * breaks it says so in one obvious place.
@@ -38,7 +38,7 @@ test.describe('content contract', () => {
     expect(item!.sequence).toEqual(ORDER_SEQUENCE);
   });
 
-  test('every item id is unique — SRS history is keyed on it', () => {
+  test('every item id is unique, SRS history is keyed on it', () => {
     const items = allItems();
     const seen = new Set<string>();
     const duplicates = items.filter((i) => (seen.has(i.id) ? true : (seen.add(i.id), false)));

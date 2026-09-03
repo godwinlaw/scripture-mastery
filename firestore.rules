@@ -2,7 +2,7 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Google sign-in restricted to these workspace domains — mirrors the
+    // Google sign-in restricted to these workspace domains, mirrors the
     // client-side check in src/lib/firebase.ts. This is the copy that
     // actually matters, since the client check alone is not enforceable.
     function isAllowedUser() {

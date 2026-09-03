@@ -15,7 +15,7 @@ import { Card, Corners, CountUp, Meter, sx, space } from '../ui';
  * Per-item metadata for the queue builder, built once for the process.
  *
  * The bank is ~6,000 items and never changes at runtime, while `cards` changes
- * on every answer — so this cannot live in a `useMemo` keyed on store state
+ * on every answer, so this cannot live in a `useMemo` keyed on store state
  * without rebuilding six thousand objects each time a card is graded.
  */
 const ITEM_META: Record<string, ItemMeta> = (() => {
@@ -37,9 +37,9 @@ export default function Review({ api }: { api: StoreApi }) {
   /**
    * The phase the plan is asking for today, or null when the setting is off.
    *
-   * `currentPhase` is total — there is no date on which "no phase" is the
+   * `currentPhase` is total, there is no date on which "no phase" is the
    * honest answer, and a member who has run out of runway belongs in Phase 5's
-   * mixed review rather than nowhere — so the setting is the only thing that
+   * mixed review rather than nowhere, so the setting is the only thing that
    * can switch the plan off here. The anchor is the persisted plan start, not
    * today: passing `new Date()` is what pinned every member to Phase 1
    * forever, because today is always inside week 1 of a schedule that begins
@@ -67,14 +67,14 @@ export default function Review({ api }: { api: StoreApi }) {
 
   /**
    * The three plates, counted inside whatever the session will actually draw
-   * from — plus one figure that is deliberately counted outside it.
+   * from, plus one figure that is deliberately counted outside it.
    *
    * `bankActionable` exists because the plates alone would lock the reader out:
    * a phase whose material is all seen and none of it yet due shows zeroes,
    * while `start` would happily widen and hand over a full session. The button
    * has to follow the queue's rule, not the plates'.
    */
-  /** The new-card limit after the difficulty's own scaling — what buildQueue will take. */
+  /** The new-card limit after the difficulty's own scaling, what buildQueue will take. */
   const newToday = Math.max(
     0,
     Math.round(store.settings.newLimit * specFor(store.settings.difficulty).newLimitFactor),
@@ -85,8 +85,8 @@ export default function Review({ api }: { api: StoreApi }) {
    * different ways.
    *
    * `due` and `fresh` describe *this session*: what it is about to ask. They
-   * therefore follow the same rule the queue does — revision from anywhere,
-   * new material from the phase — because a plate that promises one number and
+   * therefore follow the same rule the queue does, revision from anywhere,
+   * new material from the phase, because a plate that promises one number and
    * then hands over a different one is worse than no plate.
    *
    * `seen` describes *your progress*, which is not a property of today's
@@ -120,11 +120,11 @@ export default function Review({ api }: { api: StoreApi }) {
      * on the raw scope.
      *
      * `withTopUp` takes id lists, and a phase's raw scope always holds several
-     * hundred items — so handing it the unfiltered lists would mean the top-up
+     * hundred items, so handing it the unfiltered lists would mean the top-up
      * never fires, and the starvation it exists to prevent is not "the phase is
      * small" but "the phase is exhausted": late in a phase everything in it has
      * been seen and nothing is due yet. Filtering to due-or-new first is what
-     * makes the widening answer that. It is free of side effects on the queue —
+     * makes the widening answer that. It is free of side effects on the queue,
      * buildQueue discards anything that is neither due nor new anyway, and the
      * pre-filter preserves order, so the new-card cut is untouched.
      */
@@ -136,7 +136,7 @@ export default function Review({ api }: { api: StoreApi }) {
      *
      * Scoping both together silently broke the one guarantee the scheduler
      * makes. `grade()` clamps every interval so nothing is scheduled past the
-     * quiz date without one more look at it — but a due date is only a promise
+     * quiz date without one more look at it, but a due date is only a promise
      * if something acts on it. Phases 2 through 4 do not list `book-order`
      * among their topics, so scoping due cards by phase meant every card built
      * during Phase 1 fell out of the queue for the five or six weeks those
@@ -145,7 +145,7 @@ export default function Review({ api }: { api: StoreApi }) {
      * a phase holding three thousand items always can.
      *
      * So the two are scoped separately. New cards come from the phase, which is
-     * what "follow the plan" means — you are not introduced to the Epistles in
+     * what "follow the plan" means, you are not introduced to the Epistles in
      * week two. Due cards come from wherever they are, which is what spaced
      * repetition means.
      */
@@ -177,8 +177,8 @@ export default function Review({ api }: { api: StoreApi }) {
     // new-card limit *after* it, so a phase holding hundreds of untouched cards
     // and nothing due looks well stocked to the top-up and still yields an
     // empty queue once `newLimit` is 0. An empty session is the single output
-    // this feature must never produce — a calendar may reorder your study, not
-    // cancel it — so the plan filter drops entirely rather than hand back
+    // this feature must never produce, a calendar may reorder your study, not
+    // cancel it, so the plan filter drops entirely rather than hand back
     // nothing.
     const q = build(ids);
     setQueue(q.length === 0 && !ignorePlan && scopedIds ? build(allIds) : q);
@@ -193,7 +193,7 @@ export default function Review({ api }: { api: StoreApi }) {
     answer(id, g);
     setTally((t) => (g === 0 ? { ...t, wrong: t.wrong + 1 } : { ...t, right: t.right + 1 }));
     // A failed card comes back at the end of the session rather than disappearing,
-    // but only twice — otherwise a card you cannot get keeps the session open forever.
+    // but only twice, otherwise a card you cannot get keeps the session open forever.
     //
     // On hard it does not come back at all (#40): a second look minutes after
     // the first is recognition, not recall, and hard's whole premise is that you
@@ -208,9 +208,9 @@ export default function Review({ api }: { api: StoreApi }) {
   if (!started) {
     // What the session can actually deal, not what is theoretically available.
     // `fresh` counts every unseen card in scope, but the queue will only
-    // introduce `newToday` of them — so a phase holding nothing but new cards
+    // introduce `newToday` of them, so a phase holding nothing but new cards
     // with a new-card limit of 0 offered an enabled Start button that dealt an
-    // empty session and jumped straight to "Session complete — 0 answered"
+    // empty session and jumped straight to "Session complete, 0 answered"
     // (#41). Settings clamps the limit above 0, but an imported store or one
     // written by an older build does not have to.
     const inPhase = counts.due + Math.min(counts.fresh, newToday);
@@ -221,7 +221,7 @@ export default function Review({ api }: { api: StoreApi }) {
         <h2>Daily Review</h2>
         <p className="muted small">
           Spaced repetition over everything you have unlocked. Cards you miss come back sooner;
-          cards you know get pushed out — but never past your exam date.
+          cards you know get pushed out, but never past your exam date.
         </p>
         {phase && (
           // Said before the session starts, not discovered inside it: a reader
@@ -240,8 +240,8 @@ export default function Review({ api }: { api: StoreApi }) {
           <Card className="stat">
             {/*
               * The plate has to promise the number the session will actually
-              * take. The setting scales the new-card limit — hard introduces
-              * half again as much — so reading the raw setting here would say
+              * take. The setting scales the new-card limit, hard introduces
+              * half again as much, so reading the raw setting here would say
               * 20 and then deal 30 (#40).
               */}
             <span className="n"><CountUp value={Math.min(counts.fresh, newToday)} /></span>
@@ -320,14 +320,14 @@ export default function Review({ api }: { api: StoreApi }) {
         A missed card is appended to the queue, and when it was the last entry
         the copy lands immediately after itself: `queue[pos + 1] === queue[pos]`.
         Keyed by id, that key does not change, so React reuses the mounted
-        QuestionCard — and QuestionCard resets itself from an effect keyed on
+        QuestionCard, and QuestionCard resets itself from an effect keyed on
         `item.id`, which does not change either. The card came back still
         revealed, still showing "Not quite" with its answer and a Continue
         button, and pressing Continue graded the same miss a second and third
         time: three reps, three lapses and three log entries from one miss,
         one short of the four that mark an item a leech.
         Position is unique per step by construction, so the same id repeating
-        back-to-back still remounts the card and asks it cold — which is the
+        back-to-back still remounts the card and asks it cold, which is the
         only reason to requeue it at all.
       */}
       <div className="card-swap" key={pos} style={sx({ position: 'relative' })}>

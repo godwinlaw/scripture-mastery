@@ -29,7 +29,7 @@ export function newCard(id: string): CardState {
   return { id, ease: 2.5, interval: 0, reps: 0, lapses: 0, due: 0, lastSeen: 0, recent: [] };
 }
 
-/** Cards that keep failing — worth studying differently rather than drilling. */
+/** Cards that keep failing, worth studying differently rather than drilling. */
 export function isLeech(c: CardState): boolean {
   return c.lapses >= 4;
 }
@@ -106,7 +106,7 @@ export interface QueueOptions {
    * Which cards the session takes, and in what order it opens new ground
    * (#36, #40). It now drives three things, not one: how hard the cut at the
    * session limit leans on per-card ease, how many new cards the limit really
-   * allows, and — the point of #40 — the order unseen material is drawn in.
+   * allows, and, the point of #40, the order unseen material is drawn in.
    *
    * Absent means today's behaviour exactly: no ease lean, no reordering, the
    * configured new-card limit taken at face value. That is deliberately *not*
@@ -143,7 +143,7 @@ export interface QueueOptions {
  * The magnitude of the lean now comes from the difficulty spec rather than a
  * constant here (#40), so the setting can say *how much* it leans and not just
  * which way. It is still measured in days of borrowed urgency, and still kept
- * small enough that a badly overdue card leads regardless — the queue's first
+ * small enough that a badly overdue card leads regardless, the queue's first
  * duty is that nothing sails past its due date unreviewed.
  *
  * A lean of 0 (`medium`, and the no-difficulty default) returns the bare due
@@ -158,7 +158,7 @@ function priority(c: CardState, spec: DifficultySpec): number {
 
 /**
  * Build a review queue: everything overdue first (most overdue first), then new
- * cards up to the limit. Interleaved rather than blocked — mixing topics beats
+ * cards up to the limit. Interleaved rather than blocked, mixing topics beats
  * drilling one topic at a time.
  */
 export function buildQueue(
@@ -182,11 +182,11 @@ export function buildQueue(
   // Order matters twice here, for different reasons.
   //
   // Selecting: sort by how overdue a card is, interleave the books, and only
-  // then cut to the session limit — so a truncated session still takes the
+  // then cut to the session limit, so a truncated session still takes the
   // most urgent cards and a spread of books, not the first N of one.
   //
   // The difficulty setting leans on that sort (#36): it changes which due
-  // cards win the cut. Due cards only — every new card carries the same seeded
+  // cards win the cut. Due cards only, every new card carries the same seeded
   // ease, so there is no signal there to weight on. What decides *which* new
   // cards get introduced is orderNew (#40), a separate question the ease lean
   // cannot answer.
@@ -206,14 +206,14 @@ export function buildQueue(
  * share of them (#40).
  *
  * The complaint this answers: "build the frame is great in going through all of
- * the books but it's in order — for hard mode it's too easy to predict." It was
+ * the books but it's in order, for hard mode it's too easy to predict." It was
  * literally true. `fresh` arrives in the bank's generation order, which is the
  * canonical order, so new material marched Genesis-first through the canon at
  * every setting. Within-session shuffling never touched that, because it only
  * reorders cards that have already been chosen.
  *
  * So the fix has to happen here, before the cut. Note the ordering of the two
- * steps: newOrder first, tier bias second and *stable*, so the bias is a bias —
+ * steps: newOrder first, tier bias second and *stable*, so the bias is a bias,
  * it floats a tier forward while leaving the shuffle intact within that tier.
  * Sorting by tier first would have the shuffle undo it.
  *
@@ -236,13 +236,13 @@ function orderNew(fresh: string[], opts: QueueOptions, spec: DifficultySpec, now
   }
 
   // Tier bias needs to know each item's tier, and ids do not carry it, so
-  // without meta there is nothing to bias on — skip rather than guess.
+  // without meta there is nothing to bias on, skip rather than guess.
   //
   // `canonical` is exempt, and that exemption is the point rather than an
   // oversight. Floating tier 1 forward reorders across the whole canon: the
   // foundational items are scattered through it, so a member on `easy` opened
   // on Isaiah instead of Genesis. Walking the books in order *is* easy mode's
-  // pedagogy — the frame has to be built front to back — so nothing is allowed
+  // pedagogy, the frame has to be built front to back, so nothing is allowed
   // to reorder it. The settings that shuffle or spread have already given up
   // canonical position, and there the bias costs nothing (#40).
   if (meta && spec.tierBias !== 'balanced' && spec.newOrder !== 'canonical') {
@@ -254,7 +254,7 @@ function orderNew(fresh: string[], opts: QueueOptions, spec: DifficultySpec, now
   }
 
   // Easy opens less new ground and spends the session consolidating; hard
-  // pushes more. A configured limit of 0 stays 0 — someone who has switched
+  // pushes more. A configured limit of 0 stays 0, someone who has switched
   // new cards off has not asked for one anyway.
   const limit = opts.newLimit <= 0 ? 0 : Math.max(1, Math.round(opts.newLimit * spec.newLimitFactor));
   return ordered.slice(0, limit);
@@ -274,7 +274,7 @@ function bookOf(id: string, meta?: Record<string, ItemMeta>): string {
  * The beginner-friendly middle: keep the canonical march, but stop it handing
  * you six consecutive cards from the same book.
  *
- * Deliberately *not* a round-robin across books like `interleave` below — that
+ * Deliberately *not* a round-robin across books like `interleave` below, that
  * would deal one card from each of the sixty-six books before returning to
  * Genesis, which is not a march through the canon at all, it is a random-access
  * tour with extra steps. Instead this walks the list in order and only defers a
@@ -306,7 +306,7 @@ function interleave(ids: string[], meta?: Record<string, ItemMeta>): string[] {
     // yields families such as `gen-position` and `det-ev`, each spanning the
     // whole canon, so nearly the entire bank lands in a handful of buckets that
     // are all "every book". Round-robin across those does not spread books at
-    // all — and because the session cut happens after this, it also decides
+    // all, and because the session cut happens after this, it also decides
     // *which* cards survive: a bucket holding two due cards got the same share
     // as one holding nine hundred, so the most overdue cards were routinely
     // cut. Falls back to the old key only when meta is absent (#41).

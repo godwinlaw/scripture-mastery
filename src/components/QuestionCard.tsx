@@ -52,7 +52,7 @@ function matches(input: string, item: Item): boolean {
  * Does this item's explanation simply state its answer? (#40)
  *
  * `explain` was written to be read *after* answering, where naming the answer
- * is the whole job — `gen-who-*` builds it as `"${p.name}: ${p.role}."` against
+ * is the whole job, `gen-who-*` builds it as `"${p.name}: ${p.role}."` against
  * an answer of `p.name`, and something like 1,400 items across the bank follow
  * the same shape. Offering that as a hint beforehand is not a nudge, it is the
  * answer key with a button in front of it.
@@ -60,7 +60,7 @@ function matches(input: string, item: Item): boolean {
  * Not `matches`: that one is tuned for grading what a member typed, and its
  * containment arm only fires past four characters, so it would wave through
  * "Eve: the first woman" on an item whose answer is "Eve". This is the blunter
- * comparison on purpose — plain containment of the normalized answer — because
+ * comparison on purpose, plain containment of the normalized answer, because
  * the two failure modes are not symmetric. Suppressing a hint that would have
  * been safe costs one nudge; showing one that is not costs the question.
  */
@@ -72,7 +72,7 @@ function explainGivesItAway(item: Item): boolean {
     .some((a) => a.length > 0 && explained.includes(a));
 }
 
-/** Identifies one move button — direction plus the entry it belongs to. */
+/** Identifies one move button, direction plus the entry it belongs to. */
 const moveKey = (dir: -1 | 1, entry: string) => `${dir}:${entry}`;
 
 export default function QuestionCard({ item, onGrade, starred, onToggleStar, counter, difficulty }: Props) {
@@ -91,7 +91,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
    * Rearranging was a silent operation: the rows moved, the numbers changed,
    * and a screen reader was told none of it. This is written only by `move`,
    * never during a render, so it says one sentence per press and stays quiet
-   * the rest of the time — a live region that updates on every render is a
+   * the rest of the time, a live region that updates on every render is a
    * region nobody can bear to leave switched on.
    */
   const [orderNote, setOrderNote] = useState('');
@@ -117,21 +117,21 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
 
   const [bonusOpen, setBonusOpen] = useState(hasBonusRound);
   const [bonusMissed, setBonusMissed] = useState(false);
-  /** Named the reference unprompted — the card grades itself Easy on advance. */
+  /** Named the reference unprompted, the card grades itself Easy on advance. */
   const [bonusEarned, setBonusEarned] = useState(false);
 
   /**
-   * `explain` is what the card shows *after* answering — the reason the answer
+   * `explain` is what the card shows *after* answering, the reason the answer
    * is the answer. On easy it is also offered before, folded away behind a
    * button (#40): a nudge you can choose to take is a different thing from a
    * question with the answer written under it, and taking it costs nothing but
    * the satisfaction of not having needed it.
    *
    * Deliberately absent at medium and hard, where working it out unaided is
-   * the point, and absent once `revealed` — the feedback block already shows
+   * the point, and absent once `revealed`, the feedback block already shows
    * the same text, and two copies of it would just be noise.
    *
-   * Also absent — control and all, not disabled or emptied — wherever the
+   * Also absent, control and all, not disabled or emptied, wherever the
    * explanation would hand over the answer, which is most of a third of the
    * bank (#40). See `explainGivesItAway`. A button that cannot be pressed
    * without spoiling the card is worse than no button, and an empty gap where
@@ -140,13 +140,13 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
   const offersHint = spec.hintBeforeAnswer && Boolean(item.explain) && !explainGivesItAway(item);
 
   /**
-   * Which wrong options this card offers — and, now, how many of them (#36, #40).
+   * Which wrong options this card offers, and, now, how many of them (#36, #40).
    *
    * The setting used to do nothing here but swap the set: four choices either
    * way, differing only in how obviously wrong three of them were, which is
    * most of why `hard` did not feel hard. Length is the other half of the
-   * dial, and the cheaper half — three choices is a coin flip after one
-   * elimination, six is not — so the card renders 3 / 4 / 6 total.
+   * dial, and the cheaper half, three choices is a coin flip after one
+   * elimination, six is not, so the card renders 3 / 4 / 6 total.
    *
    * It reads that length off the spec and slices; it never generates. The
    * generators bake `MAX_WRONG_OPTIONS` into the hard set precisely so the
@@ -154,7 +154,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
    * would detach every card's SRS history the moment someone touched the
    * control.
    *
-   * `medium` has no entry of its own — it *is* `distractors` — and plenty of
+   * `medium` has no entry of its own, it *is* `distractors`, and plenty of
    * items carry no alternates at all, because the essentials lists and the
    * hand-written extras draw their options from somewhere other than the
    * canon. Both cases land on the same fallback, and that fallback is only
@@ -177,7 +177,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     () => (item.kind === 'mcq' ? shuffle([item.answer, ...wrong]) : []),
     // Reshuffle per item so the answer is not always in the same slot. The
     // count is a pure function of the setting, so `difficulty` already covers
-    // a slice length changing — there is nothing further to key on.
+    // a slice length changing, there is nothing further to key on.
     [item.id, difficulty],
   );
 
@@ -192,7 +192,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     setBonusEarned(false);
     setHintOpen(false);
     // The new card's list has never been touched, so nothing is owed to the
-    // live region — and a stale sentence from the last one could otherwise be
+    // live region, and a stale sentence from the last one could otherwise be
     // read out, or re-read, against a list it does not describe (#40).
     setOrderNote('');
     pendingFocus.current = null;
@@ -213,7 +213,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
   function submitReference() {
     if (revealed || !bonusOpen) return;
     if (!referenceMatches(typed, item.answer)) {
-      // One attempt. A wrong guess costs the bonus, not the question — the
+      // One attempt. A wrong guess costs the bonus, not the question, the
       // options appear and the card is scored the ordinary way from here.
       setBonusMissed(true);
       showChoices();
@@ -251,7 +251,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
     [next[i], next[j]] = [next[j], next[i]];
     setArranged(next);
     // Follow the entry, not the slot: the rows are keyed by their text, so
-    // React moves the actual DOM node — and a focused node that gets moved
+    // React moves the actual DOM node, and a focused node that gets moved
     // loses focus to <body>, whether or not the button it holds ends up
     // disabled. Restored below, once the new order has rendered (#40).
     pendingFocus.current = { entry, dir };
@@ -268,8 +268,8 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
    * flicker of an unfocused page in between.
    *
    * Preference is the button just pressed, so repeated presses keep working
-   * without moving the hands; at the end of its travel that button is disabled
-   * — which the list's ends must stay, it is how they read as ends — so focus
+   * without moving the hands; at the end of its travel that button is disabled,
+   * which the list's ends must stay, it is how they read as ends, so focus
    * falls to its sibling, the only direction still worth pressing.
    */
   useLayoutEffect(() => {
@@ -305,7 +305,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
       }
       if (typing) return;
       if (bonusEarned) {
-        // No grade to choose — Enter just advances, filed as Easy.
+        // No grade to choose, Enter just advances, filed as Easy.
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onGrade(3); }
         return;
       }
@@ -394,7 +394,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
         <div className="choices">
           {bonusMissed && !revealed && (
             <p className="tiny muted" style={{ margin: '0 0 10px' }}>
-              Not that reference — no bonus. Pick it from the choices instead.
+              Not that reference, no bonus. Pick it from the choices instead.
             </p>
           )}
           {options.map((opt, i) => {
@@ -439,7 +439,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
                   <span className="num">{i + 1}</span>
                   <span>{entry}</span>
                   {/* The verdict for this row in a second channel (#40). The
-                      tint and the border said it in colour alone — and in the
+                      tint and the border said it in colour alone, and in the
                       one pair of colours, red against green, most likely to
                       arrive as two identical greys. `role="img"` with a label
                       is what carries it to a screen reader; the glyph is what
@@ -503,14 +503,14 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
 
             "Correct" and "Not quite" arrived silently: the block is inserted
             after the answer is in, and an insertion is not a change any screen
-            reader is watching for. `role="status"` is the polite kind — it
+            reader is watching for. `role="status"` is the polite kind, it
             waits for a gap rather than cutting across whatever is being read.
 
             Scoped to the verdict and the reason, with the grade buttons left
             outside it deliberately: they are the next thing to *do*, not part
             of the news, and an atomic region containing them would read out
             "Hard, see it more often, Ok, normal pace…" every time. It cannot
-            fire twice per card either — the block exists only once `revealed`,
+            fire twice per card either, the block exists only once `revealed`,
             and nothing after that edits it.
           */}
           <div role="status">
@@ -526,12 +526,12 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
           <div className="row" style={{ marginTop: 14 }}>
             {bonusEarned ? (
               // Named unprompted, which is the strongest evidence of recall
-              // this app can collect — so it grades itself Easy rather than
+              // this app can collect, so it grades itself Easy rather than
               // asking. The button still exists, to keep the explanation on
               // screen until the member is done reading it.
               <button className="btn primary sm" onClick={() => onGrade(3)}>
                 Continue <span className="kbd">↵</span>
-                <span className="hint">named it — filed as Easy</span>
+                <span className="hint">named it, filed as Easy</span>
               </button>
             ) : wasCorrect ? (
               <>

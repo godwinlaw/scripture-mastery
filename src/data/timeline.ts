@@ -13,7 +13,7 @@ export interface Era {
 export const ERAS: Era[] = [
   {
     id: 'creation', name: 'Creation & Early World', span: 'Beginning – c. 2100 BC', seq: 1,
-    summary: 'Creation, the Fall, the Flood, and Babel — the world before Israel exists.',
+    summary: 'Creation, the Fall, the Flood, and Babel, the world before Israel exists.',
     books: ['genesis'],
     markers: ['Creation', 'The Fall', 'Cain and Abel', 'The Flood', 'Tower of Babel'],
   },
@@ -127,11 +127,11 @@ export const EVENTS: TimelineEvent[] = [
   { id: 'second-temple', label: 'The second temple is completed', year: -516, when: '516 BC', era: 'return' },
   { id: 'esther-persia', label: 'Esther becomes queen of Persia', year: -479, when: 'c. 479 BC', era: 'return' },
   { id: 'nehemiah-wall', label: 'Nehemiah rebuilds Jerusalem’s wall', year: -445, when: '445 BC', era: 'return' },
-  { id: 'malachi-last', label: 'Malachi prophesies — the last OT prophet', year: -430, when: 'c. 430 BC', era: 'return' },
+  { id: 'malachi-last', label: 'Malachi prophesies, the last OT prophet', year: -430, when: 'c. 430 BC', era: 'return' },
   { id: 'jesus-born', label: 'Jesus is born in Bethlehem', year: -5, when: 'c. 5 BC', era: 'jesus' },
   { id: 'jesus-baptized', label: 'Jesus baptized; ministry begins', year: 27, when: 'c. AD 27', era: 'jesus' },
   { id: 'crucifixion', label: 'Crucifixion and resurrection', year: 30, when: 'c. AD 30', era: 'jesus' },
-  { id: 'pentecost', label: 'Pentecost — the church begins', year: 30, when: 'c. AD 30', era: 'church' },
+  { id: 'pentecost', label: 'Pentecost, the church begins', year: 30, when: 'c. AD 30', era: 'church' },
   { id: 'stephen', label: 'Stephen martyred', year: 34, when: 'c. AD 34', era: 'church' },
   { id: 'paul-converted', label: 'Saul converted on the Damascus road', year: 35, when: 'c. AD 35', era: 'church' },
   { id: 'jerusalem-council', label: 'The Jerusalem Council', year: 49, when: 'c. AD 49', era: 'church' },

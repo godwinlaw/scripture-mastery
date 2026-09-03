@@ -3,7 +3,7 @@
   <!--
     The same 2a mark at its small-size treatment: the blade is widened and the
     passage rules are dropped, because at 16-24px they collapse into noise. The
-    design sheet specifies this cut separately from the full-detail one — see
+    design sheet specifies this cut separately from the full-detail one, see
     icon.svg for that.
   -->
   <rect width="64" height="64" fill="#1d2d3d"/>

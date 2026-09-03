@@ -23,7 +23,7 @@ function chapters(ref: string): number[] {
 }
 
 /**
- * True when the book data already asks "what happens in this chapter?" — the
+ * True when the book data already asks "what happens in this chapter?", the
  * forward card would be a second copy of that question with a terser answer.
  * The reverse card is left alone: placing a heading in the right chapter,
  * against the other headings of the same book, is drilled nowhere else.
@@ -47,15 +47,15 @@ function slug(s: string): string {
 /* -------------------------------------------------------------- difficulty */
 
 /**
- * Every card in this file used to bake exactly one set of wrong options — the
- * other entries of its own list — and nothing else. That is a perfectly good
+ * Every card in this file used to bake exactly one set of wrong options, the
+ * other entries of its own list, and nothing else. That is a perfectly good
  * medium set, but with no `distractorsBy` on the item the render site has
  * nothing to swap in, so the easy/medium/hard control was inert across the
  * whole must-know section: three settings, one question (#40).
  *
  * The medium set is not what changes here. `scopedSets` is handed the same
  * pool and the same seed the call site used before, so `Item.distractors` is
- * byte-for-byte what it has always been — item ids key SRS history, and
+ * byte-for-byte what it has always been, item ids key SRS history, and
  * validate.ts, the content-contract test and every rendered card read that
  * field. All that is new is the two alternates alongside it.
  *
@@ -66,11 +66,11 @@ function slug(s: string): string {
  *   hard    the entries of this same list, widened only when the list is too
  *           short to out-offer medium on its own (see `hardChain`);
  *   easy    entries from a list on the far side of the Testament seam, minus
- *           anything this list itself indexes — wrong on sight;
+ *           anything this list itself indexes, wrong on sight;
  *   medium  untouched.
  */
 
-/** Wrong options a medium card renders — the bar a hard card has to clear. */
+/** Wrong options a medium card renders, the bar a hard card has to clear. */
 const MEDIUM_WRONG_OPTIONS = DIFFICULTY_SPEC.medium.wrongOptions;
 
 /** Which half of the pair a question's options are drawn from. */
@@ -90,8 +90,8 @@ function flatten(lists: EssentialList[], side: Side): string[] {
  * or another list of the same kind on the same side of the seam (the key
  * epistle chapters and the parables of Luke are both NT chapter indexes).
  *
- * Family never crosses the Testament seam — same book implies same testament,
- * and the topic arm requires it — which is what keeps it disjoint from the easy
+ * Family never crosses the Testament seam, same book implies same testament,
+ * and the topic arm requires it, which is what keeps it disjoint from the easy
  * pool below. No string can be reached by both a tight ring and the "obviously
  * wrong" one.
  */
@@ -110,7 +110,7 @@ function family(list: EssentialList): EssentialList[] {
  *
  * Each ring contains the one before it. `layeredPool` takes a ring whole, so a
  * ring that dropped its own list's entries on the way out would hand a widened
- * hard card *easier* options than the medium card it replaces — the exact
+ * hard card *easier* options than the medium card it replaces, the exact
  * inversion the layered shape exists to prevent (#40).
  *
  * The widening is gated on the reason it exists. Its whole job is to stop hard
@@ -118,19 +118,19 @@ function family(list: EssentialList): EssentialList[] {
  * medium's three wrong options from its own entries does not widen at all: the
  * five round numbers have four rivals each, which is one more than medium
  * shows and all four are dates. Widened, that card read
- * "~1500 BC / 46 / Ehud / 7 / Jephthah / Elisha" — the answer was the only date
+ * "~1500 BC / 46 / Ehud / 7 / Jephthah / Elisha", the answer was the only date
  * on screen, a giveaway, and hard came out easier than medium. Tight and one
  * short beats padded and shape-mismatched (#40).
  *
  * The rings below are therefore live code for a list too short to beat medium
- * on its own — four entries or fewer, which none currently is — and every list
+ * on its own, four entries or fewer, which none currently is, and every list
  * of six or more satisfies the first ring outright. Only a genuinely tiny list
  * would ever reach the testament or canon-wide rings.
  */
 function hardChain(list: EssentialList, side: Side): (() => string[])[] {
   const own = sideValues(list, side);
   const sameTestament = ESSENTIALS.filter((l) => l.id !== list.id && l.testament === list.testament);
-  // Entries are unique within a list — validate.ts gates both sides — so every
+  // Entries are unique within a list, validate.ts gates both sides, so every
   // other entry is one usable rival.
   if (own.length - 1 > MEDIUM_WRONG_OPTIONS) return [() => own];
   return [
@@ -143,8 +143,8 @@ function hardChain(list: EssentialList, side: Side): (() => string[])[] {
 
 /**
  * Widest first, because the whole job of an easy option is to be wrong on
- * sight. The other Testament is the cheapest guarantee of that and — see
- * `family` — is the one region no hard ring short of the last can reach.
+ * sight. The other Testament is the cheapest guarantee of that and, see
+ * `family`, is the one region no hard ring short of the last can reach.
  *
  * The subtraction matters more than the source. Half these lists are indexed by
  * bare chapter numbers, so John's "11" and Genesis's "11" are the same string;
@@ -154,7 +154,7 @@ function hardChain(list: EssentialList, side: Side): (() => string[])[] {
  *
  * The last ring is this list's own pool. It fires only if a list is ever left
  * with nothing outside it to borrow, and it is here because an *empty* easy set
- * would render a question with a single option — worse than an easy set that is
+ * would render a question with a single option, worse than an easy set that is
  * merely no easier than medium.
  */
 function easyChain(list: EssentialList, side: Side): (() => string[])[] {
@@ -168,7 +168,7 @@ function easyChain(list: EssentialList, side: Side): (() => string[])[] {
   ];
 }
 
-/** The group pool `groupItems` offers — the list's groups, decoy last. */
+/** The group pool `groupItems` offers, the list's groups, decoy last. */
 function groupPool(list: EssentialList): string[] {
   const groups = [...new Set(list.entries.map((e) => e.group).filter((g): g is string => !!g))];
   return list.groupDecoy ? [...groups, list.groupDecoy] : groups;
@@ -196,7 +196,7 @@ function isRenaming(a: string, b: string): boolean {
 
 /**
  * Group cards ask which period or kingdom an entry belongs to, and only two
- * lists have groups at all — the major kings and the prophets by period. Both
+ * lists have groups at all, the major kings and the prophets by period. Both
  * are OT people lists, so they are each other's family and there is no
  * unrelated list to borrow from.
  *
@@ -205,7 +205,7 @@ function isRenaming(a: string, b: string): boolean {
  * sibling's phrasing of the same periods, and falls back to the list's own
  * groups when the renaming guard thins that below three. Easy is genuinely
  * easier here mostly because it renders two wrong options where hard renders
- * five — an honest limit of the data rather than of the scoping (#40).
+ * five, an honest limit of the data rather than of the scoping (#40).
  */
 function groupHardChain(list: EssentialList, answer: string): (() => string[])[] {
   const own = groupPool(list);
@@ -229,9 +229,9 @@ function groupEasyChain(list: EssentialList, answer: string): (() => string[])[]
   ];
 }
 
-/** The pair itself, then where it comes from — a miss should teach the entry. */
+/** The pair itself, then where it comes from, a miss should teach the entry. */
 function why(list: EssentialList, e: EssentialEntry): string {
-  return [`${e.cue} — ${e.what}.`, e.group ? `${e.group}.` : null, e.note, list.source]
+  return [`${e.cue}, ${e.what}.`, e.group ? `${e.group}.` : null, e.note, list.source]
     .filter(Boolean)
     .join(' ');
 }
@@ -240,7 +240,7 @@ function listItems(list: EssentialList): Item[] {
   const items: Item[] = [];
   const cues = list.entries.map((e) => e.cue);
   const whats = list.entries.map((e) => e.what);
-  // The chains are per list, not per entry — `layeredPool` re-walks them for
+  // The chains are per list, not per entry, `layeredPool` re-walks them for
   // every card, but which lists they draw from never varies inside one list.
   const forwardScopes = { easy: easyChain(list, 'what'), hard: hardChain(list, 'what') };
   const backScopes = { easy: easyChain(list, 'cue'), hard: hardChain(list, 'cue') };
@@ -254,7 +254,7 @@ function listItems(list: EssentialList): Item[] {
         id: `ess-${key}-f`, kind: 'mcq', topic: list.topic, tier: 1, book,
         prompt: fill(list.forward, e),
         answer: e.what,
-        // Same pool, same seed, same count as before — `distractors` comes out
+        // Same pool, same seed, same count as before, `distractors` comes out
         // byte-identical; what is new is the easy and hard sets beside it.
         ...scopedSets(e.what, `essf-${key}`, { medium: whats, ...forwardScopes }),
         explain: why(list, e),
@@ -278,7 +278,7 @@ function listItems(list: EssentialList): Item[] {
 
 /**
  * "Which kingdom did Ahab rule?" Only worth a card when there are enough
- * groups to make four options — a two-way choice is a coin flip, not recall.
+ * groups to make four options, a two-way choice is a coin flip, not recall.
  */
 function groupItems(list: EssentialList): Item[] {
   if (!list.groupAsk) return [];
@@ -301,7 +301,7 @@ function groupItems(list: EssentialList): Item[] {
         hard: groupHardChain(list, e.group!),
       }),
       // The group is the answer here, so `why` would just repeat it back.
-      explain: [`${e.cue} — ${e.what}.`, e.note, list.source].filter(Boolean).join(' '),
+      explain: [`${e.cue}, ${e.what}.`, e.note, list.source].filter(Boolean).join(' '),
     }));
 }
 
@@ -322,7 +322,7 @@ function orderItems(list: EssentialList): Item[] {
     out.push({
       id: `ess-${list.id}-order${group ? `-${slug(group)}` : ''}`, kind: 'order', topic: list.topic, tier: 1,
       book: list.book,
-      prompt: (list.orderAsk ?? `${list.title} — put these in order.`)
+      prompt: (list.orderAsk ?? `${list.title}, put these in order.`)
         .replace('{group}', group.replace(/^The /, 'the ')),
       answer: steps.join(' → '),
       sequence: steps,

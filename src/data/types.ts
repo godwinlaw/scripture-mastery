@@ -27,7 +27,7 @@ export interface Book {
   order: number;
   testament: Testament;
   division: Division;
-  /** Traditional/commonly-taught author — what a survey quiz expects. */
+  /** Traditional/commonly-taught author, what a survey quiz expects. */
   author: string;
   /** Nuance a quiz might not ask for but you should know. */
   authorNote?: string;
@@ -51,8 +51,8 @@ export interface Book {
  * How tightly wrong options are drawn, and which cards the review queue
  * favours (#36).
  *
- * `medium` is what the app has always done — options from the answer's own
- * division, widening outward, never crossing the Old/New Testament seam — so
+ * `medium` is what the app has always done, options from the answer's own
+ * division, widening outward, never crossing the Old/New Testament seam, so
  * it is the default and an existing user sees no change.
  */
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -66,7 +66,7 @@ export type QuestionKind =
 
 /** A single testable atom. */
 export interface Item {
-  /** Stable id — survives regeneration so SRS history is preserved. */
+  /** Stable id, survives regeneration so SRS history is preserved. */
   id: string;
   kind: QuestionKind;
   /** Topic tag used for filtering and for the study plan. */
@@ -79,7 +79,7 @@ export interface Item {
    * Alternate option sets for the easy and hard settings (#36).
    *
    * All three sets are baked in at generation rather than regenerating the
-   * bank when the setting changes, because `id` has to stay stable — SRS
+   * bank when the setting changes, because `id` has to stay stable, SRS
    * history is keyed on it, so a bank that regenerated per difficulty would
    * detach every card the moment someone toggled the control. Keeping
    * `distractors` as the medium set also means every existing reader keeps
@@ -90,7 +90,7 @@ export interface Item {
   sequence?: string[];
   /** Accepted alternate spellings for 'type' questions. */
   accepts?: string[];
-  /** Shown after answering — the "why", so a miss teaches something. */
+  /** Shown after answering, the "why", so a miss teaches something. */
   explain?: string;
   /** Book id this item belongs to, when applicable. */
   book?: string;

@@ -3,7 +3,7 @@ import { DAY, ITEM, daysFromNow, dueCard, expectStat, openAs, readStore } from '
 
 const poolCount = (page: Page) => page.getByText(/questions? match(es)? this filter/);
 const scope = (page: Page, label: string) => page.getByRole('radio', { name: label });
-/** Card titles are styled divs, not headings — locate them by class. */
+/** Card titles are styled divs, not headings, locate them by class. */
 const cardTitle = (page: Page, text: string) => page.locator('.card-title', { hasText: text });
 
 /** Reads the "6,581 questions across 66 books" figure out of the header. */
@@ -105,9 +105,9 @@ test.describe('mixed quiz', () => {
     await openAs(page, {
       store: {
         cards: {
-          // Missed repeatedly — weak.
+          // Missed repeatedly, weak.
           [ITEM.mcq]: dueCard(ITEM.mcq, { recent: [0, 0, 1, 0], interval: 1 }),
-          // Answered easily and spaced far out — strong.
+          // Answered easily and spaced far out, strong.
           [ITEM.type]: dueCard(ITEM.type, { recent: [3, 3, 3, 3], interval: 30, due: Date.now() + 20 * DAY }),
         },
       },

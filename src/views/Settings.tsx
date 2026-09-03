@@ -64,7 +64,7 @@ const LIMITS = {
  *
  * `Number('')` is 0 and `Number('-')` is NaN, and both used to go straight into
  * the store (#40). A committed `sessionLimit: 0` makes `buildQueue` return an
- * empty array, so "Start review session" jumped to "Session complete — 0
+ * empty array, so "Start review session" jumped to "Session complete, 0
  * answered"; and select-all-then-retype produces exactly that empty string as
  * an intermediate, so it took no misuse at all to hit it.
  */
@@ -81,9 +81,9 @@ function limitToCommit(raw: string, bounds: { min: number; max: number }): numbe
  * An empty `examDate` is the dangerous one, and quietly so: `examTimeOf` builds
  * `new Date('T23:59:59')` from it, which is NaN, and in `srs.grade` the exam
  * clamp is written `daysLeft = Math.max(0, Math.ceil((examTime - now) / DAY))`
- * followed by `daysLeft > 0`. NaN fails that comparison silently, so the clamp
- * — the one place this app deliberately departs from SM-2, guaranteeing every
- * card is seen at least once more before the quiz — simply stops applying, and
+ * followed by `daysLeft > 0`. NaN fails that comparison silently, so the clamp,
+ * the one place this app deliberately departs from SM-2, guaranteeing every
+ * card is seen at least once more before the quiz, simply stops applying, and
  * cards start scheduling past the exam date never to return. Nothing on screen
  * says so beyond a "NaN days until Invalid Date" in the header (#40).
  */
@@ -98,8 +98,8 @@ export default function Settings({ api }: { api: StoreApi }) {
    *
    * Clamping the rendered value instead would make the fields miserable to
    * edit: clear "60" to type "120" and a store-driven value snaps you back to
-   * "10" mid-keystroke. So the draft is free — empty, half-typed, out of range
-   * — and only the *commit* is guarded. The draft seeds from the store on mount
+   * "10" mid-keystroke. So the draft is free, empty, half-typed, out of range,
+   * and only the *commit* is guarded. The draft seeds from the store on mount
    * and re-syncs on blur, which is where an ignored or clamped entry visibly
    * settles onto the value that was actually saved. Mount is enough of a seed
    * because App unmounts each view on tab switch, so re-entering Settings

@@ -130,7 +130,7 @@ test.describe('progress and settings', () => {
       store: { cards: { [ITEM.mcq]: dueCard(ITEM.mcq) }, starred: [ITEM.type], log: [{ date: '2026-01-01', reviewed: 5, correct: 5 }] },
     }, 'progress');
 
-    // Dismiss the confirm first — nothing should change.
+    // Dismiss the confirm first, nothing should change.
     page.once('dialog', (d) => d.dismiss());
     await page.getByRole('button', { name: 'Reset progress' }).click();
     expect((await readStore(page)).cards[ITEM.mcq]).toBeDefined();
@@ -146,7 +146,7 @@ test.describe('progress and settings', () => {
     expect(store.cards).toEqual({});
     expect(store.log).toEqual([]);
     expect(store.starred).toEqual([]);
-    // Settings are preserved — a reset is not a factory wipe.
+    // Settings are preserved, a reset is not a factory wipe.
     expect(store.settings).toHaveProperty('examDate');
   });
 

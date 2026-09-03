@@ -21,7 +21,7 @@ export interface Phase {
 export const PHASES: Phase[] = [
   {
     id: 'frame',
-    name: 'Phase 1 — Build the Frame',
+    name: 'Phase 1, Build the Frame',
     goal: 'Know all 66 books cold: order, one-sentence summary, and what happens in their key chapters. Nothing else sticks without this.',
     weight: 3,
     // Chapters sit here as well as in the two sweeps. Order and summaries
@@ -38,7 +38,7 @@ export const PHASES: Phase[] = [
   },
   {
     id: 'ot-sweep',
-    name: 'Phase 2 — Old Testament Sweep',
+    name: 'Phase 2, Old Testament Sweep',
     goal: 'Walk the OT storyline book by book: key chapters, people, and events.',
     weight: 3,
     topics: ['chapters', 'people', 'relationships', 'events', 'places'],
@@ -52,8 +52,8 @@ export const PHASES: Phase[] = [
   },
   {
     id: 'nt-sweep',
-    name: 'Phase 3 — New Testament Sweep',
-    goal: 'Walk the NT: Gospels, Acts, the letters — audience and occasion — and Revelation.',
+    name: 'Phase 3, New Testament Sweep',
+    goal: 'Walk the NT: Gospels, Acts, the letters, audience and occasion, and Revelation.',
     weight: 2.5,
     topics: ['chapters', 'people', 'relationships', 'events', 'places'],
     scope: BOOKS.filter((b) => b.testament === 'NT').map((b) => b.id),
@@ -66,7 +66,7 @@ export const PHASES: Phase[] = [
   },
   {
     id: 'connections',
-    name: 'Phase 4 — Timeline & Connections',
+    name: 'Phase 4, Timeline & Connections',
     goal: 'Lock the chronology and the standing lists, then connect books to eras.',
     weight: 2,
     topics: ['timeline', 'numbers', 'summaries'],
@@ -81,7 +81,7 @@ export const PHASES: Phase[] = [
   },
   {
     id: 'consolidate',
-    name: 'Phase 5 — Mixed Review & Mock Quizzes',
+    name: 'Phase 5, Mixed Review & Mock Quizzes',
     goal: 'No new material. Mixed review, weak spots, and full-length practice under time.',
     weight: 2,
     topics: ['book-order', 'summaries', 'chapters', 'people', 'relationships', 'events', 'places', 'timeline', 'numbers'],
@@ -162,8 +162,8 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
 /**
  * The week the calendar is currently sitting in, clamped to the schedule's ends.
  *
- * Two views computed this inline and identically (#40) — Dashboard to name the
- * phase on its hero card, Plan to mark a row `now` — and a third caller then
+ * Two views computed this inline and identically (#40), Dashboard to name the
+ * phase on its hero card, Plan to mark a row `now`, and a third caller then
  * arrived in Review, which is where a duplicated definition of "today" stops
  * being a tidiness problem and starts being a correctness one: the daily queue
  * and the schedule it claims to follow have to agree on which week it is.
@@ -171,7 +171,7 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
  * `planStartISO` is required rather than defaulted, and that is the whole
  * repair. The old shape let the anchor fall back to `new Date()`, which meant
  * every call rebuilt the schedule starting today, today always landed in week
- * 1, and the plan could never advance past Phase 1 — invisible while the plan
+ * 1, and the plan could never advance past Phase 1, invisible while the plan
  * was decorative, and a hard cap on what anyone could study once the review
  * began filtering on it. An optional anchor would let any future caller
  * reintroduce exactly that bug in silence; a required one makes the compiler
@@ -188,7 +188,7 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
  *   The plan has not started; Phase 1 is still what it is asking for.
  * - **Past the last week** (an anchor far enough back that the runway has run
  *   out): the last week. Returning nothing here would be the worst answer
- *   available — the member is out of time, and Phase 5's "no new material,
+ *   available, the member is out of time, and Phase 5's "no new material,
  *   mixed review" is precisely the advice for that.
  *
  * Null is left for the one case with no week to name at all: an empty
@@ -201,7 +201,7 @@ export function currentWeek(
 ): PlannedWeek | null {
   // A hand-edited or imported `planStart` can be junk; an Invalid Date here
   // would make every week boundary NaN and every comparison false, so fall
-  // back to `now` — the pre-#40 behaviour, which is at least well-defined.
+  // back to `now`, the pre-#40 behaviour, which is at least well-defined.
   const parsed = new Date(`${planStartISO}T00:00:00`);
   const schedule = buildSchedule(examISO, Number.isNaN(parsed.getTime()) ? now : parsed);
   if (schedule.length === 0) return null;
@@ -215,13 +215,13 @@ export function currentWeek(
 }
 
 /**
- * The phase that week belongs to — what the study plan is asking of you today.
+ * The phase that week belongs to, what the study plan is asking of you today.
  *
  * Total, deliberately: there is no date on which the honest answer is "no
  * phase". The two ways to fall off the schedule both land on Phase 5, which is
  * why the fallback below is the last phase and not null:
  *
- * - The runway ran out — handled by `currentWeek`'s clamp above.
+ * - The runway ran out, handled by `currentWeek`'s clamp above.
  * - The schedule is empty because the anchor is *after* the exam date, so
  *   `buildSchedule` filters every week away. That is a plan with no time in it
  *   at all: same situation, same answer.

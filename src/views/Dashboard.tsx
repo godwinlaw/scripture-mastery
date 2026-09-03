@@ -54,11 +54,11 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
   }, [cards, items]);
 
   // "Which week is it?" is one question with one answer (#40), and the daily
-  // review now depends on it too — so it lives in data/plan.ts rather than
+  // review now depends on it too, so it lives in data/plan.ts rather than
   // being re-derived here.
   //
   // The anchor is the member's stored plan start, not today. Passing `now` here
-  // is what pinned this card to "Week 1 — Build the Frame" for everyone, on
+  // is what pinned this card to "Week 1, Build the Frame" for everyone, on
   // every day of the plan; the schedule only advances if it is measured from a
   // fixed origin.
   const planStart = planStartOf(store);
@@ -68,11 +68,11 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
   );
   // The old fall back to `buildSchedule(...)[0]` is gone: `currentWeek` now
   // clamps to the schedule's own ends, so it only returns null when there are
-  // no weeks at all (an anchor past the exam date). Naming "Week 1 — Build the
+  // no weeks at all (an anchor past the exam date). Naming "Week 1, Build the
   // Frame" in that case would contradict `currentPhase`, which answers Phase 5
-  // for exactly the same store — and the review queue below this card obeys
+  // for exactly the same store, and the review queue below this card obeys
   // `currentPhase`. So the phase comes from the same helper the queue uses, and
-  // only the week pill — the part with genuinely nothing to say — drops out.
+  // only the week pill, the part with genuinely nothing to say, drops out.
   const phase = useMemo(
     () => currentPhase(store.settings.examDate, planStart),
     [store.settings.examDate, planStart],

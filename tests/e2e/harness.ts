@@ -17,7 +17,7 @@ export const MEMBER = 'member@acts2.network';
 export const OUTSIDER = 'someone@gmail.com';
 
 /**
- * Item ids that are stable across regeneration — one per question kind, so a
+ * Item ids that are stable across regeneration, one per question kind, so a
  * test can put an exact card in front of itself. Kept honest by
  * `content-contract.spec.ts`, which fails loudly if the bank stops producing them.
  */
@@ -39,7 +39,7 @@ export const ITEM = {
 
 export const ORDER_SEQUENCE = ['Creation', 'The garden', 'The Fall', 'Cain and Abel'];
 
-/** ISO date `n` days from now — keeps the exam clamp away from wall-clock drift. */
+/** ISO date `n` days from now, keeps the exam clamp away from wall-clock drift. */
 export function daysFromNow(n: number): string {
   const d = new Date(Date.now() + n * DAY);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -60,7 +60,7 @@ export function dueCard(id: string, over: Partial<CardState> = {}): CardState {
   };
 }
 
-/** A card that keeps being missed — four lapses is the leech threshold. */
+/** A card that keeps being missed, four lapses is the leech threshold. */
 export function leechCard(id: string): CardState {
   return dueCard(id, { lapses: 4, reps: 6, recent: [0, 0, 1, 0] });
 }
@@ -114,8 +114,8 @@ export async function seed(page: Page, options: SeedOptions = {}): Promise<void>
 /**
  * How long to allow for the app to boot.
  *
- * The splash holds for a deliberate minimum — `SPLASH_MIN_MS`, 1100ms in
- * src/App.tsx — so it reads as a screen rather than a flicker, and a cold first
+ * The splash holds for a deliberate minimum, `SPLASH_MIN_MS`, 1100ms in
+ * src/App.tsx, so it reads as a screen rather than a flicker, and a cold first
  * load also pays for the dev server transforming the whole item bank. That is a
  * known, intended delay sitting inside what would otherwise be the generic 5s
  * expect timeout, which leaves very little headroom on a loaded machine. So the
@@ -135,7 +135,7 @@ export async function openApp(page: Page, tab = 'home'): Promise<void> {
   await expectBooted(page);
 }
 
-/** Seed a member, then open the app — the common two-line preamble. */
+/** Seed a member, then open the app, the common two-line preamble. */
 export async function openAs(page: Page, options: SeedOptions = {}, tab = 'home'): Promise<void> {
   await seed(page, options);
   await openApp(page, tab);
@@ -143,7 +143,7 @@ export async function openAs(page: Page, options: SeedOptions = {}, tab = 'home'
 
 /**
  * A stat plate's figure. CountUp prints its number from a CSS counter, so the
- * value is only in the accessible name — never in text content.
+ * value is only in the accessible name, never in text content.
  */
 export function statFigure(page: Page, label: string) {
   return page
@@ -163,7 +163,7 @@ export async function readStore(page: Page, storeKey = E2E_STORE_KEY): Promise<S
   return JSON.parse(raw!) as Store;
 }
 
-/** Days the header will count down for a given exam date — the app's own sum. */
+/** Days the header will count down for a given exam date, the app's own sum. */
 export function daysUntil(examDate: string): number {
   return Math.max(0, Math.ceil((new Date(`${examDate}T23:59:59`).getTime() - Date.now()) / DAY));
 }

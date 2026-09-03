@@ -12,7 +12,7 @@ export default function Plan({ api }: { api: StoreApi }) {
   const { store, updateSettings, daysLeft } = api;
   // The schedule is drawn from the member's stored plan start, not from today
   // (#40). Rebuilding it from `new Date()` on every render was what made every
-  // week between the start and now silently disappear — the first row always
+  // week between the start and now silently disappear, the first row always
   // said "this week", so the view could only ever show a plan about to begin.
   const planStart = planStartOf(store);
   const schedule = useMemo(
@@ -37,7 +37,7 @@ export default function Plan({ api }: { api: StoreApi }) {
               view is computed from, the schedule below rebuilds as you change
               it, and the empty state's advice ("move it forward") is only
               actionable with the field in reach. Same setting, written from two
-              places — the store is the one copy. */}
+              places, the store is the one copy. */}
           <Field label="Quiz date" htmlFor="exam">
             <input
               id="exam"
@@ -66,7 +66,7 @@ export default function Plan({ api }: { api: StoreApi }) {
         <Card corners kicker="Schedule">
           {schedule.length === 0 ? (
             <p className="small muted">
-              No weeks to show — the quiz date above has already passed. Move it forward to rebuild
+              No weeks to show, the quiz date above has already passed. Move it forward to rebuild
               the plan.
             </p>
           ) : (
@@ -74,8 +74,8 @@ export default function Plan({ api }: { api: StoreApi }) {
               // Weeks can now genuinely be behind you, which they never could
               // while the schedule restarted at today (#40). Three states, from
               // the one `active` index rather than three date tests: done,
-              // current, still to come. Deliberately not a new stylesheet rule
-              // — `.week.now` already carries the highlight, and a past week
+              // current, still to come. Deliberately not a new stylesheet rule,
+              // `.week.now` already carries the highlight, and a past week
               // only needs to read as receded, so it dims and says so.
               const isNow = w.index === active?.index;
               const isPast = active != null && w.index < active.index;
@@ -90,7 +90,7 @@ export default function Plan({ api }: { api: StoreApi }) {
                     <div className="tiny muted">{w.label}{isPast ? ' · past' : ''}</div>
                   </div>
                   <div>
-                    <strong className="small">{w.phase.name.replace(/^Phase \d+ — /, '')}</strong>
+                    <strong className="small">{w.phase.name.replace(/^Phase \d+, /, '')}</strong>
                     <p className="small muted" style={sx({ margin: `${space[1]} 0 ${space[3]}` })}>
                       {w.phase.goal}
                     </p>
@@ -142,7 +142,7 @@ export default function Plan({ api }: { api: StoreApi }) {
           <p className="small">
             <strong>Review is the whole game.</strong> New material every day without revisiting old
             material means you arrive on quiz day knowing the last two weeks well and everything else
-            vaguely. The scheduler handles this for you — just clear your due cards.
+            vaguely. The scheduler handles this for you, just clear your due cards.
           </p>
           <p className="small" style={sx({ marginBottom: 0 })}>
             <strong>Say it out loud.</strong> Reciting the 66 books, the eras, and the standing lists aloud

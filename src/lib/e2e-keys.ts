@@ -9,7 +9,7 @@
 /** Holds the signed-in email, or is absent when signed out. */
 export const E2E_AUTH_KEY = 'e2e:auth';
 
-/** Holds the whole Store as JSON — how a test seeds cards, log and settings. */
+/** Holds the whole Store as JSON, how a test seeds cards, log and settings. */
 export const E2E_STORE_KEY = 'e2e:store';
 
 /** Same-tab auth change; `storage` only fires for *other* tabs. */
