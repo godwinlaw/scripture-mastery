@@ -40,15 +40,76 @@ test.describe('following the study plan', () => {
     ...over,
   });
 
-  test('the review session only asks what the current phase covers', async ({ page }) => {
+  test('a session mixes due cards from anywhere with new cards from the phase', async ({ page }) => {
+    // The whole rule in one session. All three seeded cards are due and they
+    // sit in three different phases, so all three are asked — a due date is a
+    // promise the queue has to keep. What the phase controls is the material
+    // you have never seen, and `newLimit: 0` here holds that at zero so the
+    // count is unambiguous.
     await openAs(page, { store: { cards: straddling, settings: settings({ followPlan: true }) } }, 'review');
 
     await expect(page.getByText(/Following the study plan/)).toBeVisible();
     await page.getByRole('button', { name: 'Start review session' }).click();
 
-    // One card, and it is the book-order one — not the numbers or events cards.
-    await expect(page.getByRole('progressbar', { name: '0 of 1 answered' })).toBeVisible();
+    await expect(page.getByRole('progressbar', { name: '0 of 3 answered' })).toBeVisible();
+  });
+
+  /**
+   * The plan rations new material; it does not withhold a card that is due.
+   *
+   * This is the regression that made the guarantee in `grade()` a lie. Every
+   * interval is clamped so nothing is scheduled past the quiz date without one
+   * more look — but a due date only means something if the queue acts on it.
+   * Phases 2 through 4 do not list `book-order` among their topics, so scoping
+   * due cards by phase dropped every card built during Phase 1 for the five or
+   * six weeks those phases run. The widening could not rescue it either:
+   * `withTopUp` fires only when a phase cannot fill a session, and Phase 2
+   * holds 3,434 items.
+   */
+  test('a card that is due is asked even when its topic is outside the phase', async ({ page }) => {
+    await openAs(page, {
+      store: {
+        // ITEM.mcq is `book-order`. Phase 2 — the OT sweep — does not cover it.
+        cards: { [ITEM.mcq]: dueCard(ITEM.mcq) },
+        settings: {
+          examDate: daysFromNow(60),
+          newLimit: 0,
+          sessionLimit: 60,
+          followPlan: true,
+          planStart: daysAgo(28),
+        },
+      },
+    }, 'review');
+
+    // Confirm the fixture really does put us past Phase 1, or the test proves
+    // nothing at all.
+    await expect(page.getByText(/Following the study plan/)).toBeVisible();
+    await expect(page.getByText(/Following the study plan: Phase 1/)).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Start review session' }).click();
     await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+  });
+
+  test('new material still comes only from the current phase', async ({ page }) => {
+    // The other half of the same rule: due cards are admitted from anywhere,
+    // but the plan still decides what you meet for the first time.
+    await openAs(page, {
+      store: {
+        cards: {},
+        settings: {
+          examDate: daysFromNow(60),
+          newLimit: 8,
+          sessionLimit: 8,
+          followPlan: true,
+          planStart: daysFromNow(0),
+        },
+      },
+    }, 'review');
+
+    await page.getByRole('button', { name: 'Start review session' }).click();
+    // Phase 1 covers book-order and summaries only.
+    const kicker = page.locator('.kicker, .pill').first();
+    await expect(kicker).toHaveText(/Book Order|Book Summaries/);
   });
 
   test('you can set the plan aside for one session without changing the setting', async ({ page }) => {

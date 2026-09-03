@@ -57,12 +57,16 @@ export function planScopeIds(phase: Phase, items: readonly Item[]): Set<string> 
  */
 export function withTopUp(scoped: string[], all: string[], want: number): string[] {
   if (scoped.length >= want) return scoped;
+  // Widen to *everything* rather than to exactly `want`.
+  //
+  // Stopping at `want` capped the candidate pool at the session limit, taken as
+  // a plain prefix of the bank — which is canonical order. Every later stage
+  // that decides what a session contains, the due-date sort and the hard-mode
+  // shuffle alike, then ran inside a Genesis-first slice of sixty. For a member
+  // with a real backlog that meant the most overdue cards were never even
+  // candidates: the queue was choosing from the front of the canon and calling
+  // it urgency. `want` now decides only *whether* to widen, never how far, and
+  // buildQueue does the cut on its own terms (#41).
   const have = new Set(scoped);
-  const out = [...scoped];
-  for (const id of all) {
-    if (out.length >= want) break;
-    if (have.has(id)) continue;
-    out.push(id);
-  }
-  return out;
+  return [...scoped, ...all.filter((id) => !have.has(id))];
 }
