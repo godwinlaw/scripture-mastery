@@ -107,9 +107,10 @@ test.describe('following the study plan', () => {
     }, 'review');
 
     await page.getByRole('button', { name: 'Start review session' }).click();
-    // Phase 1 covers book-order and summaries only.
+    // Phase 1 covers book order, summaries and chapter content; the session
+    // shuffles, so any of the three may be dealt first, and nothing else may.
     const kicker = page.locator('.kicker, .pill').first();
-    await expect(kicker).toHaveText(/Book Order|Book Summaries/);
+    await expect(kicker).toHaveText(/Book Order|Book Summaries|Chapter Content/);
   });
 
   test('you can set the plan aside for one session without changing the setting', async ({ page }) => {
