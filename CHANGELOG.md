@@ -201,6 +201,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The default quiz date moved to 31 January 2027** (was 31 October 2026).
+  A fresh install starts with the new date. An existing account whose saved
+  date is still the old default, never changed by hand, is moved to the new
+  one on load, so its Dashboard countdown and Study Plan follow the new
+  timeline without a visit to Settings. A date the member chose deliberately
+  is left alone. The exact January date is still to be confirmed and may
+  change again.
+
 - **Accessibility** ([#40]). The app had no `<h1>` and never moved focus when
   you changed tabs, so a screen-reader user activating Quiz heard nothing and
   was left in the navigation. Ordering questions signalled a correctly placed

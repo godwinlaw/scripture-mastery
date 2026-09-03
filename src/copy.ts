@@ -36,7 +36,7 @@ export const copy = {
     /** e.g. "1,240 questions across 66 books" */
     tagline: (questionCount: number) =>
       `${questionCount.toLocaleString()} questions across 66 books`,
-    /** e.g. "112 days until October 4" — the meaningful, actionable figure */
+    /** e.g. "112 days until January 31" — the meaningful, actionable figure */
     countdown: (daysLeft: number, examDateLabel: string) =>
       `${daysLeft.toLocaleString()} day${daysLeft === 1 ? '' : 's'} until ${examDateLabel}`,
     signOut: 'Sign out',

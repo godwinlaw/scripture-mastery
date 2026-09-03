@@ -62,8 +62,17 @@ export interface Store {
   starred: string[];
 }
 
+/**
+ * The default quiz date before it moved to January 2027. A store saved under
+ * the old default and never touched still carries this exact string, and
+ * `mergeSettings` rewrites it, so an account set up before the move follows
+ * the new timeline without anyone editing the date by hand. A date the member
+ * chose deliberately is a different string and is left alone.
+ */
+export const LEGACY_DEFAULT_EXAM = '2026-10-31';
+
 export const DEFAULT_SETTINGS: Settings = {
-  examDate: '2026-10-31',
+  examDate: '2027-01-31',
   newLimit: 20,
   sessionLimit: 60,
   difficulty: 'medium',
@@ -72,6 +81,20 @@ export const DEFAULT_SETTINGS: Settings = {
   // wrong for everybody the moment it was written; `planStartOf` resolves it.
   planStart: '',
 };
+
+/**
+ * Saved settings laid over the defaults, the one merge every load path uses
+ * (Firestore snapshot, import, the E2E hook). A document written before a
+ * setting existed has no value for it and every reader downstream trusts
+ * Settings to be complete, so the gaps are filled here; and a quiz date that
+ * is still the pre-January default is moved to the current one, because that
+ * value was never a choice, only the absence of one.
+ */
+export function mergeSettings(saved: Partial<Settings> | undefined): Settings {
+  const merged: Settings = { ...DEFAULT_SETTINGS, ...(saved ?? {}) };
+  if (merged.examDate === LEGACY_DEFAULT_EXAM) merged.examDate = DEFAULT_SETTINGS.examDate;
+  return merged;
+}
 
 export function emptyStore(): Store {
   return { cards: {}, settings: { ...DEFAULT_SETTINGS }, log: [], starred: [] };
@@ -95,7 +118,7 @@ export function importStore(json: string): Store | null {
     if (typeof parsed !== 'object' || parsed === null) return null;
     return {
       cards: parsed.cards ?? {},
-      settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
+      settings: mergeSettings(parsed.settings),
       log: parsed.log ?? [],
       starred: parsed.starred ?? [],
     };

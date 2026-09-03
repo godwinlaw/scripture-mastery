@@ -19,6 +19,22 @@ test.describe('progress and settings', () => {
     await expect(page.locator('#sl')).toHaveValue('120');
   });
 
+  test('a store still on the old October default is moved to the January date on load', async ({ page }) => {
+    await openAs(page, { store: { settings: { examDate: '2026-10-31', newLimit: 20, sessionLimit: 60 } } }, 'settings');
+
+    await expect(page.locator('#exam2')).toHaveValue('2027-01-31');
+    // The rewrite happens on read, like the other back-fills, so the saved
+    // document carries the new date from the next write on.
+    await page.locator('#nl').fill('25');
+    expect((await readStore(page)).settings).toMatchObject({ examDate: '2027-01-31', newLimit: 25 });
+  });
+
+  test('a quiz date the member chose is left alone on load', async ({ page }) => {
+    await openAs(page, { store: { settings: { examDate: '2026-11-14', newLimit: 20, sessionLimit: 60 } } }, 'settings');
+
+    await expect(page.locator('#exam2')).toHaveValue('2026-11-14');
+  });
+
   test('the quiz date drives the countdown in the header', async ({ page }) => {
     await openAs(page, {}, 'settings');
 
