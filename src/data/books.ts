@@ -511,7 +511,7 @@ export const BOOKS: Book[] = [
   {
     id: 'hosea', name: 'Hosea', abbr: 'Hos', order: 28, testament: 'OT', division: 'Minor Prophets',
     author: 'Hosea', chapters: 14, era: 'c. 750–715 BC',
-    oneLine: 'God tells Hosea to marry an unfaithful wife as a living picture of Israel’s spiritual adultery.',
+    oneLine: 'God tells the prophet to marry an unfaithful wife as a living picture of Israel’s spiritual adultery.',
     theme: 'Covenant love that pursues the unfaithful.',
     keyPeople: ['Hosea', 'Gomer', 'Jezreel', 'Lo-ruhamah', 'Lo-ammi'],
     keyEvents: ['Marriage to Gomer', 'Children with symbolic names', 'Buying Gomer back', 'Call to return to the LORD'],
@@ -645,7 +645,7 @@ export const BOOKS: Book[] = [
   {
     id: 'haggai', name: 'Haggai', abbr: 'Hag', order: 37, testament: 'OT', division: 'Minor Prophets',
     author: 'Haggai', chapters: 2, era: '520 BC',
-    oneLine: 'Haggai shames the returned exiles into finishing the temple they abandoned for their own houses.',
+    oneLine: 'A prophet shames the returned exiles into finishing the temple they abandoned for their own houses.',
     theme: 'Priorities — "Consider your ways."',
     keyPeople: ['Haggai', 'Zerubbabel', 'Joshua the high priest', 'Darius'],
     keyEvents: ['Rebuke for paneled houses while the temple lies in ruins', 'Work on the temple resumes', 'Promise of greater glory'],

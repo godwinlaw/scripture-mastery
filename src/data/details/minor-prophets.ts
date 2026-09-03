@@ -436,6 +436,6 @@ export const MINOR_PROPHET_DETAILS: BookDetail[] = [
       { ref: 'Malachi 3:6', text: 'For I the LORD do not change; therefore you, O children of Jacob, are not consumed.' },
       { ref: 'Malachi 3:10', text: 'Bring the full tithe into the storehouse… and thereby put me to the test, says the LORD of hosts.' },
     ],
-    distinctive: 'The Old Testament’s last word in the Hebrew ordering is different, but in the Christian canon Malachi ends it — pointing straight at John the Baptist.',
+    distinctive: 'The Old Testament’s last word in the Hebrew ordering is different, but in the Christian canon this book ends it, pointing straight at John the Baptist.',
   },
 ];
