@@ -1,7 +1,7 @@
 /**
  * The detail layer.
  *
- * `books.ts` carries the frame — order, author, division, one-liner. That is
+ * `books.ts` carries the frame, order, author, division, one-liner. That is
  * what gets you through a survey quiz's first round. This file's shape carries
  * the second round: what actually happens inside each book, chapter by chapter,
  * and who it happens to.
@@ -10,7 +10,7 @@
  * adding a book's detail entry adds questions everywhere at once.
  */
 
-/** One movement of a book — the structural skeleton you can recite. */
+/** One movement of a book, the structural skeleton you can recite. */
 export interface Section {
   /** Chapter range within the book, e.g. "1-11". */
   ch: string;
@@ -22,7 +22,7 @@ export interface Section {
 export interface DetailEvent {
   /** Chapter or chapter range, e.g. "22" or "6-9". */
   ref: string;
-  /** Short name — how a quiz would refer to it. */
+  /** Short name, how a quiz would refer to it. */
   name: string;
   /** What happens, in enough detail to answer a follow-up. */
   what: string;
@@ -37,7 +37,7 @@ export interface DetailEvent {
 /** A person's role *inside this particular book*. */
 export interface Figure {
   name: string;
-  /** What they do here — not their whole biography. */
+  /** What they do here, not their whole biography. */
   did: string;
   /** Where they show up. */
   ref?: string;
@@ -74,7 +74,7 @@ export interface BookDetail {
   figures: Figure[];
   terms?: Term[];
   numbers?: NumberFact[];
-  /** How this book points to Christ — a survey-quiz staple. */
+  /** How this book points to Christ, a survey-quiz staple. */
   christ: string;
   /** Additional landmark verses beyond the one in books.ts. */
   verses?: { ref: string; text: string }[];

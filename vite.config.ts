@@ -12,7 +12,7 @@ const isE2E = process.env.E2E === '1';
  *
  * It matches on the *resolved* file rather than the import specifier, so it
  * catches './lib/useStore' and '../lib/useStore' alike and cannot be defeated
- * by a future file moving a directory. Active only under E2E=1 — a production
+ * by a future file moving a directory. Active only under E2E=1, a production
  * build never loads this plugin, so the stand-ins cannot reach real users.
  */
 function e2eStandIns(): Plugin {

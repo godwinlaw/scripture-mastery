@@ -2,7 +2,7 @@
  * Whether this is a phone/tablet, settled once at startup.
  *
  * The stance is the sibling app's: this is a desktop tool, so the decision is
- * about the *device*, not the viewport — a narrow laptop window is still a
+ * about the *device*, not the viewport, a narrow laptop window is still a
  * laptop and gets the full app. We weight the user-agent, then fall back to the
  * coarse-pointer + touch + narrow combination that catches iPadOS (which
  * masquerades as a Mac). Deliberately not reactive to resize: a member who

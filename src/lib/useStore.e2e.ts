@@ -2,13 +2,13 @@
  * The E2E stand-in for useStore.
  *
  * Aliased over the real hook only when vite runs with E2E=1 (see
- * vite.config.ts) — never part of a production bundle. It swaps the transport
+ * vite.config.ts), never part of a production bundle. It swaps the transport
  * (Firestore → localStorage) and nothing else: every transition still goes
  * through ./store-ops, the same code the real hook runs, so a Playwright test
  * exercises the actual grading, logging and clamping logic rather than a
  * re-implementation of it.
  *
- * The declared `StoreApi` return type is deliberate — if the real hook's
+ * The declared `StoreApi` return type is deliberate, if the real hook's
  * surface changes, this file stops compiling.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -57,7 +57,7 @@ function statusFor(email: string | null): AuthStatus {
   return isAllowedEmail(email) ? 'ready' : 'denied';
 }
 
-/** A stand-in for the Firebase User — only `email` and `uid` are ever read. */
+/** A stand-in for the Firebase User, only `email` and `uid` are ever read. */
 function fakeUser(email: string): User {
   return { uid: `e2e-${email}`, email, displayName: email.split('@')[0] } as User;
 }

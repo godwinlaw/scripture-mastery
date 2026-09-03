@@ -2,8 +2,8 @@
  * The reference matcher behind the typed bonus round (#14).
  *
  * These run in Node against the real module. The prose matcher used by `type`
- * questions is deliberately loose — it strips punctuation, drops small words,
- * and accepts substrings — all of which is wrong for a citation, where the
+ * questions is deliberately loose, it strips punctuation, drops small words,
+ * and accepts substrings, all of which is wrong for a citation, where the
  * colon is load-bearing and "Genesis 3" must not answer "Genesis 30". This
  * pins the behaviour that keeps the two apart.
  */

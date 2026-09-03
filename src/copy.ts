@@ -20,8 +20,8 @@ export const copy = {
    * The motto verse (#22). The trainer's own charge: the work is handling the
    * text rightly, not merely admiring it. Quoted in full, as the issue gives it.
    *
-   * Top-level rather than under `boot` because two screens speak it — the boot
-   * splash and the sign-in (#23) — and a verse transcribed twice is a verse
+   * Top-level rather than under `boot` because two screens speak it, the boot
+   * splash and the sign-in (#23), and a verse transcribed twice is a verse
    * that will eventually disagree with itself. `ref` travels with `text` so the
    * line is never shown anonymously; a verse without its citation reads as a
    * slogan.
@@ -36,7 +36,7 @@ export const copy = {
     /** e.g. "1,240 questions across 66 books" */
     tagline: (questionCount: number) =>
       `${questionCount.toLocaleString()} questions across 66 books`,
-    /** e.g. "112 days until January 31" — the meaningful, actionable figure */
+    /** e.g. "112 days until January 31", the meaningful, actionable figure */
     countdown: (daysLeft: number, examDateLabel: string) =>
       `${daysLeft.toLocaleString()} day${daysLeft === 1 ? '' : 's'} until ${examDateLabel}`,
     signOut: 'Sign out',
@@ -55,12 +55,12 @@ export const copy = {
    *
    * Difficulty is the reason this copy has to work hard: "Easy / Medium / Hard"
    * says nothing about *what* changes. So every level carries a note describing
-   * the mechanism, and all three stay on screen at once — a reader choosing
+   * the mechanism, and all three stay on screen at once, a reader choosing
    * between them needs to compare them, not discover them one at a time.
    *
    * Those notes were rewritten in #40 because they had gone stale: they still
    * described a setting that only moved wrong answers around, while the control
-   * had quietly grown three more effects — how many options a question offers,
+   * had quietly grown three more effects, how many options a question offers,
    * whether it asks for free recall first, and how new material is introduced.
    * Copy that promises less than the code does is the same defect as copy that
    * promises more; both leave the reader choosing blind. The figures below are
@@ -69,7 +69,7 @@ export const copy = {
   settings: {
     display: {
       heading: 'Display',
-      help: 'Kept on this device, not in your account — so a shared computer never changes how the app looks on your own.',
+      help: 'Kept on this device, not in your account, so a shared computer never changes how the app looks on your own.',
       themeCaption: 'Theme',
       themeNote: 'Light by default. System follows whatever your computer is set to.',
     },
@@ -82,7 +82,7 @@ export const copy = {
       options: {
         easy: {
           label: 'Easy',
-          note: 'Three options, with the wrong two drawn from anywhere in the canon — usually wrong on sight. References are never asked from memory, and the explanation is offered as a hint before you answer. New material walks the canon in order, a little at a time.',
+          note: 'Three options, with the wrong two drawn from anywhere in the canon, usually wrong on sight. References are never asked from memory, and the explanation is offered as a hint before you answer. New material walks the canon in order, a little at a time.',
         },
         medium: {
           label: 'Medium',
@@ -90,7 +90,7 @@ export const copy = {
         },
         hard: {
           label: 'Hard',
-          note: 'Six options, drawn as close to the answer as the question allows — the same book where there is one, canonical neighbours for book order, the same era or family for people. References are always named from memory first, with no hint. New material comes from anywhere in the current scope in an unpredictable order, half again as much of it, and a card you miss does not come back until tomorrow.',
+          note: 'Six options, drawn as close to the answer as the question allows, the same book where there is one, canonical neighbours for book order, the same era or family for people. References are always named from memory first, with no hint. New material comes from anywhere in the current scope in an unpredictable order, half again as much of it, and a card you miss does not come back until tomorrow.',
         },
       },
     },
@@ -107,9 +107,9 @@ export const copy = {
       heading: 'Follow the study plan',
       /** accessible name for the On/Off switch */
       label: 'Follow the study plan',
-      help: 'Your daily review draws from whichever phase the plan is currently in, rather than from the whole bank at once. Quizzes are unaffected — they still cover whatever you point them at.',
+      help: 'Your daily review draws from whichever phase the plan is currently in, rather than from the whole bank at once. Quizzes are unaffected, they still cover whatever you point them at.',
       options: { on: 'On', off: 'Off' },
-      note: 'The plan works in order — the frame first, then the Old Testament, then the New, then the timeline and mixed review — and this keeps the daily queue inside it. When there is not enough left in the current phase to fill a session, the queue quietly widens to the rest of the bank rather than telling you there is nothing to study.',
+      note: 'The plan works in order, the frame first, then the Old Testament, then the New, then the timeline and mixed review, and this keeps the daily queue inside it. When there is not enough left in the current phase to fill a session, the queue quietly widens to the rest of the bank rather than telling you there is nothing to study.',
       /** Names the phase the queue is currently drawn from, on the review screen. */
       activeOn: (phaseName: string) => `Following the study plan: ${phaseName}.`,
       studyEverything: 'Study everything instead',
@@ -132,7 +132,7 @@ export const copy = {
 
   mobileGate: {
     body:
-      'This trainer is built for a full keyboard and a wide screen — and, honestly, for time set apart rather than time squeezed in. Come back from a computer when you can give it your attention.',
+      'This trainer is built for a full keyboard and a wide screen, and, honestly, for time set apart rather than time squeezed in. Come back from a computer when you can give it your attention.',
   },
 
   auth: {

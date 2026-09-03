@@ -12,7 +12,7 @@ import type { HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
 import { sx } from './tokens';
 
 /* The four registration ticks that turn a bordered box into a drafting plate.
-   Purely decorative — the plate's meaning lives in its content, not its corners. */
+   Purely decorative, the plate's meaning lives in its content, not its corners. */
 export function Corners() {
   return (
     <>

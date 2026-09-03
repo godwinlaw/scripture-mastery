@@ -45,7 +45,7 @@ test.describe('shell and auth', () => {
     await page.goto('/#home');
 
     const splash = page.locator('.boot-splash');
-    await expect(splash).toHaveAttribute('aria-label', 'Scripture Mastery — Loading…');
+    await expect(splash).toHaveAttribute('aria-label', 'Scripture Mastery, Loading…');
     await expect(splash).toBeHidden({ timeout: BOOT_TIMEOUT_MS });
     await expect(page.getByRole('navigation')).toBeVisible();
   });
@@ -56,7 +56,7 @@ test.describe('shell and auth', () => {
     const mark = page.locator('header .brand .brand-mark');
     await expect(mark).toBeVisible();
 
-    // A missing image still counts as "visible", so check it actually decoded —
+    // A missing image still counts as "visible", so check it actually decoded,
     // that is what would catch the asset path going stale.
     await expect
       .poll(() => mark.evaluate((el) => (el as HTMLImageElement).naturalWidth))

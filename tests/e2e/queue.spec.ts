@@ -2,7 +2,7 @@
  * buildQueue does two separable jobs, and #11 changed only the second.
  *
  * Selecting *which* cards a session holds must stay deterministic and
- * priority-ordered — most overdue first, capped by the limits — because that
+ * priority-ordered, most overdue first, capped by the limits, because that
  * is what makes a truncated session the right session. Presenting them is now
  * shuffled, so you stop learning the sequence instead of the answers.
  *
@@ -74,9 +74,9 @@ test.describe('review queue', () => {
    * The synthetic deck above cannot catch the bug this guards: its ids are
    * `card-0`, `card-1`… and the spreading step keys on the first two
    * id segments, so every card became its own bucket and round-robin trivially
-   * preserved the urgency order. The real bank is the opposite shape — 6,098
+   * preserved the urgency order. The real bank is the opposite shape, 6,098
    * items across a few dozen id families like `gen-position` and `det-ev`,
-   * each spanning the whole canon — so the round-robin gave a family holding
+   * each spanning the whole canon, so the round-robin gave a family holding
    * two due cards the same share as one holding nine hundred. Because the
    * session cut ran *after* that, the spreading step was silently deciding
    * which cards survived it, and the most overdue routinely lost.

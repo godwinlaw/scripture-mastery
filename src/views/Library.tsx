@@ -23,7 +23,7 @@ const TAB_OPTIONS: { label: string; value: Tab }[] = [
   { label: 'Lists to Know', value: 'lists' },
 ];
 
-/** Everything about a book that search should reach — outline, events, and all. */
+/** Everything about a book that search should reach, outline, events, and all. */
 function haystack(bookId: string): string {
   const b = BOOKS.find((x) => x.id === bookId)!;
   const d = DETAIL_BY_BOOK.get(bookId);
@@ -121,7 +121,7 @@ export default function Library() {
           <p className="tiny muted">
             Open a book and work the tabs: overview, outline, events, people, terms. Read a pane,
             close it, and say it back out loud. Recall beats re-reading.
-            {needle && ` — ${filteredBooks.length} book${filteredBooks.length === 1 ? '' : 's'} match “${q.trim()}”.`}
+            {needle && `, ${filteredBooks.length} book${filteredBooks.length === 1 ? '' : 's'} match “${q.trim()}”.`}
           </p>
           {DIVISION_ORDER.map((div) => {
             const group = filteredBooks.filter((b) => b.division === div);
@@ -241,8 +241,8 @@ export default function Library() {
           </div>
           <p className="tiny muted">
             Every row is a pair: the address on the left, what sits there on the right. Cover one
-            column and work down the other — the quiz asks in both directions.
-            {needle && ` — ${filteredEssentials.length} list${filteredEssentials.length === 1 ? '' : 's'} match “${q.trim()}”.`}
+            column and work down the other, the quiz asks in both directions.
+            {needle && `, ${filteredEssentials.length} list${filteredEssentials.length === 1 ? '' : 's'} match “${q.trim()}”.`}
           </p>
           <div className="grid two">
             {filteredEssentials.map((l, i) => (

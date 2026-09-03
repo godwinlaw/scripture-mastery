@@ -39,7 +39,7 @@ test.describe('typed reference bonus', () => {
     await page.getByRole('button', { name: 'Check reference' }).click();
 
     await expect(page.locator('.feedback.correct')).toContainText('Correct');
-    // No grade to choose — the row is replaced by a single Continue.
+    // No grade to choose, the row is replaced by a single Continue.
     await expect(page.getByRole('button', { name: /^Hard/ })).toBeHidden();
     await expect(page.getByRole('button', { name: /^Ok/ })).toBeHidden();
     await expect(page.getByRole('button', { name: /^Easy/ })).toBeHidden();
@@ -55,7 +55,7 @@ test.describe('typed reference bonus', () => {
 
   test('winning the bonus closes the round rather than leaving it open', async ({ page }) => {
     // The controls stayed live after a correct answer, so you could still ask
-    // for the choices — or re-submit — on a card you had already won.
+    // for the choices, or re-submit, on a card you had already won.
     await reviewOne(page, REF_ITEM);
 
     await input(page).fill('Joshua 6');
@@ -83,7 +83,7 @@ test.describe('typed reference bonus', () => {
     await input(page).fill('Joshua 5');
     await page.getByRole('button', { name: 'Check reference' }).click();
 
-    // Not marked wrong — it falls through to the ordinary multiple choice.
+    // Not marked wrong, it falls through to the ordinary multiple choice.
     await expect(page.locator('.feedback')).toHaveCount(0);
     await expect(input(page)).toBeHidden();
     await expect(choices(page)).toHaveCount(4);
@@ -118,7 +118,7 @@ test.describe('typed reference bonus', () => {
   });
 
   test('a question whose answer is not a reference is unaffected', async ({ page }) => {
-    // gen-position-genesis answers "Exodus" — a book, not a place in it.
+    // gen-position-genesis answers "Exodus", a book, not a place in it.
     await reviewOne(page, 'gen-position-genesis');
 
     await expect(input(page)).toBeHidden();

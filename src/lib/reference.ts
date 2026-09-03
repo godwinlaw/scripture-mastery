@@ -2,7 +2,7 @@
  * Recognising and comparing Bible references, for the typed bonus round (#14).
  *
  * A reference-answered question is one whose answer is a place in scripture
- * rather than a fact about it — "Joshua 6", "1 Cor 15:1-8". Those are the
+ * rather than a fact about it, "Joshua 6", "1 Cor 15:1-8". Those are the
  * questions worth letting someone answer from memory before showing them four
  * options, because naming the reference is a strictly harder thing to do than
  * recognising it.
@@ -24,7 +24,7 @@ function escape(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** "Joshua 6", "Josh 6", "1 Cor 15:1-8" — a book label followed by a number. */
+/** "Joshua 6", "Josh 6", "1 Cor 15:1-8", a book label followed by a number. */
 const REFERENCE = new RegExp(`^(?:${BOOK_LABELS.map((b) => escape(b.label)).join('|')})\\s+\\d`, 'i');
 
 /** Whether an answer names a place in scripture, and so earns a typed round. */
@@ -58,7 +58,7 @@ export function parseReference(input: string): ParsedReference | null {
     const locus = text
       .slice(m[0].length)
       .toLowerCase()
-      .replace(/\s*[-–—]\s*/g, '-')
+      .replace(/\s*[-–\u2014]\s*/g, '-')
       .replace(/\s*:\s*/g, ':')
       .replace(/[^\d:\-,]/g, '')
       .replace(/,+$/, '');
