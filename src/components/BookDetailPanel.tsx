@@ -1,3 +1,4 @@
+import { copy } from '../copy';
 import { useState } from 'react';
 import type { Book } from '../data/types';
 import type { BookDetail } from '../data/details';
@@ -6,11 +7,11 @@ import { color, space, sx } from '../ui';
 type Pane = 'overview' | 'outline' | 'events' | 'people' | 'terms';
 
 const PANES: { id: Pane; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'outline', label: 'Outline' },
-  { id: 'events', label: 'Events' },
-  { id: 'people', label: 'People' },
-  { id: 'terms', label: 'Terms & Numbers' },
+  { id: 'overview', label: copy.bookPanel.panes.overview },
+  { id: 'outline', label: copy.bookPanel.panes.outline },
+  { id: 'events', label: copy.bookPanel.panes.events },
+  { id: 'people', label: copy.bookPanel.panes.people },
+  { id: 'terms', label: copy.bookPanel.panes.terms },
 ];
 
 /**
@@ -46,12 +47,12 @@ export default function BookDetailPanel({ book, detail, highlight }: {
         <>
           <p style={{ fontSize: '1.02rem', marginTop: 0 }}>{book.oneLine}</p>
           <dl className="facts">
-            <dt>Author</dt><dd>{book.author}{book.authorNote ? ` — ${book.authorNote}` : ''}</dd>
-            <dt>Written</dt><dd>{detail.written}{detail.writtenFrom ? ` · from ${detail.writtenFrom}` : ''}</dd>
-            <dt>Audience</dt><dd>{detail.audience}</dd>
-            <dt>Purpose</dt><dd>{detail.purpose}</dd>
-            <dt>Era</dt><dd>{book.era}</dd>
-            <dt>Theme</dt><dd>{book.theme}</dd>
+            <dt>{copy.bookPanel.fields.author}</dt><dd>{book.author}{book.authorNote ? ` — ${book.authorNote}` : ''}</dd>
+            <dt>{copy.bookPanel.fields.written}</dt><dd>{detail.written}{detail.writtenFrom ? ` · from ${detail.writtenFrom}` : ''}</dd>
+            <dt>{copy.bookPanel.fields.audience}</dt><dd>{detail.audience}</dd>
+            <dt>{copy.bookPanel.fields.purpose}</dt><dd>{detail.purpose}</dd>
+            <dt>{copy.bookPanel.fields.era}</dt><dd>{book.era}</dd>
+            <dt>{copy.bookPanel.fields.theme}</dt><dd>{book.theme}</dd>
           </dl>
 
           {book.keyVerse && (
@@ -67,13 +68,13 @@ export default function BookDetailPanel({ book, detail, highlight }: {
             </blockquote>
           ))}
 
-          <div className="christ"><strong>Christ in {book.name}:</strong> {detail.christ}</div>
+          <div className="christ"><strong>{copy.bookPanel.christ(book.name)}</strong> {detail.christ}</div>
           {detail.distinctive && (
             <p className="small muted">
-              <strong style={sx({ color: color.text })}>What makes it unlike any other:</strong> {detail.distinctive}
+              <strong style={sx({ color: color.text })}>{copy.bookPanel.distinctive}</strong> {detail.distinctive}
             </p>
           )}
-          {book.hook && <div className="hook"><strong>Remember it:</strong> {book.hook}</div>}
+          {book.hook && <div className="hook"><strong>{copy.bookPanel.hook}</strong> {book.hook}</div>}
         </>
       )}
 
@@ -139,7 +140,7 @@ export default function BookDetailPanel({ book, detail, highlight }: {
             that is the point of listing them per book.
           </p>
           <table className="data">
-            <thead><tr><th>Who</th><th>What they do here</th><th>Where</th></tr></thead>
+            <thead><tr><th>{copy.bookPanel.peopleColumns.who}</th><th>{copy.bookPanel.peopleColumns.what}</th><th>{copy.bookPanel.peopleColumns.where}</th></tr></thead>
             <tbody>
               {detail.figures.map((f) => (
                 <tr key={f.name}>

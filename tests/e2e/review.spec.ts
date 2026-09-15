@@ -12,8 +12,8 @@ test.describe('daily review', () => {
   /**
    * The three seeded cards straddle the plan's first phase on purpose (#40).
    *
-   * `ITEM.mcq` is a `book-order` question, which Phase 1 — Build the Frame —
-   * asks for. `ITEM.type` is `numbers` and `ITEM.order` is `events`, neither of
+   * `ITEM.mcq` is a `oneline` question, which Phase 1 — Build the Frame —
+   * asks for. `ITEM.type` is `rituals` and `ITEM.order` is `arc`, neither of
    * which it does. So the same store reads two different, both-correct ways
    * depending on whether the plan is being followed, and the pair of tests
    * below pins each. Counting inside the scope is the honest number: the idle
@@ -35,7 +35,7 @@ test.describe('daily review', () => {
       },
     }, 'review');
 
-    // Only the book-order card is in Phase 1, so it is the only one counted.
+    // Only the one-line card is in Phase 1, so it is the only one counted.
     await expectStat(page, 'Due now', 1);
     await expectStat(page, 'New today', 5); // capped by the new-card limit
     await expectStat(page, 'Seen so far', 1);
@@ -89,7 +89,7 @@ test.describe('daily review', () => {
     await page.getByRole('button', { name: /^Continue/ }).click();
 
     // The card is back — it should be asked afresh, not shown already answered.
-    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+    await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
     await expect(page.locator('.feedback')).toHaveCount(0);
     await expect(page.locator('.choice').first()).toBeEnabled();
   });
@@ -100,7 +100,9 @@ test.describe('daily review', () => {
 
     // Miss it three times; the third must not extend the session again.
     for (let attempt = 1; attempt <= 3; attempt++) {
-      await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+      // Asked afresh every time, not shown already answered — the requeue bug
+      // the test above pins is fixed (#40), so this can answer unconditionally.
+      await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
       await answerMcq(page, 'Deuteronomy');
       await page.getByRole('button', { name: /^Continue/ }).click();
     }

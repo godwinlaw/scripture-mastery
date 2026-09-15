@@ -119,13 +119,11 @@ Quiz offers *This week's plan* as a scope. When a phase runs dry the queue
 widens to the rest of the bank rather than telling you there is nothing to
 study, and **Study everything instead** sets it aside for a single session.
 
-1. **Build the Frame** — all 66 books: order, division, author, one-line summary, outline
-2. **Old Testament Sweep** — outline, key chapters, people and their families, events,
-   places, and the terms each book runs on, book by book
-3. **New Testament Sweep** — Gospels, Acts, every letter's audience and occasion, Revelation
-4. **Timeline & Connections** — the 14 eras, the must-know and standing lists, the
-   two fall dates, and how each book points to Christ
-5. **Mixed Review & Mock Quizzes** — no new material, weak spots only
+1. **Build the Frame** — **O** and **E**: all 66 books in a line each, plus the must-know lists
+2. **Old Testament Sweep** — **A N C R**: the storyline book by book, its people and places, and the feasts
+3. **New Testament Sweep** — **A N C H**: Gospels, Acts, every letter's audience and occasion, the world Jesus was born into
+4. **Context & Doctrine** — **H D E A**: the eras and world powers, the silent years, and where primary doctrine sits in the text
+5. **Mixed Review & Mock Quizzes** — all eight strands, no new material, weak spots only
 
 ---
 
@@ -139,16 +137,16 @@ card and which cards reach you.
 | | Easy | Medium | Hard |
 |---|---|---|---|
 | Options offered | 3 | 4 | 6 |
-| Wrong options drawn from | anywhere in the canon | books near the answer's own, never across the Testament seam | as close as the question allows — the same book, canonical neighbours, the same era or family |
+| Wrong options drawn from | anywhere in the canon | books near the answer's own, never across the Testament seam | as close as the question allows — the same book, the same division, the same era or family |
 | A reference answer | shown as choices | named from memory first | named from memory first, no hint |
 | Hint before answering | yes | no | no |
 | New material | walks the canon in order | interleaved by book | anywhere in scope, unpredictable, half again as much |
 | A card you miss | comes back this session | comes back this session | comes back tomorrow |
 
-Book Order questions are deliberately exempt from the Testament rule — "which
-book immediately follows Malachi?" has a New Testament answer, so fencing it by
-Testament would give the answer away. They are scoped by canonical distance
-instead.
+Where a tight pool cannot fill the card it widens one ring at a time — the
+answer's own book, then its division, then its Testament — rather than offering
+fewer choices, because a three-option question is *easier* than a six-option one
+and falling short would invert the setting instead of sharpening it.
 
 ---
 
@@ -185,7 +183,7 @@ Acts 12" is a real question and "which book is Peter in" is not.
 ```
 src/
 ├── data/
-│   ├── types.ts      Book, Item, Topic definitions — 14 topics
+│   ├── types.ts      Book, Item, Topic definitions — the 8 ANCHORED strands
 │   ├── books.ts      All 66 books — the frame
 │   ├── details/      The detail layer, one file per division
 │   │   ├── types.ts        BookDetail, Section, DetailEvent, Figure, Term
@@ -199,10 +197,15 @@ src/
 │   │   └── index.ts        Combines them + coverage assertions
 │   ├── people.ts     233 people (with family, tribe, and death) + 54 places
 │   ├── timeline.ts   14 eras + 29 dated events
-│   ├── extras.ts     13 standing lists + ~60 hand-authored questions
-│   ├── essentials.ts 13 must-know lists — cue → content pairs (chapter indexes,
-│   │                 judges, kings, prophets, the Romans Road)
+│   ├── extras.ts     11 standing lists + ~60 hand-authored questions
+│   ├── essentials.ts 22 must-know lists — cue → content pairs (chapter indexes,
+│   │                 judges, kings, prophets, the Romans Road, the world powers,
+│   │                 the silent years, the feasts, the rites of the Law)
+│   ├── doctrine.ts   102 primary doctrines and the landmark reference for each
+│   ├── anchored.ts   The reader-facing guide to the eight strands
 │   └── plan.ts       Phase definitions and calendar builder
+├── copy.ts           Every user-facing string in the app — headings, blurbs,
+│                     buttons, the ANCHORED guide, the study plan's phases
 ├── lib/
 │   ├── generate.ts         The frame, people, timeline, and list generators
 │   ├── generate-detail.ts  The detail generators — the bulk of the bank
@@ -216,7 +219,7 @@ src/
 └── components/
     └── BookDetailPanel.tsx  A book's five reference panes
 scripts/
-└── validate.ts       27 content-integrity checks — `npm run validate`
+└── validate.ts       34 content-integrity checks — `npm run validate`
 ```
 
 ### Item ids are stable on purpose
@@ -238,7 +241,7 @@ Roughly a hundred questions per book, without hand-writing any of them.
 
 ### Content-quality guards
 
-`npm run validate` runs 21 checks over the generated bank and exits non-zero on
+`npm run validate` runs 34 checks over the generated bank and exits non-zero on
 failure. Four of them exist because they caught real bugs.
 
 **Distractors near the answer.** Chapter-count questions draw wrong options from
@@ -334,6 +337,37 @@ fixed and Playwright will flag the test as unexpectedly passing.
   read three main ways.
 - **The "Christ in this book" line** is one per book and is what a survey quiz
   asks for. It is a summary of the standard answer, not an argument for it.
+---
+
+## ANCHORED — the eight strands
+
+Every question in the bank belongs to one of eight strands, and the topic filter,
+the weakest-areas rows and the pill on each card all name it. The app explains
+this to the reader on the Study Plan tab; `src/data/anchored.ts` is the copy.
+
+| | Strand | What it asks of you |
+|---|---|---|
+| **A** | The Arc | The big-picture story in order: creation, the patriarchs, the Exodus, the law, the conquest, the kings, the split, the exile, the return, Jesus, the early church |
+| **N** | Names | People, groups, rulers and genealogies — and the origin story where there is one. Amalekites ← Edom ← Esau; Ammonites and Moabites ← Lot |
+| **C** | Cities & Geography | Revelation happened in a particular place, and a small one — 9,500 square miles, Galilee 700 feet below sea level, the Dead Sea 1,300 |
+| **H** | Historical Context | Assyria, Babylon, Persia, Greece, Rome, in the order they ruled; the four hundred silent years; the political landscape the Gospels assume |
+| **O** | One Line per Book | Each of the 66 books in a line, both directions. Ephesians: church. Galatians: legalism. Leviticus: holiness |
+| **R** | Rituals & Festivals | The feasts in calendar order and the system behind them — the five offerings, the rites of cleansing, the vows, the sabbaths and holy years |
+| **E** | Essentials | The standing lists a survey quiz assumes you know cold, drilled in both directions |
+| **D** | Doctrine | Primary doctrine and the address where it is found — one landmark reference each |
+
+**Provenance, stated plainly: the first six letters are the framework's, the last
+two are ours.** A college-ministry podcast episode lays out ANCHOR — arc, names,
+cities, historical context, one word per book, rituals and festivals — and the
+transcript closes the list after R before changing subject, so six letters is the
+source's complete acronym. **E**ssentials and **D**octrine were added to finish
+the word the episode is *named* after, and because they cover real ground the six
+leave out: the must-know lists, and where primary doctrine sits in the text.
+
+Three former topics were retired when the bank was reorganised this way: Book
+Order, Numbers & Counts, and Book Summaries, the last folded into O. The per-book
+numeric figures and key terms that fed the first two are still in the data and
+still render in the Reference book panel — they no longer generate questions.
 
 ---
 
@@ -346,3 +380,4 @@ fixed and Playwright will flag the test as unexpectedly passing.
 - [National Bible Bee — Winning Study Habits](https://biblebee.org/wshaft2cw/) — habits of competition winners
 - [Bible quiz (Wikipedia)](https://en.wikipedia.org/wiki/Bible_quiz) — competition formats and question types
 - [OverviewBible — All 66 Books](https://overviewbible.com/books-of-the-bible/) — cross-check on book summaries and groupings
+- REACH (Acts 2 Network), S3:47 — *Anchored: Why College Ministers Must Know Their Bible* — the ANCHOR framework; transcript excerpt attached to [issue #35](https://github.com/godwinlaw/scripture-mastery/issues/35)

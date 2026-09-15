@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
+import { ANCHORED, PROVENANCE } from '../data/anchored';
 import { buildSchedule, currentWeek, PHASES } from '../data/plan';
 import { TOPIC_LABELS } from '../data/types';
 import { planStartOf } from '../lib/store-ops';
 import type { StoreApi } from '../lib/useStore';
+import { copy } from '../copy';
 import { Card, Field, space, sx } from '../ui';
 
 const fmt = (d: Date) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -30,14 +32,14 @@ export default function Plan({ api }: { api: StoreApi }) {
     <div className="stack-in">
       <div className="section">
         <div className="spread">
-          <h2 style={sx({ margin: 0 })}>Study Plan</h2>
+          <h2 style={sx({ margin: 0 })}>{copy.plan.heading}</h2>
           {/* This stays out of the Settings panel (#36) rather than being
               deduplicated into it: the quiz date is the single input this whole
               view is computed from, the schedule below rebuilds as you change
               it, and the empty state's advice ("move it forward") is only
               actionable with the field in reach. Same setting, written from two
               places — the store is the one copy. */}
-          <Field label="Quiz date" htmlFor="exam">
+          <Field label={copy.plan.examDateLabel} htmlFor="exam">
             <input
               id="exam"
               className="ctl"
@@ -48,20 +50,14 @@ export default function Plan({ api }: { api: StoreApi }) {
           </Field>
         </div>
         <p className="small muted" style={sx({ marginTop: space[3] })}>
-          {daysLeft} days left. The plan below runs {schedule.length} weeks from the day you
-          started, not from today, so it moves on as the weeks pass. The order matters: the frame
-          first, then content, then connections, then mixed review. Detail learned before the frame
-          has nothing to attach to.
+          {copy.plan.summary(daysLeft, schedule.length)}
         </p>
       </div>
 
       <div className="section">
-        <Card corners kicker="Schedule">
+        <Card corners kicker={copy.plan.scheduleKicker}>
           {schedule.length === 0 ? (
-            <p className="small muted">
-              No weeks to show — the quiz date above has already passed. Move it forward to rebuild
-              the plan.
-            </p>
+            <p className="small muted">{copy.plan.datePassed}</p>
           ) : (
             schedule.map((w, i) => {
               // Weeks can now genuinely be behind you, which they never could
@@ -98,8 +94,36 @@ export default function Plan({ api }: { api: StoreApi }) {
         </Card>
       </div>
 
+      {/* The guide sits above the phases because the phases are described in
+          terms of the strands — a week labelled "A · N · C · R" means nothing
+          until you have read what the letters are. */}
       <div className="section">
-        <h2>What each phase actually asks of you</h2>
+        <div className="spread">
+          <h2 style={sx({ margin: 0 })}>{copy.strands.heading}</h2>
+          <span className="pill accent">{copy.strands.kicker}</span>
+        </div>
+        <p className="small muted" style={sx({ maxWidth: 760 })}>{PROVENANCE}</p>
+        <div className="grid two">
+          {ANCHORED.map((s, i) => (
+            <Card corners key={s.topic} className="item-in" style={sx({ '--stagger-i': i })}>
+              {/* The provenance pill rides the footer rather than the heading:
+                  beside a long title like "Cities & Geography" it wrapped onto
+                  its own line on half the cards and sat inline on the rest. */}
+              <h3 style={sx({ margin: 0 })}>
+                <span className="mono" style={sx({ color: 'var(--color-accent-700)' })}>{s.letter}</span> — {s.name}
+              </h3>
+              <p className="small">{s.covers}</p>
+              <div className="spread" style={sx({ alignItems: 'flex-end', gap: space[3] })}>
+                <span className="tiny muted">{s.example}</span>
+                <span className="pill" style={sx({ whiteSpace: 'nowrap' })}>{s.from}</span>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <div className="section">
+        <h2>{copy.plan.phasesHeading}</h2>
         <div className="grid two">
           {PHASES.map((p) => (
             <Card key={p.id}>
@@ -114,34 +138,13 @@ export default function Plan({ api }: { api: StoreApi }) {
       </div>
 
       <div className="section">
-        <h2>How to study this material</h2>
+        <h2>{copy.plan.methodHeading}</h2>
         <Card>
-          <p className="small">
-            <strong>Retrieve before you re-read.</strong> Practice testing and spaced repetition are the
-            two techniques a well-known review of ten study methods rated “high utility.” Re-reading
-            a book summary feels productive and mostly is not. Close the page and say it out loud
-            first; open it only to check.
-          </p>
-          <p className="small">
-            <strong>Short and often beats long and rare.</strong> Bible quiz coaches say the same thing
-            independently of the psychology literature: three 10-minute sessions in a day work better
-            than one 2-hour block.
-          </p>
-          <p className="small">
-            <strong>Mix topics rather than blocking them.</strong> Answering twenty Genesis questions in a
-            row feels easier and teaches less than twenty questions drawn from everywhere. That is
-            why the review queue interleaves by design.
-          </p>
-          <p className="small">
-            <strong>Review is the whole game.</strong> New material every day without revisiting old
-            material means you arrive in October knowing the last two weeks well and everything else
-            vaguely. The scheduler handles this for you — just clear your due cards.
-          </p>
-          <p className="small" style={sx({ marginBottom: 0 })}>
-            <strong>Say it out loud.</strong> Reciting the 66 books, the eras, and the standing lists aloud
-            while walking or driving costs nothing and is one of the most-recommended habits among
-            competitive quizzers.
-          </p>
+          {copy.plan.method.map((m, i) => (
+            <p className="small" key={m.lead} style={sx(i === copy.plan.method.length - 1 ? { marginBottom: 0 } : {})}>
+              <strong>{m.lead}</strong> {m.body}
+            </p>
+          ))}
         </Card>
       </div>
     </div>

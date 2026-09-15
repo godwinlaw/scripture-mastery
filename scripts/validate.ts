@@ -12,7 +12,7 @@ import { ESSENTIALS, ESSENTIAL_ALIASES, ESSENTIAL_ENTRY_COUNT } from '../src/dat
 import { LISTS } from '../src/data/extras';
 import { ESSENTIAL_ITEM_IDS } from '../src/lib/generate-essentials';
 import { TOPIC_LABELS } from '../src/data/types';
-import type { Difficulty, Item } from '../src/data/types';
+import type { Difficulty, Item, Topic } from '../src/data/types';
 import { allItems } from '../src/lib/generate';
 
 const items = allItems();
@@ -133,6 +133,15 @@ hard(
 hard(
   'must-know lists that generate no cards',
   ESSENTIALS.filter((l) => !items.some((i) => i.id.startsWith(`ess-${l.id}-`))).map((l) => l.id),
+);
+
+// A topic is a filter in the quiz and a row in the weakest-areas list, so one
+// with no questions behind it is a dead control. Added with the two topics the
+// ANCHOR framework asked for (#35) — the union, the labels and the content are
+// three separate edits, and forgetting the third is the silent failure.
+hard(
+  'topics with no questions',
+  (Object.keys(TOPIC_LABELS) as Topic[]).filter((t) => !items.some((i) => i.topic === t)),
 );
 
 const bookCounts = new Map<string, number>();

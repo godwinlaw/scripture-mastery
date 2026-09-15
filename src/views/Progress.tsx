@@ -1,3 +1,4 @@
+import { copy } from '../copy';
 import { useMemo, useRef, useState } from 'react';
 import { BOOKS } from '../data/books';
 import { allItems } from '../lib/generate';
@@ -76,9 +77,9 @@ export default function Progress({ api }: { api: StoreApi }) {
       const parsed = importStore(text);
       if (parsed) {
         replaceStore(parsed);
-        setNote('Progress restored.');
+        setNote(copy.progress.restored);
       } else {
-        setNote('That file could not be read.');
+        setNote(copy.progress.unreadable);
       }
     });
   }
@@ -86,7 +87,7 @@ export default function Progress({ api }: { api: StoreApi }) {
   return (
     <div className="stack-in">
       <div className="section">
-        <h2>Last 14 days</h2>
+        <h2>{copy.progress.recentHeading}</h2>
         <Card corners>
           <div style={sx({ display: 'flex', alignItems: 'flex-end', gap: space[2], height: 90 })}>
             {last14.map((d, i) => (
@@ -94,7 +95,7 @@ export default function Progress({ api }: { api: StoreApi }) {
                 key={d.date}
                 className="item-in"
                 style={sx({ flex: 1, textAlign: 'center', '--stagger-i': i })}
-                title={`${d.date}: ${d.reviewed} answered`}
+                title={copy.progress.answeredOn(d.date, d.reviewed)}
               >
                 <div
                   aria-hidden="true"
@@ -112,12 +113,12 @@ export default function Progress({ api }: { api: StoreApi }) {
       </div>
 
       <div className="section">
-        <h2>Mastery by book</h2>
-        <p className="small muted">Anything under 50% is worth a targeted quiz. Sort your attention here.</p>
+        <h2>{copy.progress.byBookHeading}</h2>
+        <p className="small muted">{copy.progress.byBookBlurb}</p>
         <Card corners className="scroll-x">
           <table className="data">
             <thead>
-              <tr><th>#</th><th>Book</th><th>Division</th><th style={{ width: 160 }}>Mastery</th><th>Seen</th></tr>
+              <tr><th>#</th><th>{copy.progress.byBookColumns.book}</th><th>{copy.progress.byBookColumns.division}</th><th style={{ width: 160 }}>{copy.progress.byBookColumns.mastery}</th><th>{copy.progress.byBookColumns.seen}</th></tr>
             </thead>
             <tbody>
               {byBook.map((r) => (
@@ -142,14 +143,14 @@ export default function Progress({ api }: { api: StoreApi }) {
 
       {leeches.length > 0 && (
         <div className="section">
-          <h2>Stuck items <span className="pill bad"><CountUp value={leeches.length} /></span></h2>
+          <h2>{copy.progress.stuckHeading} <span className="pill bad"><CountUp value={leeches.length} /></span></h2>
           <p className="small muted">
             You have missed these four or more times. Drilling them harder rarely works — go read the
             book’s entry in the reference, find the hook, then come back.
           </p>
           <Card corners className="scroll-x">
             <table className="data">
-              <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+              <thead><tr><th>{copy.progress.stuckColumns.question}</th><th>{copy.progress.stuckColumns.answer}</th></tr></thead>
               <tbody>
                 {leeches.slice(0, 25).map((leech) => (
                   <tr key={leech.id}>
@@ -168,23 +169,22 @@ export default function Progress({ api }: { api: StoreApi }) {
           to look for a preference. */}
 
       <div className="section">
-        <h2>Your data</h2>
+        <h2>{copy.progress.dataHeading}</h2>
         <Card corners>
           <p className="small muted">
-            Progress syncs to Firestore under {user?.email ?? 'your account'} and follows you to any
-            device you sign in on. Export still makes a local backup any time you want one.
+            {copy.progress.dataBlurb(user?.email ?? copy.progress.yourAccount)}
           </p>
           <div className="row">
-            <button className="btn" onClick={doExport}>Export progress</button>
-            <button className="btn" onClick={() => fileRef.current?.click()}>Import progress</button>
+            <button className="btn" onClick={doExport}>{copy.progress.exportButton}</button>
+            <button className="btn" onClick={() => fileRef.current?.click()}>{copy.progress.importButton}</button>
             <input ref={fileRef} type="file" accept="application/json" hidden
               onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])} />
             <button className="btn" onClick={() => {
-              if (confirm('Erase all review history and start over? This cannot be undone.')) {
+              if (confirm(copy.progress.resetConfirm)) {
                 reset();
-                setNote('Progress cleared.');
+                setNote(copy.progress.cleared);
               }
-            }}>Reset progress</button>
+            }}>{copy.progress.resetButton}</button>
           </div>
           {note && <p className="tiny" style={sx({ marginTop: space[3], marginBottom: 0 })}>{note}</p>}
         </Card>

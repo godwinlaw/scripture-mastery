@@ -59,7 +59,7 @@ test.describe('difficulty — option scoping', () => {
    * canon, so its options have to be able to come from anywhere in it.
    */
   const withBook = allItems().filter(
-    (i) => i.book && BOOKS_BY_ID[i.book] && (i.topic === 'chapters' || i.topic === 'events'),
+    (i) => i.book && BOOKS_BY_ID[i.book] && i.topic === 'arc',
   );
 
   test('medium and hard never offer an option from the other Testament', () => {
@@ -108,12 +108,16 @@ test.describe('difficulty — option scoping', () => {
  * #40 — the setting stopped being a distractor-swap and became an axis.
  *
  * Before it, two thirds of the bank carried no alternate option sets at all:
- * every `people`, `places`, `relationships`, `book-order`, `numbers`,
- * `timeline` and `summaries` question fell back to its medium set, and plenty
- * of those pools were canon-wide. So `hard` quietly offered New Testament
- * options against Old Testament questions — 637 of them, measured — which is
- * the complaint that started this. The tests below are the floor that stops
- * that regressing.
+ * every People, Places, Family, Book Order, Numbers, Timeline and Book
+ * Summaries question fell back to its medium set, and plenty of those pools
+ * were canon-wide. So `hard` quietly offered New Testament options against Old
+ * Testament questions — 637 of them, measured — which is the complaint that
+ * started this. The tests below are the floor that stops that regressing.
+ *
+ * Those are the old topic names, because that is what the measurement was taken
+ * against; the same questions are now filed under the ANCHORED strands (#35),
+ * and the two families that were removed outright — Book Order and Numbers &
+ * Counts — took their scoping tests with them.
  */
 test.describe('difficulty — scoping across the whole bank', () => {
   const mcq = allItems().filter((i) => i.kind === 'mcq');
@@ -122,12 +126,15 @@ test.describe('difficulty — scoping across the whole bank', () => {
   /**
    * Topics whose options are book *names*, so a Testament can be read off them.
    *
-   * People questions are excluded deliberately even though their options are
-   * strings: Luke, James, Job and Zechariah are each both a person and a book,
-   * so matching option text against the canon there measures the collision, not
-   * a seam crossing.
+   * The N strand is excluded deliberately even though its options are strings:
+   * Luke, James, Job and Zechariah are each both a person and a book, so
+   * matching option text against the canon there measures the collision, not a
+   * seam crossing.
+   *
+   * A is Chapter Content and Events, O is Book Summaries plus the line drill —
+   * the same families this measured before ANCHORED re-filed them (#35).
    */
-  const BOOK_ANSWER_TOPICS = new Set(['chapters', 'events', 'summaries']);
+  const BOOK_ANSWER_TOPICS = new Set(['arc', 'oneline']);
 
   test('hard never offers an option from the other Testament', () => {
     let crossings = 0;
@@ -145,57 +152,11 @@ test.describe('difficulty — scoping across the whole bank', () => {
     expect(crossings, `hard crossings, e.g. ${offenders.join(' ; ')}`).toBe(0);
   });
 
-  /**
-   * Book Order is the one family where the Testament seam is the wrong fence:
-   * "which book immediately follows Malachi?" has a New Testament answer to an
-   * Old Testament question, so scoping by Testament would identify the answer
-   * without knowing the canon at all. What makes it hard is *canonical
-   * distance* — Ezra against Nehemiah, Esther and Chronicles is a question;
-   * Ezra against Matthew is a free point.
-   */
-  test('book-order draws hard options from canonical neighbours, and easy ones from far away', () => {
-    const bookOrder = mcq.filter((i) => i.topic === 'book-order' && i.book);
-    expect(bookOrder.length).toBeGreaterThan(0);
-
-    let farOnHard = 0;
-    let nearOnEasy = 0;
-    for (const item of bookOrder) {
-      const subject = BOOKS_BY_ID[item.book!];
-      if (!subject) continue;
-      for (const o of item.distractorsBy?.hard ?? []) {
-        const b = BY_NAME.get(o);
-        if (b && Math.abs(b.order - subject.order) > 8) farOnHard++;
-      }
-      for (const o of item.distractorsBy?.easy ?? []) {
-        const b = BY_NAME.get(o);
-        if (b && Math.abs(b.order - subject.order) <= 4) nearOnEasy++;
-      }
-    }
-
-    expect(farOnHard, 'a hard book-order option more than 8 positions away').toBe(0);
-    expect(nearOnEasy, 'an easy book-order option among the answer’s neighbours').toBe(0);
-  });
-
-  /**
-   * `pickDistractors` excludes the answer but never knew about the *subject*,
-   * so "Which book immediately precedes Leviticus?" offered Leviticus — an
-   * option that is wrong for a reason the question itself gives away.
-   */
-  test('no question offers the book it is asking about', () => {
-    const offenders: string[] = [];
-    for (const item of mcq) {
-      if (item.topic !== 'book-order' || !item.book) continue;
-      const subject = BOOKS_BY_ID[item.book]?.name;
-      if (!subject) continue;
-      const every = [
-        ...(item.distractors ?? []),
-        ...(item.distractorsBy?.easy ?? []),
-        ...(item.distractorsBy?.hard ?? []),
-      ];
-      if (every.includes(subject)) offenders.push(item.id);
-    }
-    expect(offenders).toEqual([]);
-  });
+  // Two tests stood here: that Book Order scoped its options by canonical
+  // distance rather than by the Testament seam, and that it never offered the
+  // book its own prompt names. Both described a family that no longer exists —
+  // #35 removed Book Order outright — so they went with it rather than being
+  // rewritten into assertions about nothing.
 
   test('almost every question carries all three option sets', () => {
     const withHard = mcq.filter((i) => i.distractorsBy?.hard).length;
@@ -331,7 +292,7 @@ test.describe('difficulty — what reaches the card', () => {
       } } }, 'review');
       await page.getByRole('button', { name: 'Start review session' }).click();
 
-      await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+      await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
       await expect(page.locator('.choice')).toHaveCount(expected);
     });
   }

@@ -1,12 +1,4 @@
-import {
-  BOOKS,
-  BOOKS_BY_ID,
-  booksNear,
-  distantBooks,
-  isPropheticBook,
-  neighborBooks,
-  sameTestamentBooks,
-} from '../data/books';
+import { BOOKS, BOOKS_BY_ID, booksNear, isPropheticBook, sameTestamentBooks } from '../data/books';
 import { PEOPLE, PLACES } from '../data/people';
 import type { Person, Place } from '../data/people';
 import { ERAS, EVENTS } from '../data/timeline';
@@ -16,7 +8,6 @@ import type { Book, Item } from '../data/types';
 import { distractorSets, scopedSets } from './distractors';
 import { buildDetailItems } from './generate-detail';
 import { buildEssentialItems } from './generate-essentials';
-import { pickDistractors } from './rng';
 
 const bookNames = BOOKS.map((b) => b.name);
 
@@ -58,8 +49,7 @@ function siblingNames(bookId: string): string[] {
  *
  * This is the same fence `nearbyPool` uses for the medium pools, for the same
  * reason (#10, #12) — a wrong option only tests anything if it is a plausible
- * neighbour. Book-order questions are the documented exception; see
- * `bookOrderSets`.
+ * neighbour.
  */
 function bookRings(bookId: string): (() => Book[])[] {
   return [
@@ -129,54 +119,6 @@ function placePools(pl: Place, extract: (x: Place) => string[]): (() => string[]
 }
 
 /**
- * Book-order questions are the one family where the Testament seam is the wrong
- * fence, and canonical distance is the right one.
- *
- * "Which book immediately follows Malachi?" has a New Testament answer to an
- * Old Testament question, so scoping the options by Testament would mark the
- * correct one out without the reader knowing a thing about the canon. What
- * makes these hard is proximity in the running order: Ezra against Nehemiah,
- * Esther and Chronicles is a question; Ezra against Matthew is a free point.
- * Hence `neighborBooks`/`distantBooks`, which cross the seam on purpose (#40).
- *
- * Two further notes on the medium set:
- *
- *  - The subject book was showing up as a wrong option on its own question —
- *    "Which book immediately precedes Leviticus?" offered Leviticus, because
- *    `pickDistractors` only excludes the *answer*. It has to come out of every
- *    pool, medium included.
- *  - It cannot come out of the medium *pool*, though. `seededShuffle` is a
- *    function of the array handed to it, so dropping one of 66 names reshuffles
- *    all 130 book-order cards — including the four-option Genesis card the
- *    content contract pins. So medium draws one extra and drops the subject
- *    after the fact: the 124 cards that never had the bug keep their exact
- *    options, and only the six that did are corrected.
- */
-function bookOrderSets(subject: Book, answer: string, seed: string): Pick<Item, 'distractors' | 'distractorsBy'> {
-  const notSubject = (n: string) => n !== subject.name;
-  const names = (books: Book[]) => books.map((b) => b.name).filter(notSubject);
-  const wholeCanon = bookNames.filter(notSubject);
-
-  const distractors = pickDistractors(bookNames, answer, 4, seed).filter(notSubject).slice(0, 3);
-
-  // `scopedSets` recomputes the medium draw from the pool it is given, which is
-  // the un-post-filtered version; only its alternates are wanted here, so the
-  // corrected `distractors` above is the one that ships.
-  const { distractorsBy } = scopedSets(answer, seed, {
-    medium: wholeCanon,
-    easy: [() => names(distantBooks(subject.id, 12)), () => wholeCanon],
-    hard: [
-      () => names(neighborBooks(subject.id, 4)),
-      () => names(neighborBooks(subject.id, 8)),
-      () => names(sameTestamentBooks(subject.id)),
-      () => wholeCanon,
-    ],
-  });
-
-  return { distractors, distractorsBy };
-}
-
-/**
  * The rings a Timeline question tightens through, by `seq`.
  *
  * Eras are a single ordered spine, so "near" means adjacent in that spine and
@@ -204,7 +146,7 @@ function buildBookItems(): Item[] {
     // isPropheticBook() for why the rest of the canon stopped asking (#9).
     if (isPropheticBook(b.id)) {
       items.push({
-        id: `gen-summary-to-book-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 1, book: b.id,
+        id: `gen-summary-to-book-${b.id}`, kind: 'mcq', topic: 'oneline', tier: 1, book: b.id,
         prompt: `Which book is this? "${b.oneLine}"`,
         answer: b.name,
         // Medium already draws from the division (`siblingNames`); hard keeps
@@ -219,7 +161,7 @@ function buildBookItems(): Item[] {
       });
 
       items.push({
-        id: `gen-theme-${b.id}`, kind: 'mcq', topic: 'summaries', tier: 2, book: b.id,
+        id: `gen-theme-${b.id}`, kind: 'mcq', topic: 'oneline', tier: 2, book: b.id,
         prompt: `What is the central theme of ${b.name}?`,
         answer: b.theme,
         // Themes of neighbouring prophets overlap heavily, which is exactly
@@ -233,34 +175,48 @@ function buildBookItems(): Item[] {
       });
     }
 
-    // --- Position in canon
-    const nextAnswer = b.order < 66 ? BOOKS[b.order].name : 'Nothing — it is the last book of the Bible';
-    const nextSets = bookOrderSets(b, nextAnswer, `next-${b.id}`);
+    // --- The one line, both directions, for all 66 books (#35).
+    //
+    // This is the O of ANCHORED, and it deliberately does *not* follow the
+    // prophets-only rule the summary questions live under (#9). That rule was
+    // about "which book is this?" being a recital when the answer is carried by
+    // a narrative everyone already knows. A line is a different drill: a handle
+    // short enough to hold all 66 at once, which is the whole point of the
+    // framework's O.
     items.push({
-      id: `gen-position-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
-      prompt: `Which book immediately follows ${b.name}?`,
-      answer: nextAnswer,
-      // Revelation's medium options are authored, not drawn — the answer there
-      // is a sentence rather than a book, and the three near-misses at the end
-      // of the canon are the whole question. Only the alternates are generated.
-      ...(b.order < 66
-        ? nextSets
-        : { distractors: ['Jude', '3 John', '2 Peter'], distractorsBy: nextSets.distractorsBy }),
+      id: `gen-line-book-${b.id}`, kind: 'mcq', topic: 'oneline', tier: 1, book: b.id,
+      prompt: `Which book is this? "${b.line}"`,
+      answer: b.name,
+      // The same three sets the summary pair above carries (#40): medium is the
+      // division, unchanged; hard tightens to it and widens only when a short
+      // division cannot fill six choices; easy goes canon-wide.
+      ...scopedSets(b.name, `l2b-${b.id}`, {
+        medium: siblingNames(b.id),
+        easy: [() => bookNames],
+        hard: bookPools(b.id, (x) => [x.name]),
+      }),
+      explain: b.oneLine,
     });
 
-    if (b.order > 1) {
-      items.push({
-        id: `gen-prev-${b.id}`, kind: 'mcq', topic: 'book-order', tier: 3, book: b.id,
-        prompt: `Which book immediately precedes ${b.name}?`,
-        answer: BOOKS[b.order - 2].name,
-        ...bookOrderSets(b, BOOKS[b.order - 2].name, `prev-${b.id}`),
-      });
-    }
+    items.push({
+      id: `gen-line-${b.id}`, kind: 'mcq', topic: 'oneline', tier: 1, book: b.id,
+      prompt: `${b.name} in one line?`,
+      answer: b.line,
+      // Lines are terser than themes and collide harder — half the canon can be
+      // summed up as a rescue — which is exactly what makes the near rings a
+      // hard set and the canon-wide draw an easy one.
+      ...scopedSets(b.line, `line-${b.id}`, {
+        medium: BOOKS.map((x) => x.line),
+        easy: [() => BOOKS.map((x) => x.line)],
+        hard: bookPools(b.id, (x) => [x.line]),
+      }),
+      explain: b.oneLine,
+    });
 
     // --- Key chapters: what happens where
     for (const kc of b.keyChapters) {
       items.push({
-        id: `gen-chapter-${b.id}-${kc.ch}`, kind: 'mcq', topic: 'chapters', tier: 2, book: b.id,
+        id: `gen-chapter-${b.id}-${kc.ch}`, kind: 'mcq', topic: 'arc', tier: 2, book: b.id,
         prompt: `What happens in ${b.name} ${kc.ch}?`,
         answer: kc.what,
         // Chapter Content, so `hard` may stay inside this one book (#36).
@@ -270,7 +226,7 @@ function buildBookItems(): Item[] {
         ),
       });
       items.push({
-        id: `gen-locate-${b.id}-${kc.ch}`, kind: 'mcq', topic: 'chapters', tier: 2, book: b.id,
+        id: `gen-locate-${b.id}-${kc.ch}`, kind: 'mcq', topic: 'arc', tier: 2, book: b.id,
         prompt: `Where does this happen? "${kc.what}"`,
         answer: `${b.name} ${kc.ch}`,
         ...distractorSets(
@@ -293,7 +249,7 @@ function buildBookItems(): Item[] {
       // It stays inside the extract for all three difficulty pools, for the
       // same reason.
       items.push({
-        id: `gen-event-${b.id}-${slug(ev)}`, kind: 'mcq', topic: 'events', tier: 2, book: b.id,
+        id: `gen-event-${b.id}-${slug(ev)}`, kind: 'mcq', topic: 'arc', tier: 2, book: b.id,
         prompt: `In which book does this occur: ${ev}?`,
         answer: b.name,
         // The answer is a book, so the tightest `hard` can be is the division.
@@ -308,7 +264,7 @@ function buildBookItems(): Item[] {
     // --- Key verse → book
     if (b.keyVerse) {
       items.push({
-        id: `gen-verse-${b.id}`, kind: 'mcq', topic: 'chapters', tier: 3, book: b.id,
+        id: `gen-verse-${b.id}`, kind: 'mcq', topic: 'arc', tier: 3, book: b.id,
         prompt: `Which book is this from? "${b.keyVerse.text}"`,
         answer: b.name,
         ...distractorSets(b.id, (x) => [x.name], b.name, `kv-${b.id}`, 'book'),
@@ -327,7 +283,7 @@ function buildPeopleItems(): Item[] {
 
   for (const p of PEOPLE) {
     items.push({
-      id: `gen-who-${p.id}`, kind: 'mcq', topic: 'people', tier: 1, book: p.book,
+      id: `gen-who-${p.id}`, kind: 'mcq', topic: 'names', tier: 1, book: p.book,
       prompt: `Who is this? ${p.clue}.`,
       answer: p.name,
       ...scopedSets(p.name, `who-${p.id}`, {
@@ -338,7 +294,7 @@ function buildPeopleItems(): Item[] {
       explain: `${p.name}: ${p.role}.`,
     });
     items.push({
-      id: `gen-role-${p.id}`, kind: 'mcq', topic: 'people', tier: 2, book: p.book,
+      id: `gen-role-${p.id}`, kind: 'mcq', topic: 'names', tier: 2, book: p.book,
       prompt: `Who was ${p.name}?`,
       answer: p.role,
       ...scopedSets(p.role, `role-${p.id}`, {
@@ -349,7 +305,7 @@ function buildPeopleItems(): Item[] {
       explain: p.clue,
     });
     items.push({
-      id: `gen-personbook-${p.id}`, kind: 'mcq', topic: 'people', tier: 3, book: p.book,
+      id: `gen-personbook-${p.id}`, kind: 'mcq', topic: 'names', tier: 3, book: p.book,
       prompt: `In which book do we primarily read about ${p.name}?`,
       answer: BOOKS.find((b) => b.id === p.book)!.name,
       // The answer here is a book, so this scopes like a book question rather
@@ -378,7 +334,7 @@ function buildPeopleItems(): Item[] {
   for (const p of PEOPLE) {
     if (p.father && allFathers.length >= 4) {
       items.push({
-        id: `gen-father-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 2, book: p.book,
+        id: `gen-father-${p.id}`, kind: 'mcq', topic: 'names', tier: 2, book: p.book,
         prompt: `Who was the father of ${p.name}?`,
         answer: p.father,
         ...scopedSets(p.father, `fa-${p.id}`, {
@@ -391,7 +347,7 @@ function buildPeopleItems(): Item[] {
     }
     if (p.mother && allMothers.length >= 4) {
       items.push({
-        id: `gen-mother-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 3, book: p.book,
+        id: `gen-mother-${p.id}`, kind: 'mcq', topic: 'names', tier: 3, book: p.book,
         prompt: `Who was the mother of ${p.name}?`,
         answer: p.mother,
         ...scopedSets(p.mother, `mo-${p.id}`, {
@@ -404,7 +360,7 @@ function buildPeopleItems(): Item[] {
     }
     if (p.spouse && allSpouses.length >= 4) {
       items.push({
-        id: `gen-spouse-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 2, book: p.book,
+        id: `gen-spouse-${p.id}`, kind: 'mcq', topic: 'names', tier: 2, book: p.book,
         prompt: `Who was married to ${p.name}?`,
         answer: p.spouse,
         ...scopedSets(p.spouse, `sp-${p.id}`, {
@@ -421,7 +377,7 @@ function buildPeopleItems(): Item[] {
         .filter((c) => !p.children!.includes(c));
       if (otherChildren.length >= 3) {
         items.push({
-          id: `gen-child-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 3, book: p.book,
+          id: `gen-child-${p.id}`, kind: 'mcq', topic: 'names', tier: 3, book: p.book,
           prompt: `Which of these was a child of ${p.name}?`,
           answer: child,
           // The "not one of p's own children" ban lives inside the extract, not
@@ -441,7 +397,7 @@ function buildPeopleItems(): Item[] {
     }
     if (p.tribe && allTribes.length >= 4) {
       items.push({
-        id: `gen-tribe-${p.id}`, kind: 'mcq', topic: 'relationships', tier: 3, book: p.book,
+        id: `gen-tribe-${p.id}`, kind: 'mcq', topic: 'names', tier: 3, book: p.book,
         prompt: `Which tribe did ${p.name} belong to?`,
         answer: p.tribe,
         ...scopedSets(p.tribe, `tr-${p.id}`, {
@@ -454,7 +410,7 @@ function buildPeopleItems(): Item[] {
     }
     if (p.died && allDeaths.length >= 4) {
       items.push({
-        id: `gen-died-${p.id}`, kind: 'mcq', topic: 'people', tier: 3, book: p.book,
+        id: `gen-died-${p.id}`, kind: 'mcq', topic: 'names', tier: 3, book: p.book,
         prompt: `How did ${p.name} die?`,
         answer: p.died,
         ...scopedSets(p.died, `di-${p.id}`, {
@@ -470,7 +426,7 @@ function buildPeopleItems(): Item[] {
       const others = PEOPLE.flatMap((x) => (x.id === p.id ? [] : x.alsoKnownAs ?? []));
       if (others.length >= 3) {
         items.push({
-          id: `gen-aka-${p.id}`, kind: 'mcq', topic: 'people', tier: 3, book: p.book,
+          id: `gen-aka-${p.id}`, kind: 'mcq', topic: 'names', tier: 3, book: p.book,
           prompt: `By what other name is ${p.name} known?`,
           answer: aka,
           // p's own aliases are excluded inside the extract for the same reason
@@ -488,7 +444,7 @@ function buildPeopleItems(): Item[] {
 
   for (const pl of PLACES) {
     items.push({
-      id: `gen-place-${pl.id}`, kind: 'mcq', topic: 'places', tier: 2,
+      id: `gen-place-${pl.id}`, kind: 'mcq', topic: 'cities', tier: 2,
       prompt: `Which place is this? ${pl.what}.`,
       answer: pl.name,
       ...scopedSets(pl.name, `pl-${pl.id}`, {
@@ -498,7 +454,7 @@ function buildPeopleItems(): Item[] {
       }),
     });
     items.push({
-      id: `gen-placewhat-${pl.id}`, kind: 'mcq', topic: 'places', tier: 3,
+      id: `gen-placewhat-${pl.id}`, kind: 'mcq', topic: 'cities', tier: 3,
       prompt: `What is ${pl.name} known for?`,
       answer: pl.what,
       ...scopedSets(pl.what, `plw-${pl.id}`, {
@@ -518,7 +474,7 @@ function buildTimelineItems(): Item[] {
 
   for (const e of ERAS) {
     items.push({
-      id: `gen-era-${e.id}`, kind: 'mcq', topic: 'timeline', tier: 2,
+      id: `gen-era-${e.id}`, kind: 'mcq', topic: 'arc', tier: 2,
       prompt: `Which era of biblical history is this? ${e.summary}`,
       answer: e.name,
       // Eras are one ordered spine, so "near" is `seq` and nothing else: hard
@@ -531,7 +487,7 @@ function buildTimelineItems(): Item[] {
       explain: `${e.name}: ${e.span}.`,
     });
     items.push({
-      id: `gen-erabooks-${e.id}`, kind: 'mcq', topic: 'timeline', tier: 3,
+      id: `gen-erabooks-${e.id}`, kind: 'mcq', topic: 'arc', tier: 3,
       prompt: `During which era does ${e.markers[0]} occur?`,
       answer: e.name,
       ...scopedSets(e.name, `erab-${e.id}`, {
@@ -547,7 +503,7 @@ function buildTimelineItems(): Item[] {
   for (let i = 0; i + 4 <= ERAS.length; i += 2) {
     const window = ERAS.slice(i, i + 4);
     items.push({
-      id: `gen-eraorder-${i}`, kind: 'order', topic: 'timeline', tier: 1,
+      id: `gen-eraorder-${i}`, kind: 'order', topic: 'arc', tier: 1,
       prompt: 'Put these eras in chronological order.',
       answer: window.map((e) => e.name).join(' → '),
       sequence: window.map((e) => e.name),
@@ -559,7 +515,7 @@ function buildTimelineItems(): Item[] {
   for (let i = 0; i + 4 <= sorted.length; i += 3) {
     const window = sorted.slice(i, i + 4);
     items.push({
-      id: `gen-evorder-${i}`, kind: 'order', topic: 'timeline', tier: 2,
+      id: `gen-evorder-${i}`, kind: 'order', topic: 'arc', tier: 2,
       prompt: 'Put these events in chronological order.',
       answer: window.map((e) => e.label).join(' → '),
       sequence: window.map((e) => e.label),
@@ -585,7 +541,7 @@ function buildListItems(): Item[] {
     const decoys = LIST_DECOYS[list.id] ?? [];
     decoys.forEach((decoy, di) => {
       items.push({
-        id: `gen-list-not-${list.id}-${di}`, kind: 'mcq', topic: 'summaries', tier: 2,
+        id: `gen-list-not-${list.id}-${di}`, kind: 'mcq', topic: list.topic ?? 'essentials', tier: 2,
         prompt: `Which of these is NOT part of ${list.title}?`,
         answer: decoy,
         // All three settings draw from this list and only this list. A NOT
@@ -605,7 +561,7 @@ function buildListItems(): Item[] {
     if (list.ordered) {
       const window = list.items.slice(0, Math.min(5, list.items.length));
       items.push({
-        id: `gen-list-order-${list.id}`, kind: 'order', topic: 'summaries', tier: 2,
+        id: `gen-list-order-${list.id}`, kind: 'order', topic: list.topic ?? 'essentials', tier: 2,
         prompt: `Put the first ${window.length} of ${list.title} in order.`,
         answer: window.join(' → '),
         sequence: window,
@@ -614,7 +570,7 @@ function buildListItems(): Item[] {
       // Positional recall
       list.items.forEach((entry, idx) => {
         items.push({
-          id: `gen-list-pos-${list.id}-${idx}`, kind: 'mcq', topic: 'summaries', tier: 3,
+          id: `gen-list-pos-${list.id}-${idx}`, kind: 'mcq', topic: list.topic ?? 'essentials', tier: 3,
           prompt: `In ${list.title}, what is #${idx + 1}?`,
           answer: entry,
           // Medium is already the tightest honest pool — the other members of

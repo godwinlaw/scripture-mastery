@@ -11,8 +11,9 @@
  * its start date to `new Date()`, so a schedule built today always puts today
  * in week 1 — which meant `currentPhase` answered "Phase 1" forever. Harmless
  * while the plan was decorative; the moment it gates the queue it would have
- * pinned every member to book-order and summaries, 330 of 6,098 items, until
- * the exam date passed. The anchor is a persisted plan start instead.
+ * pinned every member to whatever Phase 1 asks for — the O and E strands, 591
+ * of 6,305 items — until the exam date passed. The anchor is a persisted plan
+ * start instead.
  */
 import { expect, test } from '@playwright/test';
 import { DAY, ITEM, daysFromNow, dueCard, openAs, readStore } from './harness';
@@ -24,8 +25,8 @@ function daysAgo(n: number): string {
 
 test.describe('following the study plan', () => {
   /**
-   * `ITEM.mcq` is `book-order`, which Phase 1 asks for; `ITEM.type` is
-   * `numbers` and `ITEM.order` is `events`, which it does not.
+   * `ITEM.mcq` is `oneline`, which Phase 1 asks for; `ITEM.type` is `rituals`
+   * and `ITEM.order` is `arc`, which it does not.
    */
   const straddling = {
     [ITEM.mcq]: dueCard(ITEM.mcq),
@@ -46,9 +47,9 @@ test.describe('following the study plan', () => {
     await expect(page.getByText(/Following the study plan/)).toBeVisible();
     await page.getByRole('button', { name: 'Start review session' }).click();
 
-    // One card, and it is the book-order one — not the numbers or events cards.
+    // One card, and it is the one-line one — not the rituals or arc cards.
     await expect(page.getByRole('progressbar', { name: '0 of 1 answered' })).toBeVisible();
-    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+    await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
   });
 
   test('you can set the plan aside for one session without changing the setting', async ({ page }) => {

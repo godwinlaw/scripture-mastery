@@ -6,7 +6,7 @@
  * so it grades itself Easy; taking the choices instead scores as normal.
  */
 import { expect, test, type Page } from '@playwright/test';
-import { openAs, readStore, soloQueue } from './harness';
+import { ITEM, openAs, readStore, soloQueue } from './harness';
 
 /**
  * The issue's own example: "Israel marches around the city…" → Joshua 6.
@@ -118,8 +118,8 @@ test.describe('typed reference bonus', () => {
   });
 
   test('a question whose answer is not a reference is unaffected', async ({ page }) => {
-    // gen-position-genesis answers "Exodus" — a book, not a place in it.
-    await reviewOne(page, 'gen-position-genesis');
+    // gen-line-book-exodus answers "Exodus" — a book, not a place in it.
+    await reviewOne(page, ITEM.mcq);
 
     await expect(input(page)).toBeHidden();
     await expect(choices(page)).toHaveCount(4);

@@ -1,3 +1,4 @@
+import { copy } from '../copy';
 import type { Topic } from './types';
 import { BOOKS } from './books';
 
@@ -15,77 +16,45 @@ export interface Phase {
   topics: Topic[];
   /** Book ids to focus on, or 'all'. */
   scope: string[] | 'all';
-  drills: string[];
+  /** Readonly because the strings come from `copy.ts`, which is `as const`. */
+  drills: readonly string[];
 }
 
 export const PHASES: Phase[] = [
   {
     id: 'frame',
-    name: 'Phase 1 — Build the Frame',
-    goal: 'Know all 66 books cold: order and one-sentence summary. Nothing else sticks without this.',
+    ...copy.plan.phases['frame'],
     weight: 3,
-    topics: ['book-order', 'summaries'],
+    topics: ['oneline', 'essentials'],
     scope: 'all',
-    drills: [
-      'Recite the 66 books in order out loud, daily',
-      'Match each book to its one-line summary',
-    ],
   },
   {
     id: 'ot-sweep',
-    name: 'Phase 2 — Old Testament Sweep',
-    goal: 'Walk the OT storyline book by book: key chapters, people, and events.',
+    ...copy.plan.phases['ot-sweep'],
     weight: 3,
-    topics: ['chapters', 'people', 'relationships', 'events', 'places'],
+    topics: ['arc', 'names', 'cities', 'rituals'],
     scope: BOOKS.filter((b) => b.testament === 'OT').map((b) => b.id),
-    drills: [
-      'For each book, say its key chapters and what happens in them',
-      'Tell the OT story start to finish in five minutes, no notes',
-      'Identify every major character from a one-line clue',
-      'Name the father, mother, spouse, or tribe of any figure called out',
-    ],
   },
   {
     id: 'nt-sweep',
-    name: 'Phase 3 — New Testament Sweep',
-    goal: 'Walk the NT: Gospels, Acts, the letters — audience and occasion — and Revelation.',
+    ...copy.plan.phases['nt-sweep'],
     weight: 2.5,
-    topics: ['chapters', 'people', 'relationships', 'events', 'places'],
+    topics: ['arc', 'names', 'cities', 'context'],
     scope: BOOKS.filter((b) => b.testament === 'NT').map((b) => b.id),
-    drills: [
-      'Name all 13 Pauline letters in order and their one-line point',
-      'Trace Paul’s journeys through Acts, city by city',
-      'Distinguish the four Gospels by audience and emphasis',
-      'For each letter: to whom, from where, and why',
-    ],
   },
   {
     id: 'connections',
-    name: 'Phase 4 — Timeline & Connections',
-    goal: 'Lock the chronology and the standing lists, then connect books to eras.',
+    ...copy.plan.phases['connections'],
     weight: 2,
-    topics: ['timeline', 'numbers', 'summaries'],
+    topics: ['context', 'doctrine', 'essentials', 'arc'],
     scope: 'all',
-    drills: [
-      'Put the 14 eras in order from memory',
-      'Recite the ten plagues, the twelve apostles, the fruit of the Spirit',
-      'Walk the must-know indexes out loud: Genesis, John, Acts, the key epistle chapters',
-      'Place every book on the timeline',
-      'Memorize the two fall dates: 722 BC and 586 BC',
-    ],
   },
   {
     id: 'consolidate',
-    name: 'Phase 5 — Mixed Review & Mock Quizzes',
-    goal: 'No new material. Mixed review, weak spots, and full-length practice under time.',
+    ...copy.plan.phases['consolidate'],
     weight: 2,
-    topics: ['book-order', 'summaries', 'chapters', 'people', 'relationships', 'events', 'places', 'timeline', 'numbers'],
+    topics: ['arc', 'names', 'cities', 'context', 'oneline', 'rituals', 'essentials', 'doctrine'],
     scope: 'all',
-    drills: [
-      'Take a 40-question mixed quiz every other day',
-      'Drill only what you have missed twice or more',
-      'Re-recite the 66 books and the timeline daily',
-    ],
   },
 ];
 

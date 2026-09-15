@@ -10,6 +10,18 @@
 import { BOOKS } from '../data/books';
 
 /**
+ * Spellings a reader will reasonably type that are neither the book's name nor
+ * its abbreviation. "Psalm 23" is how an individual psalm is actually cited —
+ * singular — and without this the parser would not recognise it as a reference
+ * at all, so the typed bonus would never fire on one (#14).
+ */
+const ALIASES: Record<string, string[]> = {
+  psalms: ['Psalm'],
+  'song-of-solomon': ['Song of Songs', 'Canticles'],
+  revelation: ['Apocalypse'],
+};
+
+/**
  * Every way a book can be written, longest first so that "1 John" wins over
  * "John" and "Song of Songs" over "Song".
  */
@@ -17,6 +29,7 @@ const BOOK_LABELS: { label: string; id: string }[] = BOOKS
   .flatMap((b) => [
     { label: b.name, id: b.id },
     { label: b.abbr, id: b.id },
+    ...(ALIASES[b.id] ?? []).map((label) => ({ label, id: b.id })),
   ])
   .sort((a, b) => b.label.length - a.label.length);
 
@@ -24,8 +37,20 @@ function escape(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** "Joshua 6", "Josh 6", "1 Cor 15:1-8" — a book label followed by a number. */
-const REFERENCE = new RegExp(`^(?:${BOOK_LABELS.map((b) => escape(b.label)).join('|')})\\s+\\d`, 'i');
+/**
+ * "Joshua 6", "Josh 6", "1 Cor 15:1-8" — a book label followed by a locus, and
+ * *nothing else*.
+ *
+ * The whole-string anchor matters. A prefix rule called "Genesis 3:15 is the
+ * protoevangelium" a reference, so five answers that are really sentences were
+ * being put up for a typed round nobody could win — you cannot type a sentence
+ * into a box asking for an address. Adding "Psalm" to `ALIASES` made that
+ * visible by pulling "Psalm 119 is the longest" into the same trap.
+ */
+const REFERENCE = new RegExp(
+  `^(?:${BOOK_LABELS.map((b) => escape(b.label)).join('|')})\\s+\\d[\\d\\s:,\\u2013\\u2014-]*$`,
+  'i',
+);
 
 /** Whether an answer names a place in scripture, and so earns a typed round. */
 export function isReference(answer: string): boolean {

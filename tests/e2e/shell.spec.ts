@@ -16,7 +16,7 @@ test.describe('shell and auth', () => {
     await page.getByRole('button', { name: 'Sign in with Google' }).click();
 
     await expect(page.getByRole('button', { name: 'Dashboard' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Weakest areas' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Mastery across ANCHORED' })).toBeVisible();
   });
 
   test('a dismissed popup surfaces the error and keeps the prompt up', async ({ page }) => {

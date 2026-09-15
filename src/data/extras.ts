@@ -1,4 +1,4 @@
-import type { Item } from './types';
+import type { Item, Topic } from './types';
 
 /** Ordered lists worth knowing cold — these drive sequencing drills. */
 export interface OrderedList {
@@ -8,6 +8,14 @@ export interface OrderedList {
   items: string[];
   /** True if the order itself is testable; false = membership only. */
   ordered: boolean;
+  /**
+   * Which strand these cards belong to. Defaults to `essentials` — every
+   * standing list is a must-know list, and five of them are named outright in
+   * the Basic Bible Literacy sheet the E strand is drawn from (#35). Before
+   * that they were all hardcoded as `summaries`, which was never true of any
+   * of them: the ten plagues are not a book summary.
+   */
+  topic?: Topic;
 }
 
 export const LISTS: OrderedList[] = [
@@ -73,58 +81,55 @@ export const LISTS: OrderedList[] = [
  * counts, groupings, cross-book connections, and classic quiz staples.
  */
 export const AUTHORED: Item[] = [
-  // ---- Numbers and counts
-  { id: 'a-count-total', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many books are in the Bible?', answer: '66', accepts: ['sixty-six', 'sixty six'], explain: '39 Old Testament + 27 New Testament = 66. (39 × 27 is a handy check: 3 × 9 = 27.)' },
-  { id: 'a-count-ot', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many books are in the Old Testament?', answer: '39', accepts: ['thirty-nine', 'thirty nine'] },
-  { id: 'a-count-nt', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many books are in the New Testament?', answer: '27', accepts: ['twenty-seven', 'twenty seven'] },
-  // 'a-count-chapters' ("How many chapters are in the whole Bible?" → 1,189)
-  // was removed alongside the per-book chapter counts in #8: same species of
-  // question, same topic. The questions below survive because chapters are
-  // only incidental to them — the answer is a book or a chapter's *name*
-  // ("Psalm 119"), which is survey knowledge, not a tally.
-  { id: 'a-longest-chapter', kind: 'type', topic: 'numbers', tier: 2, prompt: 'What is the longest chapter in the Bible?', answer: 'Psalm 119', accepts: ['psalms 119', '119', 'ps 119'], explain: '176 verses, an acrostic where each stanza begins with a successive Hebrew letter.' },
-  { id: 'a-shortest-chapter', kind: 'type', topic: 'numbers', tier: 3, prompt: 'What is the shortest chapter in the Bible?', answer: 'Psalm 117', accepts: ['psalms 117', '117', 'ps 117'], explain: 'Just two verses.' },
-  { id: 'a-longest-book', kind: 'mcq', topic: 'numbers', tier: 2, prompt: 'Which book has the most chapters?', answer: 'Psalms', distractors: ['Isaiah', 'Genesis', 'Jeremiah'], explain: 'Psalms has 150; Isaiah is next at 66.' },
-  { id: 'a-shortest-book', kind: 'mcq', topic: 'numbers', tier: 3, prompt: 'Which is the shortest book in the Bible by verse count?', answer: '3 John', distractors: ['2 John', 'Jude', 'Obadiah'], explain: '3 John has 14 verses; 2 John has 13 verses but slightly more words in Greek. Obadiah (21 verses) is the shortest OT book.' },
-  { id: 'a-shortest-ot', kind: 'type', topic: 'numbers', tier: 2, prompt: 'What is the shortest book in the Old Testament?', answer: 'Obadiah', accepts: ['obadiah'], explain: 'One chapter, 21 verses.' },
-  { id: 'a-paul-letters', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many New Testament letters are attributed to Paul?', answer: '13', accepts: ['thirteen'], explain: 'Romans through Philemon. Hebrews is anonymous and counted separately.' },
-  { id: 'a-gospels-count', kind: 'type', topic: 'numbers', tier: 1, prompt: 'How many Gospels are there, and what are they?', answer: 'Four: Matthew, Mark, Luke, John', accepts: ['4', 'four', 'matthew mark luke john'] },
-
   // ---- Structure
-  { id: 'a-silence', kind: 'mcq', topic: 'timeline', tier: 2, prompt: 'About how many years passed between Malachi and the New Testament?', answer: 'About 400 years', distractors: ['About 100 years', 'About 700 years', 'About 40 years'], explain: 'Called the intertestamental period or the "400 silent years."' },
+  { id: 'a-silence', kind: 'mcq', topic: 'arc', tier: 2, prompt: 'About how many years passed between Malachi and the New Testament?', answer: 'About 400 years', distractors: ['About 100 years', 'About 700 years', 'About 40 years'], explain: 'Called the intertestamental period or the "400 silent years."' },
 
   // ---- Cross-book connections
-  { id: 'a-no-god-named', kind: 'type', topic: 'summaries', tier: 2, prompt: 'Which book of the Bible never mentions God by name?', answer: 'Esther', accepts: ['esther'], explain: 'God is never named, yet His providence drives the entire plot.' },
-  { id: 'a-joel-pentecost', kind: 'mcq', topic: 'events', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28 — "I will pour out my Spirit on all flesh."' },
-  { id: 'a-micah-bethlehem', kind: 'mcq', topic: 'events', tier: 3, prompt: 'Which prophet foretold that the Messiah would be born in Bethlehem?', answer: 'Micah', distractors: ['Isaiah', 'Malachi', 'Hosea'], explain: 'Micah 5:2, quoted to Herod by the chief priests in Matthew 2.' },
+  { id: 'a-no-god-named', kind: 'type', topic: 'oneline', tier: 2, prompt: 'Which book of the Bible never mentions God by name?', answer: 'Esther', accepts: ['esther'], explain: 'God is never named, yet His providence drives the entire plot.' },
+  { id: 'a-joel-pentecost', kind: 'mcq', topic: 'arc', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28 — "I will pour out my Spirit on all flesh."' },
+  { id: 'a-micah-bethlehem', kind: 'mcq', topic: 'arc', tier: 3, prompt: 'Which prophet foretold that the Messiah would be born in Bethlehem?', answer: 'Micah', distractors: ['Isaiah', 'Malachi', 'Hosea'], explain: 'Micah 5:2, quoted to Herod by the chief priests in Matthew 2.' },
 
   // ---- Events and people
-  { id: 'a-first-king', kind: 'type', topic: 'people', tier: 1, prompt: 'Who was the first king of Israel?', answer: 'Saul', accepts: ['saul', 'king saul'] },
-  { id: 'a-three-kings', kind: 'order', topic: 'timeline', tier: 1, prompt: 'Put the three kings of the united kingdom in order.', answer: 'Saul, David, Solomon', sequence: ['Saul', 'David', 'Solomon'] },
-  { id: 'a-split-order', kind: 'order', topic: 'timeline', tier: 1, prompt: 'Put these four events in chronological order.', answer: 'Exodus → Conquest → United Kingdom → Exile', sequence: ['The Exodus from Egypt', 'Conquest of Canaan under Joshua', 'The united kingdom under David', 'Exile in Babylon'] },
-  { id: 'a-two-falls', kind: 'mcq', topic: 'timeline', tier: 1, prompt: 'Which empire conquered the northern kingdom of Israel in 722 BC?', answer: 'Assyria', distractors: ['Babylon', 'Persia', 'Egypt'], explain: 'Assyria took the north in 722 BC; Babylon took Judah in 586 BC.' },
-  { id: 'a-judah-fall', kind: 'mcq', topic: 'timeline', tier: 1, prompt: 'Which empire destroyed Jerusalem and the temple in 586 BC?', answer: 'Babylon', distractors: ['Assyria', 'Persia', 'Rome'], explain: 'Under Nebuchadnezzar. Rome destroyed the second temple much later, in AD 70.' },
-  { id: 'a-north-south', kind: 'mcq', topic: 'places', tier: 1, prompt: 'After the kingdom split, what were the two kingdoms and their capitals?', answer: 'Israel (north, capital Samaria) and Judah (south, capital Jerusalem)', distractors: ['Israel (north, capital Jerusalem) and Judah (south, capital Samaria)', 'Judah (north, capital Bethel) and Israel (south, capital Jerusalem)', 'Israel (north, capital Dan) and Judah (south, capital Hebron)'], explain: 'Ten tribes went north with Jeroboam; Judah and Benjamin stayed south with Rehoboam.' },
-  { id: 'a-christians-first', kind: 'type', topic: 'places', tier: 2, prompt: 'In what city were believers first called "Christians"?', answer: 'Antioch', accepts: ['antioch'], explain: 'Acts 11:26.' },
-  { id: 'a-pentecost-count', kind: 'mcq', topic: 'events', tier: 2, prompt: 'About how many people were added to the church on the day of Pentecost?', answer: 'About 3,000', distractors: ['About 120', 'About 500', 'About 5,000'], explain: '120 were gathered before Pentecost; 3,000 were added that day; the number reached about 5,000 in Acts 4.' },
-  { id: 'a-jesus-days', kind: 'mcq', topic: 'events', tier: 2, prompt: 'How long was Jesus tempted in the wilderness?', answer: '40 days and 40 nights', distractors: ['3 days', '7 days', '30 days'] },
-  { id: 'a-flood-days', kind: 'mcq', topic: 'events', tier: 3, prompt: 'How long did the rain fall during the Flood?', answer: '40 days and 40 nights', distractors: ['7 days', '150 days', '1 year'], explain: 'The rain fell 40 days; the waters prevailed on the earth 150 days.' },
-  { id: 'a-wandering-years', kind: 'type', topic: 'events', tier: 1, prompt: 'How many years did Israel wander in the wilderness?', answer: '40', accepts: ['forty', '40 years'], explain: 'One year for each day the spies explored the land (Numbers 14:34).' },
-  { id: 'a-exile-years', kind: 'type', topic: 'events', tier: 2, prompt: 'How many years did Jeremiah say the Babylonian exile would last?', answer: '70', accepts: ['seventy', '70 years'] },
-  { id: 'a-wall-days', kind: 'type', topic: 'events', tier: 2, prompt: 'In how many days did Nehemiah rebuild the wall of Jerusalem?', answer: '52', accepts: ['fifty-two', 'fifty two', '52 days'] },
-  { id: 'a-goliath-killer', kind: 'type', topic: 'people', tier: 1, prompt: 'Who killed Goliath, and with what?', answer: 'David, with a sling and a stone', accepts: ['david', 'david sling stone'] },
-  { id: 'a-oldest-man', kind: 'type', topic: 'people', tier: 3, prompt: 'Who is the oldest person recorded in the Bible?', answer: 'Methuselah', accepts: ['methuselah'], explain: 'He lived 969 years (Genesis 5:27).' },
-  { id: 'a-wisest', kind: 'type', topic: 'people', tier: 1, prompt: 'Which king asked God for wisdom and became the wisest man?', answer: 'Solomon', accepts: ['solomon', 'king solomon'] },
-  { id: 'a-fish-days', kind: 'type', topic: 'events', tier: 1, prompt: 'How long was Jonah inside the great fish?', answer: 'Three days and three nights', accepts: ['3 days', 'three days', '3 days and 3 nights'] },
-  { id: 'a-first-martyr', kind: 'type', topic: 'people', tier: 1, prompt: 'Who was the first Christian martyr?', answer: 'Stephen', accepts: ['stephen'], explain: 'Stoned in Acts 7 while Saul (later Paul) looked on approvingly.' },
-  { id: 'a-first-gentile', kind: 'type', topic: 'people', tier: 2, prompt: 'Who was the first Gentile convert in Acts?', answer: 'Cornelius', accepts: ['cornelius'], explain: 'A Roman centurion; Peter was sent to him after the vision of the sheet (Acts 10).' },
+  { id: 'a-first-king', kind: 'type', topic: 'names', tier: 1, prompt: 'Who was the first king of Israel?', answer: 'Saul', accepts: ['saul', 'king saul'] },
+  { id: 'a-three-kings', kind: 'order', topic: 'arc', tier: 1, prompt: 'Put the three kings of the united kingdom in order.', answer: 'Saul, David, Solomon', sequence: ['Saul', 'David', 'Solomon'] },
+  { id: 'a-split-order', kind: 'order', topic: 'arc', tier: 1, prompt: 'Put these four events in chronological order.', answer: 'Exodus → Conquest → United Kingdom → Exile', sequence: ['The Exodus from Egypt', 'Conquest of Canaan under Joshua', 'The united kingdom under David', 'Exile in Babylon'] },
+  { id: 'a-two-falls', kind: 'mcq', topic: 'arc', tier: 1, prompt: 'Which empire conquered the northern kingdom of Israel in 722 BC?', answer: 'Assyria', distractors: ['Babylon', 'Persia', 'Egypt'], explain: 'Assyria took the north in 722 BC; Babylon took Judah in 586 BC.' },
+  { id: 'a-judah-fall', kind: 'mcq', topic: 'arc', tier: 1, prompt: 'Which empire destroyed Jerusalem and the temple in 586 BC?', answer: 'Babylon', distractors: ['Assyria', 'Persia', 'Rome'], explain: 'Under Nebuchadnezzar. Rome destroyed the second temple much later, in AD 70.' },
+  { id: 'a-north-south', kind: 'mcq', topic: 'cities', tier: 1, prompt: 'After the kingdom split, what were the two kingdoms and their capitals?', answer: 'Israel (north, capital Samaria) and Judah (south, capital Jerusalem)', distractors: ['Israel (north, capital Jerusalem) and Judah (south, capital Samaria)', 'Judah (north, capital Bethel) and Israel (south, capital Jerusalem)', 'Israel (north, capital Dan) and Judah (south, capital Hebron)'], explain: 'Ten tribes went north with Jeroboam; Judah and Benjamin stayed south with Rehoboam.' },
+  { id: 'a-christians-first', kind: 'type', topic: 'cities', tier: 2, prompt: 'In what city were believers first called "Christians"?', answer: 'Antioch', accepts: ['antioch'], explain: 'Acts 11:26.' },
+  { id: 'a-pentecost-count', kind: 'mcq', topic: 'arc', tier: 2, prompt: 'About how many people were added to the church on the day of Pentecost?', answer: 'About 3,000', distractors: ['About 120', 'About 500', 'About 5,000'], explain: '120 were gathered before Pentecost; 3,000 were added that day; the number reached about 5,000 in Acts 4.' },
+  { id: 'a-jesus-days', kind: 'mcq', topic: 'arc', tier: 2, prompt: 'How long was Jesus tempted in the wilderness?', answer: '40 days and 40 nights', distractors: ['3 days', '7 days', '30 days'] },
+  { id: 'a-flood-days', kind: 'mcq', topic: 'arc', tier: 3, prompt: 'How long did the rain fall during the Flood?', answer: '40 days and 40 nights', distractors: ['7 days', '150 days', '1 year'], explain: 'The rain fell 40 days; the waters prevailed on the earth 150 days.' },
+  { id: 'a-wandering-years', kind: 'type', topic: 'arc', tier: 1, prompt: 'How many years did Israel wander in the wilderness?', answer: '40', accepts: ['forty', '40 years'], explain: 'One year for each day the spies explored the land (Numbers 14:34).' },
+  { id: 'a-exile-years', kind: 'type', topic: 'arc', tier: 2, prompt: 'How many years did Jeremiah say the Babylonian exile would last?', answer: '70', accepts: ['seventy', '70 years'] },
+  { id: 'a-wall-days', kind: 'type', topic: 'arc', tier: 2, prompt: 'In how many days did Nehemiah rebuild the wall of Jerusalem?', answer: '52', accepts: ['fifty-two', 'fifty two', '52 days'] },
+  { id: 'a-goliath-killer', kind: 'type', topic: 'names', tier: 1, prompt: 'Who killed Goliath, and with what?', answer: 'David, with a sling and a stone', accepts: ['david', 'david sling stone'] },
+  { id: 'a-oldest-man', kind: 'type', topic: 'names', tier: 3, prompt: 'Who is the oldest person recorded in the Bible?', answer: 'Methuselah', accepts: ['methuselah'], explain: 'He lived 969 years (Genesis 5:27).' },
+  { id: 'a-wisest', kind: 'type', topic: 'names', tier: 1, prompt: 'Which king asked God for wisdom and became the wisest man?', answer: 'Solomon', accepts: ['solomon', 'king solomon'] },
+  { id: 'a-fish-days', kind: 'type', topic: 'arc', tier: 1, prompt: 'How long was Jonah inside the great fish?', answer: 'Three days and three nights', accepts: ['3 days', 'three days', '3 days and 3 nights'] },
+  { id: 'a-first-martyr', kind: 'type', topic: 'names', tier: 1, prompt: 'Who was the first Christian martyr?', answer: 'Stephen', accepts: ['stephen'], explain: 'Stoned in Acts 7 while Saul (later Paul) looked on approvingly.' },
+  { id: 'a-first-gentile', kind: 'type', topic: 'names', tier: 2, prompt: 'Who was the first Gentile convert in Acts?', answer: 'Cornelius', accepts: ['cornelius'], explain: 'A Roman centurion; Peter was sent to him after the vision of the sheet (Acts 10).' },
 
-  // ---- Order questions
-  { id: 'a-order-pentateuch', kind: 'order', topic: 'book-order', tier: 1, prompt: 'Put the books of the Pentateuch in order.', answer: 'Genesis, Exodus, Leviticus, Numbers, Deuteronomy', sequence: ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy'] },
-  { id: 'a-order-gospels', kind: 'order', topic: 'book-order', tier: 1, prompt: 'Put the four Gospels in canonical order.', answer: 'Matthew, Mark, Luke, John', sequence: ['Matthew', 'Mark', 'Luke', 'John'] },
-  { id: 'a-order-major', kind: 'order', topic: 'book-order', tier: 1, prompt: 'Put the Major Prophets in canonical order.', answer: 'Isaiah, Jeremiah, Lamentations, Ezekiel, Daniel', sequence: ['Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel'] },
-  { id: 'a-order-lastfive-ot', kind: 'order', topic: 'book-order', tier: 2, prompt: 'Put the last five books of the Old Testament in order.', answer: 'Zephaniah, Haggai, Zechariah, Malachi', sequence: ['Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'] },
-  { id: 'a-order-nt-end', kind: 'order', topic: 'book-order', tier: 2, prompt: 'Put the last five books of the New Testament in order.', answer: '1 John, 2 John, 3 John, Jude, Revelation', sequence: ['1 John', '2 John', '3 John', 'Jude', 'Revelation'] },
+  // ---- Historical context (#35). The must-know lists carry the pairs; these
+  // are the questions a survey exam asks that a cue/content pair cannot put.
+  { id: 'a-empire-at-birth', kind: 'mcq', topic: 'context', tier: 1, prompt: 'Which empire ruled Judea when Jesus was born?', answer: 'Rome', distractors: ['Greece', 'Persia', 'Babylon'], explain: 'Rome had held Judea since Pompey took Jerusalem in 63 BC, and governed it through the client king Herod the Great.' },
+  { id: 'a-prefect-not-king', kind: 'mcq', topic: 'context', tier: 3, prompt: 'Why was Judea governed by a Roman prefect like Pilate rather than by a king?', answer: 'Rome deposed Herod’s son Archelaus in AD 6 and took Judea over directly', distractors: ['Herod the Great died leaving no sons to succeed him', 'The Sanhedrin petitioned Rome to abolish the monarchy', 'Judea had never had a king of its own under Roman rule'], explain: 'Herod’s kingdom was split between three sons. Archelaus ruled Judea so badly that Rome removed him after ten years and sent prefects instead — Pilate was the fifth.' },
+  { id: 'a-herod-three-sons', kind: 'mcq', topic: 'context', tier: 3, prompt: 'Herod the Great’s kingdom was divided among which three of his sons?', answer: 'Archelaus, Antipas and Philip', distractors: ['Antipas, Philip and Agrippa', 'Archelaus, Aristobulus and Antipater', 'Agrippa I, Agrippa II and Antipas'], explain: 'Archelaus took Judea, Antipas Galilee and Perea, Philip the northeast. Herod had executed his abler sons, which is why these three were left.' },
+  { id: 'a-nineveh-capital', kind: 'mcq', topic: 'context', tier: 2, prompt: 'Nineveh was the capital of which empire?', answer: 'Assyria', distractors: ['Babylon', 'Persia', 'Egypt'], explain: 'The city Jonah was sent to. It fell to Babylon and the Medes in 612 BC — the fall Nahum foretells.' },
+  { id: 'a-septuagint', kind: 'mcq', topic: 'context', tier: 2, prompt: 'What is the Septuagint?', answer: 'The Greek translation of the Old Testament', distractors: ['The Aramaic paraphrase read aloud in synagogues', 'The Hebrew text preserved by the Masoretes', 'The Latin Bible translated by Jerome'], explain: 'Made at Alexandria from about 250 BC and abbreviated LXX. It is usually the version the New Testament writers quote.' },
+  { id: 'a-sadducees-deny', kind: 'mcq', topic: 'context', tier: 2, prompt: 'What did the Sadducees deny that the Pharisees affirmed?', answer: 'The resurrection, angels and spirits', distractors: ['The authority of the Law of Moses', 'The oneness of God', 'The rebuilding of the temple'], explain: 'Acts 23:8. Paul splits the council in two by naming the resurrection as the charge against him.' },
+  { id: 'a-dead-sea-scrolls', kind: 'mcq', topic: 'context', tier: 3, prompt: 'The Dead Sea Scrolls are usually connected with which group?', answer: 'The Essenes at Qumran', distractors: ['The Pharisees at Jerusalem', 'The Zealots at Masada', 'The Samaritans at Mount Gerizim'], explain: 'Found from 1947 in caves near the Dead Sea; they include a copy of Isaiah a thousand years older than any then known.' },
+
+  // ---- Rituals and festivals (#35)
+  { id: 'a-atonement-goats', kind: 'mcq', topic: 'rituals', tier: 1, prompt: 'On the Day of Atonement, what happened to the two goats?', answer: 'One was sacrificed; the other was sent alive into the wilderness', distractors: ['Both were sacrificed, one for the priests and one for the people', 'One was sacrificed; the other was given to the Levites', 'Both were released, one at the tabernacle and one outside the camp'], explain: 'Leviticus 16. Lots were cast over them: one lot for the LORD, one for Azazel.' },
+  { id: 'a-azazel', kind: 'type', topic: 'rituals', tier: 2, prompt: 'What is the goat driven out on the Day of Atonement called?', answer: 'Azazel — the scapegoat', accepts: ['azazel', 'scapegoat', 'the scapegoat', 'azazel scapegoat'], explain: 'It carried the people’s sins away into a land cut off (Leviticus 16:21–22).' },
+  { id: 'a-feast-count', kind: 'type', topic: 'rituals', tier: 2, prompt: 'How many appointed feasts does Leviticus 23 set out?', answer: '7', accepts: ['seven'], explain: 'Passover, Unleavened Bread, Firstfruits, Weeks, Trumpets, the Day of Atonement and Booths. The weekly Sabbath heads the chapter but is not counted among them.' },
+  { id: 'a-pentecost-name', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'Why is the Feast of Weeks also called Pentecost?', answer: 'It falls fifty days after Firstfruits, and pentekostos is Greek for fiftieth', distractors: ['Fifty lambs were offered on the altar', 'The feast itself lasted fifty days', 'Fifty elders led the procession into the temple'], explain: 'Which is why the Spirit comes fifty days after the resurrection, at the wheat harvest (Acts 2).' },
+  { id: 'a-dedication-feast', kind: 'mcq', topic: 'rituals', tier: 3, prompt: 'Which feast is not commanded in the Law of Moses, yet Jesus is at the temple for it?', answer: 'The Feast of Dedication', distractors: ['The Feast of Booths', 'The Day of Atonement', 'The Feast of Weeks'], explain: 'John 10:22 — Hanukkah, kept for the rededication of the temple after Antiochus IV defiled it in 167 BC.' },
+  { id: 'a-jubilee-how-often', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'How often does the Year of Jubilee fall?', answer: 'Every fiftieth year', distractors: ['Every seventh year', 'Every fortieth year', 'Every hundredth year'], explain: 'Leviticus 25 — after seven sabbath years. Land goes back to the family that held it and slaves go free.' },
+  { id: 'a-nazirite-vow', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'What three things did the Nazirite vow forbid?', answer: 'Wine, cutting the hair, and touching a dead body', distractors: ['Wine, meat, and marriage', 'Leaven, wine, and travel', 'Cutting the hair, wearing linen, and entering the temple'], explain: 'Numbers 6. Samson, Samuel and John the Baptist were held to it for life rather than for a season.' },
+  { id: 'a-passover-lamb', kind: 'mcq', topic: 'rituals', tier: 1, prompt: 'What did the blood of the Passover lamb mark?', answer: 'The doorposts and lintel of every Israelite house', distractors: ['The horns of the altar', 'The threshold of the tabernacle', 'The forehead of the firstborn son'], explain: 'Exodus 12. The destroyer passed over the houses that carried the mark.' },
+
 ];
 
 /**

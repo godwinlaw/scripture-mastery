@@ -50,7 +50,7 @@ test.describe('progress and settings', () => {
 
     await expect(page.getByRole('heading', { name: /Stuck items/ })).toBeVisible();
     const stuckRow = page.locator('h2:has-text("Stuck items") ~ * table.data tbody tr');
-    await expect(stuckRow).toContainText('Which book immediately follows Genesis?');
+    await expect(stuckRow).toContainText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`);
     await expect(stuckRow).toContainText('Exodus');
   });
 

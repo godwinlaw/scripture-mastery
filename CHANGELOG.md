@@ -5,6 +5,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Changed
+
+- **The bank is reorganised around ANCHORED — eight strands, replacing eleven
+  topics** ([#35]). Every question now belongs to one of **A**rc, **N**ames,
+  **C**ities, **H**istorical context, **O**ne line per book, **R**ituals,
+  **E**ssentials, **D**octrine. The letter is part of the topic label rather
+  than a second lookup, so the quiz filter, the weakest-areas rows, the
+  study-plan pills and the pill on every card all teach the acronym without a
+  line of UI change; the `Topic` union is declared in acronym order so the
+  filter reads A-N-C-H-O-R-E-D.
+
+  **Provenance is stated in the app, not just here.** The Study Plan opens with
+  a guide to the eight letters, and each card is marked *the framework* or *this
+  app*. Six letters are the podcast's — the transcript closes the list after R
+  and changes subject, so ANCHOR is the source's complete acronym. Essentials
+  and Doctrine are ours, added to finish the word the episode is *named* after
+  and to cover two things the six leave out.
+
+  Old topic → new strand: Timeline, Events and Chapter Content → **A**; People
+  and Family & Relationships → **N**; Places → **C**; Book Summaries → **O**.
+  Nothing was re-answered, only re-filed.
+
 ### Added
 
 - **Difficulty became a real setting, and the study plan started driving what
@@ -17,18 +39,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   fell back to its medium set, and plenty of those pools were canon-wide. The
   result: *hard* went on offering New Testament options against Old Testament
   questions. Measured across the bank, **637 of them**. Every question now
-  carries all three sets — 5,915 of 5,926, the remainder being hand-written
+  carries all three sets — 6,118 of 6,140, the remaining 22 being hand-written
   items that draw their options from outside the canon — and hard's
-  cross-Testament count is **zero**.
+  cross-Testament count is **zero**. (Those are the old topic names; the same
+  questions are filed under the ANCHORED strands by the reorganisation above,
+  and the line drill the O strand adds carries all three sets too.)
 
   Each family is scoped as tightly as its own question allows, widening only
   when the tight pool cannot fill the card. People are drawn from the same
   book, then the same era; family facts from the same household; eras from
-  adjacent ones. **Book Order is deliberately exempt from the seam rule**:
-  "which book immediately follows Malachi?" has a New Testament answer, so
-  fencing it by Testament would identify the answer without knowing the canon
-  at all. It is scoped by *canonical distance* instead — neighbours within four
-  positions on hard, and books a dozen positions away on easy.
+  adjacent ones; book-shaped answers from the division, then the Testament,
+  never across the seam.
 
   **Difficulty now changes four things, not one.** How many options you are
   offered — three, four, or six, which is the dial you feel on every single
@@ -66,12 +87,156 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `buildSchedule` anchored its start date to *today* on every call, so today was
   always inside week 1 and the current phase was always Phase 1. Harmless while
   nothing consumed it — it is why the Dashboard always read "Week 1" — but as a
-  filter it would have pinned every member to Book Order and Book Summaries,
-  330 of 6,098 questions, until the exam date passed. The schedule is now
+  filter it would have pinned every member to whatever Phase 1 asks for — the O
+  and E strands, 591 of 6,305 questions — until the exam date passed. The
+  schedule is now
   anchored to a persisted plan start, derived from your earliest recorded
   session so a returning member is not sent back to the beginning, and a member
   who has run out of runway lands in Phase 5's mixed review rather than nowhere.
 
+- **E — Essentials, and the 108 cards that were filed under the wrong thing**
+  ([#35]). Every must-know and standing list now carries the E strand, including
+  five named outright in the Basic Bible Literacy sheet the strand is drawn
+  from. `OrderedList` gained a `topic`, defaulting to `essentials`: before this
+  the standing lists were hardcoded as `summaries`, which was never true of any
+  of them — the ten plagues are not a book summary. One list in the sheet had no
+  home in the app at all and is now added: **Other major figures** — the
+  patriarchs, Moses and Joshua, the return trio, and the women to know.
+
+- **D — Doctrine: 102 primary doctrines and where to find them** ([#35]). The
+  drill is the address, both ways: given a doctrine name the landmark reference,
+  given the reference say what it anchors, plus a card for which of the eleven
+  headings it sits under. **306 cards.** Because every forward answer is a place
+  in scripture, all of them earn the typed bonus round automatically ([#14]) —
+  you name it from memory before the four options appear.
+
+  Two rules keep the multiple choice sound, and both exist because distractors
+  are drawn from the other references on the list. **One landmark reference per
+  doctrine**: where several verses would serve, the most-cited wins and the rest
+  go in the note shown after answering. **No two entries a single verse could
+  equally answer**: God's love is John 3:16 and 1 John 4:8-10 is a note, because
+  two entries both "about God's love" would put one card's right answer among
+  another's wrong options — the exact fault `validate` gates on. Same reason the
+  incarnation takes Philippians 2:5-8 rather than John 1:14, which would collide
+  with Jesus' claim to divinity.
+
+  Scope is deliberately what Christians hold in common: no predestination or
+  election, no millennium, no timing of the rapture, no mode or subject of
+  baptism. A four-option card is the wrong shape for a question the church
+  answers more than one way — the same reasoning that retired "Christ in
+  Scripture" in [#16].
+
+- **O — a line for all 66 books** ([#35]). `Book` gained a `line`: the handle you
+  hang the book on, terser than `oneLine` and asked in both directions. The
+  framework asks for "one word or sentence"; a single word collides (several
+  books are about beginnings) and a sentence is a recital, so a line is what
+  actually sticks. **132 cards.** This deliberately does not follow the
+  prophets-only rule the summary questions live under ([#9]) — that rule was
+  about "which book is this?" being a recital when a familiar narrative carries
+  the answer, and a line is a different drill.
+
+- **The dashboard shows mastery across the eight strands, in acronym order**
+  ([#35]). It used to be "Weakest areas," sorted ascending by mastery. Ranking
+  put the strands in a different order every session, which is the one thing a
+  mnemonic cannot survive — you cannot learn to read A-N-C-H-O-R-E-D down a
+  column that reshuffles itself. It now walks `TOPIC_LABELS`, so the letters
+  stay put and a strand with nothing reviewed still gets a row at 0% instead of
+  vanishing. The "% seen" figure alongside each bar is dropped; the row is the
+  mastery bar and its number.
+
+- **Every user-facing string is now in `src/copy.ts`.** It already held the
+  shell's copy, with a note that views would centralise there "as they migrate";
+  they have. All six views, both components and the tab strip now read from it,
+  and so do two things that were living in `src/data/`: the ANCHORED guide, and
+  the study plan's phase names, goals and drills. `TOPIC_LABELS` is sourced from
+  `copy.strands.labels` and still annotated `Record<Topic, string>`, so dropping
+  a strand from the copy file stops the build rather than shipping a blank pill.
+
+  **The question bank is deliberately not in there.** Those 6,305 questions are
+  generated from structured content in `src/data/` — books, people, essentials,
+  doctrine — and belong with the facts they encode. Editing a book's summary is
+  editing content; editing "Take a quiz" is editing copy.
+
+### Removed
+
+- **Book Order and Numbers & Counts are gone** ([#35]) — 392 cards. Book Order
+  was 131 "which book follows Exodus" questions plus the five canonical-order
+  drills. Numbers & Counts was 10 canon counts and 246 per-book figures.
+  **The underlying data is kept**: every per-book figure still renders in the
+  Reference book panel under Terms & Numbers, as the 246 key terms already did.
+  They no longer generate questions.
+
+  Book Order was also the one family [#40] fenced by canonical distance rather
+  than by the Testament seam, so that scoping — and the two tests that pinned
+  it — went with the questions rather than being kept as assertions about
+  nothing. Every remaining book-shaped answer is scoped by division and
+  Testament, which is what the seam rule always said.
+
+  Both e2e fixtures lived in these topics and were repointed: the
+  multiple-choice fixture is now `gen-line-book-exodus` (the O strand's core
+  drill, still answering with a book name and still keeping "Deuteronomy" among
+  its options, which is what the specs click) and the typed fixture is
+  `a-feast-count`.
+
+### Fixed
+
+- **The typed bonus was offered on five answers nobody could win** ([#14],
+  [#35]). `isReference` matched a book label followed by a number *anywhere at
+  the front*, so "Genesis 3:15 is the protoevangelium" counted as a reference and
+  the card asked the reader to type a sentence into a box wanting an address. It
+  now requires the whole answer to be a reference. Surfaced by teaching the
+  parser that **"Psalm 23" is Psalms** — an alias it lacked, so no individual
+  psalm cited the way people actually cite one was recognised at all. Song of
+  Songs, Canticles and Apocalypse are recognised too.
+
+### Added
+
+- **Two topics the ANCHOR framework asked for: Historical Context, and Rituals
+  & Festivals** ([#35]). The framework is a college-ministry podcast's checklist
+  for surveying scripture — know the narrative **a**rc, the **n**ames, the
+  **c**ities and geography, the **h**istorical context, the **o**ne word that
+  captures each book, and the **r**ituals and festivals. Read against the bank,
+  four letters were already covered: arc by Timeline, names by People and
+  Family & Relationships, cities by Places, one word by Book Summaries. Two were
+  not, and both were absent in the same way — present as scenery, testable
+  nowhere.
+
+  **Historical context** had been carried by two date questions. Assyria and
+  Babylon existed in the bank as the answer to "who took the north in 722" and
+  "who took Jerusalem in 586"; Persia, Greece and Rome as the setting of books
+  rather than as powers in their own right; and the four hundred years between
+  the testaments as a single card saying they were four hundred years long.
+  There are now five must-know lists: the six powers in the order they ruled and
+  what each did to Israel or Judah, Daniel's four kingdoms against the statue
+  and the beasts, the silent years from Alexander to Herod, the rulers the
+  Gospels assume — the emperors, the prefect and the six Herods — and the
+  parties and institutions they argue with without ever introducing.
+
+  **Rituals and festivals** were scattered through the book data as things that
+  happen in a chapter: Leviticus 16 was a key chapter, Passover a key event,
+  Booths a line in the John index. The calendar itself was untested. There are
+  now two more lists: the nine feasts in order through the year, and the system
+  behind them — the five offerings, the rites of cleansing, the vows and signs,
+  and the sabbaths and holy years.
+
+  All six ride the existing must-know machinery rather than a new generator, so
+  each pair is asked in both directions, groups and sequences generate their own
+  cards, and every list shows up in Reference and under the quiz's "Must-know
+  lists" scope without a line of new UI. Fifteen hand-authored questions cover
+  what a cue/content pair cannot put — why Judea got a prefect instead of a king,
+  what happened to the two goats, why Weeks is called Pentecost. **153 new
+  questions.**
+
+  `validate` gained a check that every topic has questions behind it. The union,
+  the labels and the content are three separate edits, and a topic added without
+  the third would ship as a quiz filter that matches nothing.
+
+  **The source's acronym is ANCHOR, six letters.** The transcript runs A through
+  R and then wraps up — "know them, you cross reference, read about the
+  background and you'll be on your way" — before changing subject. "Anchored" is
+  the episode's title and its point about the minister. The two letters that
+  complete the word are the app's own, added in the reorganisation above and
+  marked as ours wherever the framework is explained.
 
 - **A Settings panel, and a difficulty you can choose** ([#36]). Settings had
   been scattered — the study fields inside Progress, the theme switch in the
@@ -346,6 +511,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [#23]: https://github.com/godwinlaw/scripture-mastery/issues/23
 
 [#34]: https://github.com/godwinlaw/scripture-mastery/issues/34
+
+[#35]: https://github.com/godwinlaw/scripture-mastery/issues/35
 
 [#36]: https://github.com/godwinlaw/scripture-mastery/issues/36
 [#40]: https://github.com/godwinlaw/scripture-mastery/pull/40

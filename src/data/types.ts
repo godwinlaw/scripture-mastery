@@ -1,3 +1,4 @@
+import { copy } from '../copy';
 export type Testament = 'OT' | 'NT';
 
 export type Division =
@@ -36,6 +37,13 @@ export interface Book {
   era: string;
   /** One-sentence summary of the whole book. */
   oneLine: string;
+  /**
+   * The O of ANCHORED (#35) — the handle you hang the book on, terser than
+   * `oneLine` and testable in both directions for all 66. The framework asks
+   * for "one word or sentence"; a word alone collides (several books are about
+   * beginnings), and a sentence is a recital, so a line is what actually sticks.
+   */
+  line: string;
   /** The single theme to hang everything else on. */
   theme: string;
   keyPeople: string[];
@@ -98,25 +106,37 @@ export interface Item {
   tier: 1 | 2 | 3;
 }
 
+/**
+ * The eight strands of ANCHORED (#35).
+ *
+ * The first six come from the framework a college-ministry podcast lays out for
+ * surveying scripture — arc, names, cities, historical context, one word per
+ * book, rituals and festivals. **The last two are ours**: the transcript stops
+ * at R and then changes subject, so ANCHOR is the source's complete acronym.
+ * Essentials and Doctrine complete the word the episode is named after, and
+ * both cover real ground the framework leaves out — the must-know lists, and
+ * where primary doctrine is found in the text.
+ *
+ * Declared in acronym order, because the quiz's topic control renders
+ * `TOPIC_LABELS` in insertion order and the list should read A-N-C-H-O-R-E-D.
+ */
 export type Topic =
-  | 'book-order'
-  | 'summaries'
-  | 'chapters'
-  | 'people'
-  | 'relationships'
-  | 'events'
-  | 'places'
-  | 'timeline'
-  | 'numbers';
+  | 'arc'
+  | 'names'
+  | 'cities'
+  | 'context'
+  | 'oneline'
+  | 'rituals'
+  | 'essentials'
+  | 'doctrine';
 
-export const TOPIC_LABELS: Record<Topic, string> = {
-  'book-order': 'Book Order',
-  summaries: 'Book Summaries',
-  chapters: 'Chapter Content',
-  people: 'People',
-  relationships: 'Family & Relationships',
-  events: 'Events',
-  places: 'Places',
-  timeline: 'Timeline',
-  numbers: 'Numbers & Counts',
-};
+/**
+ * The eight labels, sourced from `copy.ts` so every user-facing string in the
+ * app lives in one file. The letter is part of the label rather than a second
+ * map, so every render site — the quiz filter, the dashboard's mastery rows,
+ * the plan pills, the pill on each card — teaches the acronym for free.
+ *
+ * The annotation is what keeps `copy` honest: drop a strand from
+ * `copy.strands.labels` and this stops compiling.
+ */
+export const TOPIC_LABELS: Record<Topic, string> = copy.strands.labels;

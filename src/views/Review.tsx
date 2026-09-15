@@ -170,11 +170,8 @@ export default function Review({ api }: { api: StoreApi }) {
     const widening = phase !== null && inPhase === 0 && counts.bankActionable > 0;
     return (
       <div className="section screen" key="idle">
-        <h2>Daily Review</h2>
-        <p className="muted small">
-          Spaced repetition over everything you have unlocked. Cards you miss come back sooner;
-          cards you know get pushed out — but never past your exam date.
-        </p>
+        <h2>{copy.review.heading}</h2>
+        <p className="muted small">{copy.review.blurb}</p>
         {phase && (
           // Said before the session starts, not discovered inside it: a reader
           // who does not know the queue is scoped will read a short session as
@@ -187,7 +184,7 @@ export default function Review({ api }: { api: StoreApi }) {
         <div className="grid three stack-in" style={sx({ margin: `${space[6]} 0` })}>
           <Card className="stat">
             <span className="n"><CountUp value={counts.due} /></span>
-            <span className="k">Due now</span>
+            <span className="k">{copy.review.stats.due}</span>
           </Card>
           <Card className="stat">
             {/*
@@ -197,16 +194,20 @@ export default function Review({ api }: { api: StoreApi }) {
               * 20 and then deal 30 (#40).
               */}
             <span className="n"><CountUp value={Math.min(counts.fresh, newToday)} /></span>
-            <span className="k">New today</span>
+            <span className="k">{copy.review.stats.fresh}</span>
           </Card>
           <Card className="stat">
             <span className="n"><CountUp value={counts.total - counts.fresh} /></span>
-            <span className="k">Seen so far</span>
+            <span className="k">{copy.review.stats.seen}</span>
           </Card>
         </div>
         <div className="row">
+          {/* `() => start()` rather than `start`: the handler takes an
+              `ignorePlan` flag, and passing it to onClick directly would hand
+              it the click event — always truthy — and quietly ignore the plan
+              on the button whose whole job is to follow it (#40). */}
           <button className="btn primary" onClick={() => start()} disabled={!canStart}>
-            Start review session
+            {copy.review.start}
           </button>
           {phase && (
             <button className="btn" onClick={() => start(true)}>
@@ -216,12 +217,12 @@ export default function Review({ api }: { api: StoreApi }) {
         </div>
         {widening && (
           <p className="small muted" style={sx({ marginTop: space[3] })}>
-            Nothing is left waiting in this phase, so today’s session widens to the rest of the bank.
+            {copy.review.widened}
           </p>
         )}
         {!canStart && (
           <p className="small muted" style={sx({ marginTop: space[3] })}>
-            Nothing is due right now. Take a mixed quiz instead, or raise your daily new-card limit in Progress.
+            {copy.review.nothingDue}
           </p>
         )}
       </div>
@@ -233,27 +234,25 @@ export default function Review({ api }: { api: StoreApi }) {
     const accuracy = total ? Math.round((tally.right / total) * 100) : 0;
     return (
       <div className="section screen" key="complete">
-        <h2>Session complete</h2>
-        <p className="muted small">
-          That's everything queued for today. Come back tomorrow, or start another session now.
-        </p>
+        <h2>{copy.review.completeHeading}</h2>
+        <p className="muted small">{copy.review.completeBlurb}</p>
         <div className="grid three stack-in" style={sx({ margin: `${space[6]} 0` })}>
           <Card className="stat">
             <span className="n"><CountUp value={total} /></span>
-            <span className="k">Answered</span>
+            <span className="k">{copy.review.completeStats.answered}</span>
           </Card>
           <Card className="stat">
             <span className="n"><CountUp value={tally.right} /></span>
-            <span className="k">Correct</span>
+            <span className="k">{copy.review.completeStats.correct}</span>
           </Card>
           <Card className="stat">
             <span className="n"><CountUp value={accuracy} />%</span>
-            <span className="k">Accuracy</span>
+            <span className="k">{copy.review.completeStats.accuracy}</span>
           </Card>
         </div>
         <div className="row">
-          <button className="btn primary" onClick={() => start()}>Another session</button>
-          <button className="btn" onClick={() => setStarted(false)}>Done</button>
+          <button className="btn primary" onClick={() => start()}>{copy.review.again}</button>
+          <button className="btn" onClick={() => setStarted(false)}>{copy.review.done}</button>
         </div>
       </div>
     );
@@ -294,8 +293,8 @@ export default function Review({ api }: { api: StoreApi }) {
         />
       </div>
       <div className="row" style={sx({ marginTop: space[4] })}>
-        <button className="btn sm" onClick={() => setStarted(false)}>End session</button>
-        <span className="tiny muted">{tally.right} right · {tally.wrong} missed</span>
+        <button className="btn sm" onClick={() => setStarted(false)}>{copy.review.endSession}</button>
+        <span className="tiny muted">{copy.review.tally(tally.right, tally.wrong)}</span>
       </div>
     </div>
   );

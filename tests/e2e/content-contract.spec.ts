@@ -16,7 +16,7 @@ test.describe('content contract', () => {
     const item = ITEMS_BY_ID.get(ITEM.mcq);
     expect(item, `${ITEM.mcq} has left the item bank`).toBeDefined();
     expect(item!.kind).toBe('mcq');
-    expect(item!.prompt).toBe('Which book immediately follows Genesis?');
+    expect(item!.prompt).toBe('Which book is this? "Rescue from Egypt, covenant at Sinai"');
     expect(item!.answer).toBe('Exodus');
     // The specs click this one to register a deliberate miss.
     expect(item!.distractors).toContain('Deuteronomy');
@@ -27,8 +27,8 @@ test.describe('content contract', () => {
     const item = ITEMS_BY_ID.get(ITEM.type);
     expect(item, `${ITEM.type} has left the item bank`).toBeDefined();
     expect(item!.kind).toBe('type');
-    expect(item!.answer).toBe('66');
-    expect(item!.accepts).toContain('sixty-six');
+    expect(item!.answer).toBe('7');
+    expect(item!.accepts).toContain('seven');
   });
 
   test('the ordering fixture still holds the sequence the specs sort into', () => {

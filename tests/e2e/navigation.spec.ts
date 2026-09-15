@@ -3,7 +3,7 @@ import { openAs } from './harness';
 
 /** Each tab, and the heading that proves it actually rendered. */
 const TABS = [
-  { label: 'Dashboard', hash: 'home', heading: 'Weakest areas' },
+  { label: 'Dashboard', hash: 'home', heading: 'Mastery across ANCHORED' },
   { label: 'Daily Review', hash: 'review', heading: 'Daily Review' },
   { label: 'Quiz', hash: 'quiz', heading: 'Mixed Quiz' },
   { label: 'Reference', hash: 'library', heading: 'Reference' },
@@ -43,7 +43,7 @@ test.describe('navigation', () => {
   test('an unknown hash falls back to the dashboard rather than a blank screen', async ({ page }) => {
     await openAs(page, {}, 'not-a-tab');
 
-    await expect(page.getByRole('heading', { name: 'Weakest areas' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Mastery across ANCHORED' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Dashboard' })).toHaveAttribute('aria-current', 'page');
   });
 

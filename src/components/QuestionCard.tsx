@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { copy } from '../copy';
 import { TOPIC_LABELS, type Difficulty, type Item } from '../data/types';
 import type { Grade } from '../lib/srs';
 import { shuffle } from '../lib/rng';
@@ -334,9 +335,9 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
             <button
               className="btn sm"
               onClick={onToggleStar}
-              title="Star for focused review"
+              title={copy.question.star}
               aria-pressed={starred}
-              aria-label={starred ? 'Unstar this question' : 'Star for focused review'}
+              aria-label={starred ? copy.question.unstar : copy.question.star}
             >
               <span aria-hidden="true">{starred ? '★' : '☆'}</span>
             </button>
@@ -369,8 +370,8 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
             className="answer"
             value={typed}
             disabled={revealed}
-            placeholder="Type the reference, e.g. Josh 6"
-            aria-label="Type the reference for a bonus"
+            placeholder={copy.question.referencePlaceholder}
+            aria-label={copy.question.referenceAria}
             onChange={(e) => setTyped(e.target.value)}
           />
           {/* Once it is answered the round is over: leave what was typed on
@@ -378,8 +379,8 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
           {!revealed && (
             <>
               <div className="row" style={{ marginTop: 12 }}>
-                <button className="btn primary" onClick={submitReference}>Check reference</button>
-                <button className="btn sm" onClick={showChoices}>Show me the choices</button>
+                <button className="btn primary" onClick={submitReference}>{copy.question.checkReference}</button>
+                <button className="btn sm" onClick={showChoices}>{copy.question.showChoices}</button>
               </div>
               <p className="tiny muted" style={{ marginTop: 10, marginBottom: 0 }}>
                 Name it and the card grades itself Easy. Abbreviations are fine.
@@ -416,13 +417,13 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
             className="answer"
             value={typed}
             disabled={revealed}
-            placeholder="Type your answer, then press Enter"
+            placeholder={copy.question.answerPlaceholder}
             onChange={(e) => setTyped(e.target.value)}
           />
           {!revealed && (
             <div className="row" style={{ marginTop: 12 }}>
-              <button className="btn primary" onClick={submitTyped}>Check</button>
-              <span className="tiny muted">or press <span className="kbd">Enter</span></span>
+              <button className="btn primary" onClick={submitTyped}>{copy.question.check}</button>
+              <span className="tiny muted">{copy.question.orPressEnter} <span className="kbd">Enter</span></span>
             </div>
           )}
         </div>
@@ -462,7 +463,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
                         }}
                         onClick={() => move(i, -1)}
                         disabled={i === 0}
-                        aria-label="Move up"
+                        aria-label={copy.question.moveUp}
                       >
                         ↑
                       </button>
@@ -472,7 +473,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
                         }}
                         onClick={() => move(i, 1)}
                         disabled={i === arranged.length - 1}
-                        aria-label="Move down"
+                        aria-label={copy.question.moveDown}
                       >
                         ↓
                       </button>
@@ -490,7 +491,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
           <p className="sr-only" aria-live="polite">{orderNote}</p>
           {!revealed && (
             <div className="row" style={{ marginTop: 12 }}>
-              <button className="btn primary" onClick={submitOrder}>Check order</button>
+              <button className="btn primary" onClick={submitOrder}>{copy.question.checkOrder}</button>
             </div>
           )}
         </div>
@@ -514,10 +515,11 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
             and nothing after that edits it.
           */}
           <div role="status">
-            <strong>{wasCorrect ? 'Correct' : 'Not quite'}</strong>
+            <strong>{wasCorrect ? copy.question.correct : copy.question.wrong}</strong>
             {!wasCorrect && (
               <div style={{ marginTop: 4 }}>
-                Answer: <strong>{item.kind === 'order' ? (item.sequence ?? []).join(' → ') : item.answer}</strong>
+                {copy.question.answerPrefix}{' '}
+                <strong>{item.kind === 'order' ? (item.sequence ?? []).join(' → ') : item.answer}</strong>
               </div>
             )}
             {item.explain && <div className="why">{item.explain}</div>}
@@ -550,7 +552,7 @@ export default function QuestionCard({ item, onGrade, starred, onToggleStar, cou
               </>
             ) : (
               <>
-                <button className="btn primary sm" onClick={() => onGrade(0)}>Continue <span className="kbd">↵</span></button>
+                <button className="btn primary sm" onClick={() => onGrade(0)}>{copy.question.continue} <span className="kbd">↵</span></button>
                 {item.kind === 'type' && (
                   <button className="btn sm" onClick={() => onGrade(2)} title="Override if your wording was right">
                     I had it right

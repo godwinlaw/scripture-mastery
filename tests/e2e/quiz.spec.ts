@@ -36,7 +36,7 @@ test.describe('mixed quiz', () => {
 
     await page.selectOption('#book', 'genesis');
     const bookOnly = Number((await poolCount(page).innerText()).replace(/,/g, '').match(/\d+/)![0]);
-    await page.selectOption('#topic', 'events');
+    await page.selectOption('#topic', 'arc');
     const both = Number((await poolCount(page).innerText()).replace(/,/g, '').match(/\d+/)![0]);
 
     expect(both).toBeLessThanOrEqual(bookOnly);
@@ -69,7 +69,7 @@ test.describe('mixed quiz', () => {
 
     const missedRow = page.locator('table.data tbody tr');
     await expect(missedRow).toHaveCount(1);
-    await expect(missedRow).toContainText('Which book immediately follows Genesis?');
+    await expect(missedRow).toContainText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`);
     await expect(missedRow).toContainText('Exodus');
   });
 
@@ -117,7 +117,7 @@ test.describe('mixed quiz', () => {
 
     await expect(poolCount(page)).toContainText(/^1 question match/);
     await page.getByRole('button', { name: 'Start quiz' }).click();
-    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+    await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
   });
 
   test('quiz answers feed the same review schedule', async ({ page }) => {

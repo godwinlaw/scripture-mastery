@@ -9,13 +9,11 @@ const bookAbbr = new Map(BOOKS.map((b) => [b.id, b.abbr]));
 
 /** Lets a Book-keyed pool walk reach that book's detail entry (#10). */
 const detailByBook = new Map(DETAILS.map((d) => [d.book, d]));
-
-const allFigureDeeds = DETAILS.flatMap((d) => d.figures.map((f) => f.did));
-const allFigureNames = [...new Set(DETAILS.flatMap((d) => d.figures.map((f) => f.name)))];
-const allNumberValues = DETAILS.flatMap((d) => d.numbers?.map((n) => n.value) ?? []);
 const allPurposes = DETAILS.map((d) => d.purpose);
 const allAudiences = [...new Set(DETAILS.map((d) => d.audience))];
 const allWritten = [...new Set(DETAILS.map((d) => d.written))];
+const allFigureDeeds = DETAILS.flatMap((d) => d.figures.map((f) => f.did));
+const allFigureNames = [...new Set(DETAILS.flatMap((d) => d.figures.map((f) => f.name)))];
 
 /**
  * The rings every hard chain in this file walks, tightest first (#40).
@@ -168,7 +166,7 @@ function eventItems(d: BookDetail): Item[] {
       e.what, `evw-${key}`, 'division',
     );
     items.push({
-      id: `det-ev-what-${key}`, kind: 'mcq', topic: 'events', tier: 2, book: d.book,
+      id: `det-ev-what-${key}`, kind: 'mcq', topic: 'arc', tier: 2, book: d.book,
       prompt: shared
         ? `${ref(d, e.ref)} — what happens in the episode known as "${e.name}"?`
         : `${ref(d, e.ref)} — what happens?`,
@@ -182,7 +180,7 @@ function eventItems(d: BookDetail): Item[] {
 
     // Description → reference. Tests whether you can place it.
     items.push({
-      id: `det-ev-ref-${key}`, kind: 'mcq', topic: 'chapters', tier: 3, book: d.book,
+      id: `det-ev-ref-${key}`, kind: 'mcq', topic: 'arc', tier: 3, book: d.book,
       prompt: `Where does this happen? "${e.what}"`,
       answer: `${abbr} ${e.ref}`,
       ...distractorSets(
@@ -202,7 +200,7 @@ function eventItems(d: BookDetail): Item[] {
       // ban is folded in so the widening counts only offerable books, in every
       // difficulty's pool alike.
       items.push({
-        id: `det-ev-book-${key}`, kind: 'mcq', topic: 'events', tier: 2, book: d.book,
+        id: `det-ev-book-${key}`, kind: 'mcq', topic: 'arc', tier: 2, book: d.book,
         prompt: `In which book do we read about this: ${e.name}?`,
         answer: name,
         ...distractorSets(
@@ -233,7 +231,7 @@ function eventItems(d: BookDetail): Item[] {
       // would catch it (#40).
       const notPresent = (n: string) => !e.who.includes(n);
       items.push({
-        id: `det-ev-who-${key}`, kind: 'mcq', topic: 'people', tier: 2, book: d.book,
+        id: `det-ev-who-${key}`, kind: 'mcq', topic: 'names', tier: 2, book: d.book,
         prompt: `Who is involved in this? "${e.what}"`,
         answer,
         // Medium has always been every figure in the canon, which makes this a
@@ -252,7 +250,7 @@ function eventItems(d: BookDetail): Item[] {
     if (e.where) {
       const places = DETAILS.flatMap((x) => x.events.map((y) => y.where)).filter((w): w is string => !!w);
       items.push({
-        id: `det-ev-where-${key}`, kind: 'mcq', topic: 'places', tier: 3, book: d.book,
+        id: `det-ev-where-${key}`, kind: 'mcq', topic: 'cities', tier: 3, book: d.book,
         prompt: `Where does this take place? "${e.what}"`,
         answer: e.where,
         // Hard offers the other places this book's own episodes happen: Sinai
@@ -270,7 +268,7 @@ function eventItems(d: BookDetail): Item[] {
     // The detail that separates this episode from every similar one.
     if (e.detail) {
       items.push({
-        id: `det-ev-detail-${key}`, kind: 'mcq', topic: 'events', tier: 3, book: d.book,
+        id: `det-ev-detail-${key}`, kind: 'mcq', topic: 'arc', tier: 3, book: d.book,
         prompt: `Which detail belongs to this episode: ${e.name} (${ref(d, e.ref)})?`,
         answer: e.detail,
         ...distractorSets(
@@ -295,7 +293,7 @@ function eventItems(d: BookDetail): Item[] {
     // all read "Put these events from Genesis in order" and look like one card.
     const span = `${firstChapter(window[0].ref)}–${lastChapter(window[window.length - 1].ref)}`;
     items.push({
-      id: `det-ev-order-${d.book}-${i}`, kind: 'order', topic: 'events', tier: 2, book: d.book,
+      id: `det-ev-order-${d.book}-${i}`, kind: 'order', topic: 'arc', tier: 2, book: d.book,
       prompt: `Put these events from ${name} ${span} in the order they occur.`,
       answer: window.map((e) => e.name).join(' → '),
       sequence: window.map((e) => e.name),
@@ -341,7 +339,7 @@ function figureItems(d: BookDetail): Item[] {
     // book first — knowing the cast is not the same as knowing who did what.
     const ownDeeds = d.figures.map((x) => x.did);
     items.push({
-      id: `det-fig-did-${key}`, kind: 'mcq', topic: 'people', tier: 2, book: d.book,
+      id: `det-fig-did-${key}`, kind: 'mcq', topic: 'names', tier: 2, book: d.book,
       prompt: `In ${name}, what does ${f.name} do?`,
       answer: f.did,
       // Medium keeps its old rule exactly — this book's deeds when the cast is
@@ -359,7 +357,7 @@ function figureItems(d: BookDetail): Item[] {
     // Deed → person, scoped to this book's cast.
     if (d.figures.length >= 4) {
       items.push({
-        id: `det-fig-who-${key}`, kind: 'mcq', topic: 'people', tier: 3, book: d.book,
+        id: `det-fig-who-${key}`, kind: 'mcq', topic: 'names', tier: 3, book: d.book,
         prompt: `Who is this, in ${name}? "${f.did}"`,
         answer: f.name,
         // Medium is already this book's own cast, so hard cannot sit tighter;
@@ -379,37 +377,6 @@ function figureItems(d: BookDetail): Item[] {
   return items;
 }
 
-function numberItems(d: BookDetail): Item[] {
-  const items: Item[] = [];
-  const name = bookName.get(d.book)!;
-
-  // Reads like a flashcard, which is what it is: "Numbers — years of wandering?"
-  // Distractors come from this book's own figures when there are enough of them,
-  // so the question is "which number in Numbers" rather than "which of these
-  // four is obviously not about the wilderness."
-  const ownValues = (d.numbers ?? []).map((x) => x.value);
-  for (const n of d.numbers ?? []) {
-    const key = `${d.book}-${slug(n.of)}`;
-    items.push({
-      id: `det-num-${key}`, kind: 'mcq', topic: 'numbers', tier: 3, book: d.book,
-      prompt: `${name} — ${n.of}?`,
-      answer: n.value,
-      // `numbers` is the sparsest field in the detail layer — most books record
-      // none at all — so even the Testament ring often cannot reach six values
-      // and `scopedSets`' thinness guard tops the hard set up from the wider
-      // pools. That is the intended outcome: a genuinely scoped hard set where
-      // one exists, and a full card rather than a short one where it does not.
-      ...scopedSets(n.value, `num-${key}`, {
-        medium: ownValues.length >= 5 ? ownValues : allNumberValues,
-        easy: [() => allNumberValues],
-        hard: insideChain(d.book, (x) => (x.numbers ?? []).map((y) => y.value)),
-      }),
-      explain: n.ref,
-    });
-  }
-
-  return items;
-}
 
 function frameItems(d: BookDetail): Item[] {
   const items: Item[] = [];
@@ -419,7 +386,7 @@ function frameItems(d: BookDetail): Item[] {
   // they follow the same prophets-only rule as the other summary questions (#9).
   if (isPropheticBook(d.book)) {
     items.push({
-      id: `det-purpose-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 2, book: d.book,
+      id: `det-purpose-${d.book}`, kind: 'mcq', topic: 'oneline', tier: 2, book: d.book,
       prompt: `Why was ${name} written?`,
       answer: d.purpose,
       // Only the prophets ask this (#9), and the prophets are exactly where a
@@ -435,7 +402,7 @@ function frameItems(d: BookDetail): Item[] {
     });
 
     items.push({
-      id: `det-audience-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
+      id: `det-audience-${d.book}`, kind: 'mcq', topic: 'oneline', tier: 3, book: d.book,
       prompt: `Who was ${name} written to?`,
       answer: d.audience,
       ...scopedSets(d.audience, `aud-${d.book}`, {
@@ -448,7 +415,7 @@ function frameItems(d: BookDetail): Item[] {
   }
 
   items.push({
-    id: `det-written-${d.book}`, kind: 'mcq', topic: 'timeline', tier: 3, book: d.book,
+    id: `det-written-${d.book}`, kind: 'mcq', topic: 'arc', tier: 3, book: d.book,
     prompt: `When was ${name} written?`,
     answer: d.written,
     // Dates are the clearest case for scoping: books in one division were
@@ -471,7 +438,7 @@ function frameItems(d: BookDetail): Item[] {
 
   if (d.distinctive && isPropheticBook(d.book)) {
     items.push({
-      id: `det-distinctive-${d.book}`, kind: 'mcq', topic: 'summaries', tier: 3, book: d.book,
+      id: `det-distinctive-${d.book}`, kind: 'mcq', topic: 'oneline', tier: 3, book: d.book,
       prompt: `Which book is this true of? "${d.distinctive}"`,
       answer: name,
       // The pool here is book names rather than a detail field, so this walks
@@ -494,7 +461,7 @@ function frameItems(d: BookDetail): Item[] {
   if (d.writtenFrom) {
     const froms = DETAILS.map((x) => x.writtenFrom).filter((x): x is string => !!x);
     items.push({
-      id: `det-from-${d.book}`, kind: 'mcq', topic: 'places', tier: 3, book: d.book,
+      id: `det-from-${d.book}`, kind: 'mcq', topic: 'cities', tier: 3, book: d.book,
       prompt: `Where was ${name} written from?`,
       answer: d.writtenFrom,
       // `writtenFrom` is recorded almost only for the Pauline epistles, so the
@@ -513,7 +480,7 @@ function frameItems(d: BookDetail): Item[] {
   // Extra landmark verses.
   (d.verses ?? []).forEach((v, i) => {
     items.push({
-      id: `det-verse-${d.book}-${i}`, kind: 'mcq', topic: 'chapters', tier: 3, book: d.book,
+      id: `det-verse-${d.book}-${i}`, kind: 'mcq', topic: 'arc', tier: 3, book: d.book,
       prompt: `Where is this from? "${v.text}"`,
       answer: v.ref,
       ...distractorSets(
@@ -545,7 +512,7 @@ function crossBookItems(): Item[] {
     // has two right answers.
     const others = allFigureNames.filter((n) => !e.who.includes(n));
     items.push({
-      id: `det-x-who-${d.book}-${slug(e.name)}`, kind: 'mcq', topic: 'people', tier: 3, book: d.book,
+      id: `det-x-who-${d.book}-${slug(e.name)}`, kind: 'mcq', topic: 'names', tier: 3, book: d.book,
       prompt: `Who is at the center of this event: ${e.name}?`,
       answer,
       // This item is deliberately cross-book, so medium spans the canon. Hard
@@ -570,7 +537,6 @@ export function buildDetailItems(): Item[] {
     items.push(
       ...eventItems(d),
       ...figureItems(d),
-      ...numberItems(d),
       ...frameItems(d),
     );
   }

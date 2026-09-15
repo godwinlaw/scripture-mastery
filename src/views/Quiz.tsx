@@ -7,24 +7,21 @@ import { BOOKS } from '../data/books';
 import { currentPhase } from '../data/plan';
 import { planStartOf } from '../lib/store-ops';
 import { planScopeIds } from '../lib/plan-scope';
+import { copy } from '../copy';
 import { TOPIC_LABELS, type Topic } from '../data/types';
 import { shuffle } from '../lib/rng';
 import { strength, type Grade } from '../lib/srs';
 import type { StoreApi } from '../lib/useStore';
-
-type Scope = 'plan' | 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
 
 /**
  * The plan-aware scope (#40).
  *
  * The daily review now follows the study plan; a quiz is where you go to test
  * yourself on demand, so it keeps every other scope untouched and simply adds
- * the plan as one more thing you can point it at. It leads the list because it
- * is the answer to "what should I be drilling right now?" — and it is dropped
- * entirely, not greyed out, when the quiz date has passed and there is no
- * current phase to name.
+ * the plan as one more thing you can point it at. The labels, and the order
+ * they are offered in, live in `copy.quiz.scopes` — this list is the shape.
  */
-const PLAN_SCOPE_LABEL = 'This week’s plan';
+type Scope = 'plan' | 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
 
 export default function Quiz({ api }: { api: StoreApi }) {
   const { store, cards, answer, toggleStar } = api;
@@ -87,16 +84,12 @@ export default function Quiz({ api }: { api: StoreApi }) {
   if (!queue) {
     return (
       <div className="section stack-in">
-        <h2>Mixed Quiz</h2>
-        <p className="muted small">
-          Test yourself under quiz conditions. Interleaving topics is harder than drilling one at a
-          time — and that difficulty is what makes it stick. Narrow to a single book when you are
-          working through it; leave it on everything once you are consolidating.
-        </p>
+        <h2>{copy.quiz.heading}</h2>
+        <p className="muted small">{copy.quiz.blurb}</p>
 
-        <Card corners kicker="Setup" title="Choose what to cover" style={{ marginTop: space[6] }}>
+        <Card corners kicker={copy.quiz.setupKicker} title={copy.quiz.setupTitle} style={{ marginTop: space[6] }}>
           <div className="grid two">
-            <Field label="Topic" htmlFor="topic">
+            <Field label={copy.quiz.topicLabel} htmlFor="topic">
               <select
                 id="topic"
                 className="ctl"
@@ -104,13 +97,13 @@ export default function Quiz({ api }: { api: StoreApi }) {
                 onChange={(e) => setTopic(e.target.value as Topic | 'all')}
                 style={{ width: '100%' }}
               >
-                <option value="all">All topics</option>
+                <option value="all">{copy.quiz.allTopics}</option>
                 {Object.entries(TOPIC_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
               </select>
             </Field>
-            <Field label="Book" htmlFor="book">
+            <Field label={copy.quiz.bookLabel} htmlFor="book">
               <select
                 id="book"
                 className="ctl"
@@ -118,7 +111,7 @@ export default function Quiz({ api }: { api: StoreApi }) {
                 onChange={(e) => setBook(e.target.value)}
                 style={{ width: '100%' }}
               >
-                <option value="all">Every book</option>
+                <option value="all">{copy.quiz.allBooks}</option>
                 {BOOKS.map((b) => (
                   <option key={b.id} value={b.id}>{b.order}. {b.name}</option>
                 ))}
@@ -127,25 +120,20 @@ export default function Quiz({ api }: { api: StoreApi }) {
           </div>
 
           <div className="row" style={{ marginTop: space[4], gap: space[8] }}>
-            <Field label="Scope">
+            <Field label={copy.quiz.scopeLabel}>
               <Segmented
-                ariaLabel="Scope"
+                ariaLabel={copy.quiz.scopeLabel}
                 value={scope}
                 onChange={setScope}
-                options={[
-                  { label: PLAN_SCOPE_LABEL, value: 'plan' as const },
-                  { label: 'Everything', value: 'all' },
-                  { label: 'Old Testament', value: 'OT' },
-                  { label: 'New Testament', value: 'NT' },
-                  { label: 'Must-know lists', value: 'essentials' },
-                  { label: 'Starred', value: 'starred' },
-                  { label: 'Weak spots', value: 'weak' },
-                ]}
+                options={(Object.keys(copy.quiz.scopes) as Scope[]).map((value) => ({
+                  label: copy.quiz.scopes[value],
+                  value,
+                }))}
               />
             </Field>
-            <Field label="Questions">
+            <Field label={copy.quiz.lengthLabel}>
               <Segmented
-                ariaLabel="Number of questions"
+                ariaLabel={copy.quiz.lengthAria}
                 value={length}
                 onChange={setLength}
                 options={[10, 20, 40, 60, 100].map((n) => ({ label: n, value: n }))}
@@ -155,11 +143,9 @@ export default function Quiz({ api }: { api: StoreApi }) {
 
           <div className="row" style={{ marginTop: space[4] }}>
             <button className="btn primary" onClick={start} disabled={pool.length === 0}>
-              Start quiz
+              {copy.quiz.start}
             </button>
-            <span className="tiny muted">
-              {pool.length} question{pool.length === 1 ? '' : 's'} match this filter
-            </span>
+            <span className="tiny muted">{copy.quiz.matching(pool.length)}</span>
           </div>
         </Card>
       </div>
@@ -170,24 +156,24 @@ export default function Quiz({ api }: { api: StoreApi }) {
     const pct = Math.round((right / queue.length) * 100);
     return (
       <div className="section screen">
-        <Card corners kicker="Results" title="Quiz complete">
+        <Card corners kicker={copy.quiz.resultsKicker} title={copy.quiz.resultsTitle}>
           <div className="row" style={{ gap: space[8], alignItems: 'center' }}>
             <div className="stat">
               <CountUp value={right} className="n" />
-              <span className="k">correct out of {queue.length}</span>
+              <span className="k">{copy.quiz.correctOutOf(queue.length)}</span>
             </div>
             <div style={{ flex: 1, minWidth: 180 }}>
               <Meter value={right} max={queue.length} label={`${right} of ${queue.length} correct`} />
-              <p className="tiny muted" style={{ marginTop: space[2] }}>{pct}% correct</p>
+              <p className="tiny muted" style={{ marginTop: space[2] }}>{copy.quiz.percentCorrect(pct)}</p>
             </div>
           </div>
 
           {missed.length > 0 && (
             <>
-              <div className="label-section" style={{ marginTop: space[6] }}>What you missed</div>
+              <div className="label-section" style={{ marginTop: space[6] }}>{copy.quiz.missedHeading}</div>
               <div className="scroll-x">
                 <table className="data">
-                  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+                  <thead><tr><th>{copy.quiz.missedColumns.question}</th><th>{copy.quiz.missedColumns.answer}</th></tr></thead>
                   <tbody>
                     {missed.map((id) => {
                       const it = ITEMS_BY_ID.get(id)!;
@@ -202,14 +188,14 @@ export default function Quiz({ api }: { api: StoreApi }) {
                 </table>
               </div>
               <p className="tiny muted" style={{ marginTop: space[3] }}>
-                These are scheduled to come back soon in your daily review.
+                {copy.quiz.missedNote}
               </p>
             </>
           )}
 
           <div className="row" style={{ marginTop: space[6] }}>
-            <button className="btn primary" onClick={start}>Retake</button>
-            <button className="btn" onClick={() => setQueue(null)}>Change filters</button>
+            <button className="btn primary" onClick={start}>{copy.quiz.retake}</button>
+            <button className="btn" onClick={() => setQueue(null)}>{copy.quiz.changeFilters}</button>
           </div>
         </Card>
       </div>
@@ -235,8 +221,8 @@ export default function Quiz({ api }: { api: StoreApi }) {
         />
       </div>
       <div className="row" style={{ marginTop: space[4] }}>
-        <button className="btn sm" onClick={() => setQueue(null)}>Quit quiz</button>
-        <span className="tiny muted">{right} correct so far</span>
+        <button className="btn sm" onClick={() => setQueue(null)}>{copy.quiz.quit}</button>
+        <span className="tiny muted">{copy.quiz.runningTally(right)}</span>
       </div>
     </div>
   );

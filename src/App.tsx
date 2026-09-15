@@ -14,13 +14,13 @@ import { BootSplash, MobileGate, Corners, useIsMobile } from './ui';
 import { copy } from './copy';
 
 const TABS = [
-  { id: 'home', label: 'Dashboard' },
-  { id: 'review', label: 'Daily Review' },
-  { id: 'quiz', label: 'Quiz' },
-  { id: 'library', label: 'Reference' },
-  { id: 'plan', label: 'Study Plan' },
-  { id: 'progress', label: 'Progress' },
-  { id: 'settings', label: 'Settings' },
+  { id: 'home', label: copy.nav.home },
+  { id: 'review', label: copy.nav.review },
+  { id: 'quiz', label: copy.nav.quiz },
+  { id: 'library', label: copy.nav.library },
+  { id: 'plan', label: copy.nav.plan },
+  { id: 'progress', label: copy.nav.progress },
+  { id: 'settings', label: copy.nav.settings },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];

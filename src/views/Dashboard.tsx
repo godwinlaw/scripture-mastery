@@ -6,6 +6,7 @@ import { TOPIC_LABELS, type Topic } from '../data/types';
 import type { StoreApi } from '../lib/useStore';
 import { todayISO } from '../lib/storage';
 import { planStartOf } from '../lib/store-ops';
+import { copy } from '../copy';
 import { Card, CountUp, Meter, sx } from '../ui';
 
 export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string) => void }) {
@@ -32,25 +33,28 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
     };
   }, [cards, items]);
 
-  const byTopic = useMemo(() => {
-    const acc: Record<string, { seen: number; sum: number; total: number }> = {};
+  /**
+   * Mastery per strand, in acronym order rather than ranked by weakness.
+   *
+   * This used to sort ascending and call itself "weakest areas." Ranking put
+   * the strands in a different order every session, which is the one thing a
+   * mnemonic cannot survive — you cannot learn to read A-N-C-H-O-R-E-D down a
+   * column that reshuffles itself. Walking `TOPIC_LABELS` also means a strand
+   * with no reviewed cards still gets a row at 0% instead of vanishing.
+   */
+  const byStrand = useMemo(() => {
+    const acc: Record<string, { sum: number; total: number }> = {};
     for (const it of items) {
       const t = it.topic;
-      acc[t] ??= { seen: 0, sum: 0, total: 0 };
+      acc[t] ??= { sum: 0, total: 0 };
       acc[t].total++;
       const c = cards[it.id];
-      if (c && c.reps > 0) {
-        acc[t].seen++;
-        acc[t].sum += strength(c);
-      }
+      if (c && c.reps > 0) acc[t].sum += strength(c);
     }
-    return Object.entries(acc)
-      .map(([topic, v]) => ({
-        topic: topic as Topic,
-        pct: v.total ? Math.round((v.sum / v.total) * 100) : 0,
-        coverage: v.total ? Math.round((v.seen / v.total) * 100) : 0,
-      }))
-      .sort((a, b) => a.pct - b.pct);
+    return (Object.keys(TOPIC_LABELS) as Topic[]).map((topic) => {
+      const v = acc[topic] ?? { sum: 0, total: 0 };
+      return { topic, pct: v.total ? Math.round((v.sum / v.total) * 100) : 0 };
+    });
   }, [cards, items]);
 
   // "Which week is it?" is one question with one answer (#40), and the daily
@@ -99,10 +103,10 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
     <div>
       <div className="section">
         <div className="grid four stack-in">
-          <div className="card stat"><span className="n"><CountUp value={daysLeft} /></span><span className="k">Days to quiz</span></div>
-          <div className="card stat"><span className="n"><CountUp value={stats.due} /></span><span className="k">Cards due</span></div>
-          <div className="card stat"><span className="n"><CountUp value={stats.mastery} />%</span><span className="k">Overall mastery</span></div>
-          <div className="card stat"><span className="n"><CountUp value={streak} /></span><span className="k">Consecutive days</span></div>
+          <div className="card stat"><span className="n"><CountUp value={daysLeft} /></span><span className="k">{copy.dashboard.stats.daysToQuiz}</span></div>
+          <div className="card stat"><span className="n"><CountUp value={stats.due} /></span><span className="k">{copy.dashboard.stats.cardsDue}</span></div>
+          <div className="card stat"><span className="n"><CountUp value={stats.mastery} />%</span><span className="k">{copy.dashboard.stats.mastery}</span></div>
+          <div className="card stat"><span className="n"><CountUp value={streak} /></span><span className="k">{copy.dashboard.stats.streak}</span></div>
         </div>
       </div>
 
@@ -117,29 +121,28 @@ export default function Dashboard({ api, go }: { api: StoreApi; go: (tab: string
           </div>
           <div className="row" style={{ marginTop: 18 }}>
             <button className="btn primary" onClick={() => go('review')}>
-              {stats.due > 0 ? `Review ${stats.due} due card${stats.due === 1 ? '' : 's'}` : 'Start today’s review'}
+              {stats.due > 0 ? copy.dashboard.reviewDue(stats.due) : copy.dashboard.startReview}
             </button>
-            <button className="btn" onClick={() => go('quiz')}>Take a quiz</button>
-            <button className="btn" onClick={() => go('library')}>Open reference</button>
+            <button className="btn" onClick={() => go('quiz')}>{copy.dashboard.takeQuiz}</button>
+            <button className="btn" onClick={() => go('library')}>{copy.dashboard.openReference}</button>
           </div>
           {todayLog && (
             <p className="tiny muted" style={{ marginTop: 14, marginBottom: 0 }}>
-              Today: {todayLog.reviewed} answered, {todayLog.correct} correct
-              ({Math.round((todayLog.correct / todayLog.reviewed) * 100)}%).
+              {copy.dashboard.today(todayLog.reviewed, todayLog.correct)}
             </p>
           )}
         </Card>
       </div>
 
       <div className="section">
-        <h2>Weakest areas</h2>
-        <p className="small muted">Ranked by mastery across all questions in each topic.</p>
+        <h2>{copy.dashboard.masteryHeading}</h2>
+        <p className="small muted">{copy.dashboard.masteryBlurb}</p>
         <div className="card">
-          {byTopic.map((t, i) => (
+          {byStrand.map((t, i) => (
             <div key={t.topic} className="item-in" style={sx({ marginBottom: 14, '--stagger-i': i })}>
               <div className="spread" style={{ marginBottom: 5 }}>
                 <span className="small">{TOPIC_LABELS[t.topic]}</span>
-                <span className="tiny muted mono">{t.pct}% mastery · {t.coverage}% seen</span>
+                <span className="tiny muted mono">{t.pct}{copy.dashboard.masterySuffix}</span>
               </div>
               <Meter
                 value={t.pct}

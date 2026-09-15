@@ -41,7 +41,7 @@ test.describe('multiple choice', () => {
   test('a right answer reveals the grade buttons and records the card', async ({ page }) => {
     await reviewOne(page, ITEM.mcq);
 
-    await expect(page.getByText('Which book immediately follows Genesis?')).toBeVisible();
+    await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
     await expect(page.locator('.choice')).toHaveCount(4);
     await choice(page, 'Exodus').click();
 
@@ -101,8 +101,8 @@ test.describe('typed answers', () => {
   test('the matcher accepts the answer spelled out in words', async ({ page }) => {
     await reviewOne(page, ITEM.type);
 
-    await expect(page.getByText('How many books are in the Bible?')).toBeVisible();
-    await page.locator('input.answer').fill('sixty-six');
+    await expect(page.getByText('How many appointed feasts does Leviticus 23 set out?')).toBeVisible();
+    await page.locator('input.answer').fill('seven');
     await page.keyboard.press('Enter');
 
     await expect(page.locator('.feedback.correct')).toContainText('Correct');
@@ -111,7 +111,7 @@ test.describe('typed answers', () => {
   test('the Check button and Enter do the same thing', async ({ page }) => {
     await reviewOne(page, ITEM.type);
 
-    await page.locator('input.answer').fill('66');
+    await page.locator('input.answer').fill('7');
     await page.getByRole('button', { name: 'Check' }).click();
 
     await expect(page.locator('.feedback.correct')).toBeVisible();
@@ -125,7 +125,7 @@ test.describe('typed answers', () => {
     await page.keyboard.press('Enter');
 
     await expect(page.locator('.feedback.wrong')).toContainText('Not quite');
-    await expect(page.locator('.feedback')).toContainText('Answer: 66');
+    await expect(page.locator('.feedback')).toContainText('Answer: 7');
   });
 
   test('an empty submission is not counted as correct', async ({ page }) => {

@@ -1,3 +1,4 @@
+import { copy } from '../copy';
 import { useMemo, useState } from 'react';
 import { BOOKS } from '../data/books';
 import { LISTS } from '../data/extras';
@@ -16,12 +17,8 @@ const DIVISION_ORDER: Division[] = [
 
 type Tab = 'books' | 'timeline' | 'people' | 'lists';
 
-const TAB_OPTIONS: { label: string; value: Tab }[] = [
-  { label: 'The 66 Books', value: 'books' },
-  { label: 'Timeline', value: 'timeline' },
-  { label: 'People & Places', value: 'people' },
-  { label: 'Lists to Know', value: 'lists' },
-];
+const TAB_OPTIONS: { label: string; value: Tab }[] =
+  (Object.keys(copy.library.tabs) as Tab[]).map((value) => ({ label: copy.library.tabs[value], value }));
 
 /** Everything about a book that search should reach — outline, events, and all. */
 function haystack(bookId: string): string {
@@ -87,12 +84,12 @@ export default function Library() {
   return (
     <div className="section">
       <div className="spread" style={{ marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>Reference</h2>
-        <Field label="Search" htmlFor="library-search">
+        <h2 style={{ margin: 0 }}>{copy.library.heading}</h2>
+        <Field label={copy.library.searchLabel} htmlFor="library-search">
           <input
             id="library-search"
             className="ctl"
-            placeholder="Search books, outlines, events, people…"
+            placeholder={copy.library.searchPlaceholder}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             style={{ minWidth: 260 }}
@@ -113,14 +110,13 @@ export default function Library() {
       </div>
 
       <div className="row" style={{ marginBottom: 20 }}>
-        <Segmented ariaLabel="Reference section" options={TAB_OPTIONS} value={tab} onChange={setTab} />
+        <Segmented ariaLabel={copy.library.tabsAria} options={TAB_OPTIONS} value={tab} onChange={setTab} />
       </div>
 
       {tab === 'books' && (
         <div className="screen">
           <p className="tiny muted">
-            Open a book and work the tabs: overview, outline, events, people, terms. Read a pane,
-            close it, and say it back out loud. Recall beats re-reading.
+            {copy.library.booksBlurb}
             {needle && ` — ${filteredBooks.length} book${filteredBooks.length === 1 ? '' : 's'} match “${q.trim()}”.`}
           </p>
           {DIVISION_ORDER.map((div) => {
@@ -157,7 +153,7 @@ export default function Library() {
             );
           })}
           {filteredBooks.length === 0 && (
-            <p className="small muted">No book mentions “{q.trim()}”. Try the People tab.</p>
+            <p className="small muted">{copy.library.noBook(q.trim())}</p>
           )}
         </div>
       )}
@@ -190,10 +186,10 @@ export default function Library() {
 
       {tab === 'people' && (
         <div className="screen">
-          <h3>People <span className="pill">{filteredPeople.length}</span></h3>
+          <h3>{copy.library.peopleHeading} <span className="pill">{filteredPeople.length}</span></h3>
           <Card corners className="scroll-x">
             <table className="data">
-              <thead><tr><th>Name</th><th>Who</th><th>Identifying detail</th><th>Family</th></tr></thead>
+              <thead><tr><th>{copy.library.peopleColumns.name}</th><th>{copy.library.peopleColumns.who}</th><th>{copy.library.peopleColumns.detail}</th><th>{copy.library.peopleColumns.family}</th></tr></thead>
               <tbody>
                 {filteredPeople.map((p) => (
                   <tr key={p.id}>
@@ -205,7 +201,7 @@ export default function Library() {
                     <td>{p.role}</td>
                     <td className="muted">
                       {p.clue}
-                      {p.died && <div className="tiny" style={{ marginTop: 3 }}>Died: {p.died}</div>}
+                      {p.died && <div className="tiny" style={{ marginTop: 3 }}>{copy.library.diedPrefix} {p.died}</div>}
                     </td>
                     <td className="tiny muted">
                       {p.father && <div>father: {p.father}</div>}
@@ -219,10 +215,10 @@ export default function Library() {
             </table>
           </Card>
 
-          <h3 style={{ marginTop: 28 }}>Places <span className="pill">{filteredPlaces.length}</span></h3>
+          <h3 style={{ marginTop: 28 }}>{copy.library.placesHeading} <span className="pill">{filteredPlaces.length}</span></h3>
           <Card corners className="scroll-x">
             <table className="data">
-              <thead><tr><th>Place</th><th>Known for</th></tr></thead>
+              <thead><tr><th>{copy.library.placesColumns.place}</th><th>{copy.library.placesColumns.knownFor}</th></tr></thead>
               <tbody>
                 {filteredPlaces.map((p) => (
                   <tr key={p.id}><td><strong>{p.name}</strong></td><td>{p.what}</td></tr>
@@ -236,12 +232,11 @@ export default function Library() {
       {tab === 'lists' && (
         <div className="screen">
           <div className="spread">
-            <h3 style={{ margin: 0 }}>Must-know lists</h3>
-            <span className="pill accent">know these cold</span>
+            <h3 style={{ margin: 0 }}>{copy.library.essentialsHeading}</h3>
+            <span className="pill accent">{copy.library.essentialsKicker}</span>
           </div>
           <p className="tiny muted">
-            Every row is a pair: the address on the left, what sits there on the right. Cover one
-            column and work down the other — the quiz asks in both directions.
+            {copy.library.essentialsBlurb}
             {needle && ` — ${filteredEssentials.length} list${filteredEssentials.length === 1 ? '' : 's'} match “${q.trim()}”.`}
           </p>
           <div className="grid two">
@@ -271,22 +266,21 @@ export default function Library() {
             ))}
           </div>
           {filteredEssentials.length === 0 && (
-            <p className="small muted">No must-know list mentions “{q.trim()}”.</p>
+            <p className="small muted">{copy.library.noList(q.trim())}</p>
           )}
           <p className="tiny muted" style={{ marginTop: 16 }}>
-            Four more belong to this set and are already below, where the drill is membership rather
-            than pairing: {ESSENTIAL_ALIASES.map((a) => a.title).join(', ')}.
+            {copy.library.aliasNote(ESSENTIAL_ALIASES.map((a) => a.title).join(', '))}
           </p>
 
-          <h3 style={{ marginTop: 28 }}>Standing lists</h3>
-          <p className="tiny muted">Lists that show up on almost every Bible quiz.</p>
+          <h3 style={{ marginTop: 28 }}>{copy.library.standingHeading}</h3>
+          <p className="tiny muted">{copy.library.standingBlurb}</p>
           <div className="grid two">
             {LISTS.map((l, i) => (
               <Card corners key={l.id} title={l.title} className="item-in" style={sx({ '--stagger-i': i })}>
                 <div className="spread" style={{ marginBottom: 4 }}>
                   <span className="tiny muted">{l.note}</span>
                   {ESSENTIAL_ALIASES.some((a) => a.listId === l.id) && (
-                    <span className="pill accent">know this cold</span>
+                    <span className="pill accent">{copy.library.knowThisCold}</span>
                   )}
                 </div>
                 <ol style={{ margin: 0, paddingLeft: 20, fontSize: '0.9rem' }}>

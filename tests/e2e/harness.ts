@@ -23,16 +23,18 @@ export const OUTSIDER = 'someone@gmail.com';
  */
 export const ITEM = {
   /**
-   * "Which book immediately follows Genesis?" → Exodus.
+   * "Which book is this? 'Rescue from Egypt, covenant at Sinai'" → Exodus.
    *
-   * Deliberately a `book-order` item rather than a summary or a chapter fact:
-   * the canon's sequence is the one thing no content issue is going to
-   * rewrite. The previous fixture here was `gen-chapters-genesis`, which #8
-   * deleted outright.
+   * The third fixture to sit here: `gen-chapters-genesis` was deleted by #8,
+   * and its replacement `gen-position-genesis` went with the whole `book-order`
+   * topic when #35 reorganised the bank around ANCHORED. This one is the O
+   * strand's core drill — a line per book, for all 66 — so it is as load-bearing
+   * as content gets here, and it still answers with a book name and keeps
+   * "Deuteronomy" among its options, which is what the specs below click.
    */
-  mcq: 'gen-position-genesis',
-  /** "How many books are in the Bible?" → 66, accepts "sixty-six" */
-  type: 'a-count-total',
+  mcq: 'gen-line-book-exodus',
+  /** "How many appointed feasts does Leviticus 23 set out?" → 7, accepts "seven" */
+  type: 'a-feast-count',
   /** "Put these events from Genesis 1–4 in the order they occur." */
   order: 'det-ev-order-genesis-0',
 } as const;
