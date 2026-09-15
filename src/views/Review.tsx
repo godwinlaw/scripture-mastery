@@ -15,7 +15,7 @@ import { Card, Corners, CountUp, Meter, sx, space } from '../ui';
  * Per-item metadata for the queue builder, built once for the process.
  *
  * The bank is ~6,000 items and never changes at runtime, while `cards` changes
- * on every answer — so this cannot live in a `useMemo` keyed on store state
+ * on every answer, so this cannot live in a `useMemo` keyed on store state
  * without rebuilding six thousand objects each time a card is graded.
  */
 const ITEM_META: Record<string, ItemMeta> = (() => {
@@ -37,9 +37,9 @@ export default function Review({ api }: { api: StoreApi }) {
   /**
    * The phase the plan is asking for today, or null when the setting is off.
    *
-   * `currentPhase` is total — there is no date on which "no phase" is the
+   * `currentPhase` is total, there is no date on which "no phase" is the
    * honest answer, and a member who has run out of runway belongs in Phase 5's
-   * mixed review rather than nowhere — so the setting is the only thing that
+   * mixed review rather than nowhere, so the setting is the only thing that
    * can switch the plan off here. The anchor is the persisted plan start, not
    * today: passing `new Date()` is what pinned every member to Phase 1
    * forever, because today is always inside week 1 of a schedule that begins
@@ -67,33 +67,48 @@ export default function Review({ api }: { api: StoreApi }) {
 
   /**
    * The three plates, counted inside whatever the session will actually draw
-   * from — plus one figure that is deliberately counted outside it.
+   * from, plus one figure that is deliberately counted outside it.
    *
    * `bankActionable` exists because the plates alone would lock the reader out:
    * a phase whose material is all seen and none of it yet due shows zeroes,
    * while `start` would happily widen and hand over a full session. The button
    * has to follow the queue's rule, not the plates'.
    */
-  /** The new-card limit after the difficulty's own scaling — what buildQueue will take. */
+  /** The new-card limit after the difficulty's own scaling, what buildQueue will take. */
   const newToday = Math.max(
     0,
     Math.round(store.settings.newLimit * specFor(store.settings.difficulty).newLimitFactor),
   );
 
+  /**
+   * The three plates answer two different questions, so they are counted two
+   * different ways.
+   *
+   * `due` and `fresh` describe *this session*: what it is about to ask. They
+   * therefore follow the same rule the queue does, revision from anywhere,
+   * new material from the phase, because a plate that promises one number and
+   * then hands over a different one is worse than no plate.
+   *
+   * `seen` describes *your progress*, which is not a property of today's
+   * session at all. Counting it inside the phase would mean the work you did
+   * in Phase 1 disappeared from the screen the week Phase 2 began.
+   */
   const counts = useMemo(() => {
     const now = Date.now();
     const inScope = scopedIds ? new Set(scopedIds) : null;
-    let due = 0, fresh = 0, total = 0, bankActionable = 0;
+    let due = 0, fresh = 0, seen = 0, bankActionable = 0;
     for (const it of items) {
       const c = cards[it.id];
-      const actionable = isNew(c) || isDue(c, now);
-      if (actionable) bankActionable++;
+      if (isNew(c) || isDue(c, now)) bankActionable++;
+      if (!isNew(c)) {
+        seen++;
+        if (isDue(c, now)) due++;
+        continue;
+      }
       if (inScope && !inScope.has(it.id)) continue;
-      total++;
-      if (isNew(c)) fresh++;
-      else if (isDue(c, now)) due++;
+      fresh++;
     }
-    return { due, fresh, total, bankActionable };
+    return { due, fresh, seen, total: items.length, bankActionable };
   }, [cards, items, scopedIds]);
 
   function start(ignorePlan = false) {
@@ -105,19 +120,46 @@ export default function Review({ api }: { api: StoreApi }) {
      * on the raw scope.
      *
      * `withTopUp` takes id lists, and a phase's raw scope always holds several
-     * hundred items — so handing it the unfiltered lists would mean the top-up
+     * hundred items, so handing it the unfiltered lists would mean the top-up
      * never fires, and the starvation it exists to prevent is not "the phase is
      * small" but "the phase is exhausted": late in a phase everything in it has
      * been seen and nothing is due yet. Filtering to due-or-new first is what
-     * makes the widening answer that. It is free of side effects on the queue —
+     * makes the widening answer that. It is free of side effects on the queue,
      * buildQueue discards anything that is neither due nor new anyway, and the
      * pre-filter preserves order, so the new-card cut is untouched.
      */
     const actionable = (id: string) => isNew(cards[id]) || isDue(cards[id]);
+
+    /**
+     * The plan rations *new* material. It does not get to withhold a card that
+     * is already due.
+     *
+     * Scoping both together silently broke the one guarantee the scheduler
+     * makes. `grade()` clamps every interval so nothing is scheduled past the
+     * quiz date without one more look at it, but a due date is only a promise
+     * if something acts on it. Phases 2 through 4 do not list `oneline` or
+     * `essentials` among their topics, so scoping due cards by phase meant
+     * every card built during Phase 1 fell out of the queue for the five or
+     * six weeks those
+     * phases run, however overdue it got. The widening could not save it
+     * either: `withTopUp` fires only when the phase cannot fill a session, and
+     * a phase holding three thousand items always can.
+     *
+     * So the two are scoped separately. New cards come from the phase, which is
+     * what "follow the plan" means, you are not introduced to the Epistles in
+     * week two. Due cards come from wherever they are, which is what spaced
+     * repetition means.
+     */
+    const inScope = scopedIds ? new Set(scopedIds) : null;
+    const admits = (id: string) => {
+      const c = cards[id];
+      if (!isNew(c) && isDue(c)) return true;
+      return isNew(c) && (!inScope || inScope.has(id));
+    };
     const ids =
       ignorePlan || !scopedIds
         ? allIds
-        : withTopUp(scopedIds.filter(actionable), allIds.filter(actionable), sessionLimit);
+        : withTopUp(allIds.filter(admits), allIds.filter(actionable), sessionLimit);
 
     const build = (from: string[]) =>
       buildQueue(from, cards, {
@@ -136,8 +178,8 @@ export default function Review({ api }: { api: StoreApi }) {
     // new-card limit *after* it, so a phase holding hundreds of untouched cards
     // and nothing due looks well stocked to the top-up and still yields an
     // empty queue once `newLimit` is 0. An empty session is the single output
-    // this feature must never produce — a calendar may reorder your study, not
-    // cancel it — so the plan filter drops entirely rather than hand back
+    // this feature must never produce, a calendar may reorder your study, not
+    // cancel it, so the plan filter drops entirely rather than hand back
     // nothing.
     const q = build(ids);
     setQueue(q.length === 0 && !ignorePlan && scopedIds ? build(allIds) : q);
@@ -152,7 +194,7 @@ export default function Review({ api }: { api: StoreApi }) {
     answer(id, g);
     setTally((t) => (g === 0 ? { ...t, wrong: t.wrong + 1 } : { ...t, right: t.right + 1 }));
     // A failed card comes back at the end of the session rather than disappearing,
-    // but only twice — otherwise a card you cannot get keeps the session open forever.
+    // but only twice, otherwise a card you cannot get keeps the session open forever.
     //
     // On hard it does not come back at all (#40): a second look minutes after
     // the first is recognition, not recall, and hard's whole premise is that you
@@ -165,7 +207,14 @@ export default function Review({ api }: { api: StoreApi }) {
   }
 
   if (!started) {
-    const inPhase = counts.due + counts.fresh;
+    // What the session can actually deal, not what is theoretically available.
+    // `fresh` counts every unseen card in scope, but the queue will only
+    // introduce `newToday` of them, so a phase holding nothing but new cards
+    // with a new-card limit of 0 offered an enabled Start button that dealt an
+    // empty session and jumped straight to "Session complete, 0 answered"
+    // (#41). Settings clamps the limit above 0, but an imported store or one
+    // written by an older build does not have to.
+    const inPhase = counts.due + Math.min(counts.fresh, newToday);
     const canStart = inPhase > 0 || (phase !== null && counts.bankActionable > 0);
     const widening = phase !== null && inPhase === 0 && counts.bankActionable > 0;
     return (
@@ -189,28 +238,28 @@ export default function Review({ api }: { api: StoreApi }) {
           <Card className="stat">
             {/*
               * The plate has to promise the number the session will actually
-              * take. The setting scales the new-card limit — hard introduces
-              * half again as much — so reading the raw setting here would say
+              * take. The setting scales the new-card limit, hard introduces
+              * half again as much, so reading the raw setting here would say
               * 20 and then deal 30 (#40).
               */}
             <span className="n"><CountUp value={Math.min(counts.fresh, newToday)} /></span>
             <span className="k">{copy.review.stats.fresh}</span>
           </Card>
           <Card className="stat">
-            <span className="n"><CountUp value={counts.total - counts.fresh} /></span>
+            <span className="n"><CountUp value={counts.seen} /></span>
             <span className="k">{copy.review.stats.seen}</span>
           </Card>
         </div>
         <div className="row">
           {/* `() => start()` rather than `start`: the handler takes an
               `ignorePlan` flag, and passing it to onClick directly would hand
-              it the click event — always truthy — and quietly ignore the plan
+              it the click event (always truthy) and quietly ignore the plan
               on the button whose whole job is to follow it (#40). */}
           <button className="btn primary" onClick={() => start()} disabled={!canStart}>
             {copy.review.start}
           </button>
           {phase && (
-            <button className="btn" onClick={() => start(true)}>
+            <button className="btn" onClick={() => start(true)} disabled={counts.bankActionable === 0}>
               {copy.settings.followPlan.studyEverything}
             </button>
           )}
@@ -271,14 +320,14 @@ export default function Review({ api }: { api: StoreApi }) {
         A missed card is appended to the queue, and when it was the last entry
         the copy lands immediately after itself: `queue[pos + 1] === queue[pos]`.
         Keyed by id, that key does not change, so React reuses the mounted
-        QuestionCard — and QuestionCard resets itself from an effect keyed on
+        QuestionCard, and QuestionCard resets itself from an effect keyed on
         `item.id`, which does not change either. The card came back still
         revealed, still showing "Not quite" with its answer and a Continue
         button, and pressing Continue graded the same miss a second and third
         time: three reps, three lapses and three log entries from one miss,
         one short of the four that mark an item a leech.
         Position is unique per step by construction, so the same id repeating
-        back-to-back still remounts the card and asks it cold — which is the
+        back-to-back still remounts the card and asks it cold, which is the
         only reason to requeue it at all.
       */}
       <div className="card-swap" key={pos} style={sx({ position: 'relative' })}>

@@ -1,6 +1,6 @@
 import type { Item, Topic } from './types';
 
-/** Ordered lists worth knowing cold — these drive sequencing drills. */
+/** Ordered lists worth knowing cold, these drive sequencing drills. */
 export interface OrderedList {
   id: string;
   title: string;
@@ -9,7 +9,7 @@ export interface OrderedList {
   /** True if the order itself is testable; false = membership only. */
   ordered: boolean;
   /**
-   * Which strand these cards belong to. Defaults to `essentials` — every
+   * Which strand these cards belong to. Defaults to `essentials`, every
    * standing list is a must-know list, and five of them are named outright in
    * the Basic Bible Literacy sheet the E strand is drawn from (#35). Before
    * that they were all hardcoded as `summaries`, which was never true of any
@@ -55,7 +55,7 @@ export const LISTS: OrderedList[] = [
     items: ['Ephesus', 'Smyrna', 'Pergamum', 'Thyatira', 'Sardis', 'Philadelphia', 'Laodicea'],
   },
   {
-    id: 'beatitudes', title: 'The Beatitudes', note: 'Matthew 5:3–10 — "Blessed are…"',
+    id: 'beatitudes', title: 'The Beatitudes', note: 'Matthew 5:3–10, "Blessed are…"',
     ordered: true,
     items: ['the poor in spirit', 'those who mourn', 'the meek', 'those who hunger and thirst for righteousness', 'the merciful', 'the pure in heart', 'the peacemakers', 'those who are persecuted for righteousness’ sake'],
   },
@@ -86,7 +86,7 @@ export const AUTHORED: Item[] = [
 
   // ---- Cross-book connections
   { id: 'a-no-god-named', kind: 'type', topic: 'oneline', tier: 2, prompt: 'Which book of the Bible never mentions God by name?', answer: 'Esther', accepts: ['esther'], explain: 'God is never named, yet His providence drives the entire plot.' },
-  { id: 'a-joel-pentecost', kind: 'mcq', topic: 'arc', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28 — "I will pour out my Spirit on all flesh."' },
+  { id: 'a-joel-pentecost', kind: 'mcq', topic: 'arc', tier: 3, prompt: 'At Pentecost, Peter quoted which Old Testament prophet?', answer: 'Joel', distractors: ['Isaiah', 'Amos', 'Zechariah'], explain: 'Joel 2:28, "I will pour out my Spirit on all flesh."' },
   { id: 'a-micah-bethlehem', kind: 'mcq', topic: 'arc', tier: 3, prompt: 'Which prophet foretold that the Messiah would be born in Bethlehem?', answer: 'Micah', distractors: ['Isaiah', 'Malachi', 'Hosea'], explain: 'Micah 5:2, quoted to Herod by the chief priests in Matthew 2.' },
 
   // ---- Events and people
@@ -113,20 +113,20 @@ export const AUTHORED: Item[] = [
   // ---- Historical context (#35). The must-know lists carry the pairs; these
   // are the questions a survey exam asks that a cue/content pair cannot put.
   { id: 'a-empire-at-birth', kind: 'mcq', topic: 'context', tier: 1, prompt: 'Which empire ruled Judea when Jesus was born?', answer: 'Rome', distractors: ['Greece', 'Persia', 'Babylon'], explain: 'Rome had held Judea since Pompey took Jerusalem in 63 BC, and governed it through the client king Herod the Great.' },
-  { id: 'a-prefect-not-king', kind: 'mcq', topic: 'context', tier: 3, prompt: 'Why was Judea governed by a Roman prefect like Pilate rather than by a king?', answer: 'Rome deposed Herod’s son Archelaus in AD 6 and took Judea over directly', distractors: ['Herod the Great died leaving no sons to succeed him', 'The Sanhedrin petitioned Rome to abolish the monarchy', 'Judea had never had a king of its own under Roman rule'], explain: 'Herod’s kingdom was split between three sons. Archelaus ruled Judea so badly that Rome removed him after ten years and sent prefects instead — Pilate was the fifth.' },
+  { id: 'a-prefect-not-king', kind: 'mcq', topic: 'context', tier: 3, prompt: 'Why was Judea governed by a Roman prefect like Pilate rather than by a king?', answer: 'Rome deposed Herod’s son Archelaus in AD 6 and took Judea over directly', distractors: ['Herod the Great died leaving no sons to succeed him', 'The Sanhedrin petitioned Rome to abolish the monarchy', 'Judea had never had a king of its own under Roman rule'], explain: 'Herod’s kingdom was split between three sons. Archelaus ruled Judea so badly that Rome removed him after ten years and sent prefects instead, Pilate was the fifth.' },
   { id: 'a-herod-three-sons', kind: 'mcq', topic: 'context', tier: 3, prompt: 'Herod the Great’s kingdom was divided among which three of his sons?', answer: 'Archelaus, Antipas and Philip', distractors: ['Antipas, Philip and Agrippa', 'Archelaus, Aristobulus and Antipater', 'Agrippa I, Agrippa II and Antipas'], explain: 'Archelaus took Judea, Antipas Galilee and Perea, Philip the northeast. Herod had executed his abler sons, which is why these three were left.' },
-  { id: 'a-nineveh-capital', kind: 'mcq', topic: 'context', tier: 2, prompt: 'Nineveh was the capital of which empire?', answer: 'Assyria', distractors: ['Babylon', 'Persia', 'Egypt'], explain: 'The city Jonah was sent to. It fell to Babylon and the Medes in 612 BC — the fall Nahum foretells.' },
+  { id: 'a-nineveh-capital', kind: 'mcq', topic: 'context', tier: 2, prompt: 'Nineveh was the capital of which empire?', answer: 'Assyria', distractors: ['Babylon', 'Persia', 'Egypt'], explain: 'The city Jonah was sent to. It fell to Babylon and the Medes in 612 BC, the fall Nahum foretells.' },
   { id: 'a-septuagint', kind: 'mcq', topic: 'context', tier: 2, prompt: 'What is the Septuagint?', answer: 'The Greek translation of the Old Testament', distractors: ['The Aramaic paraphrase read aloud in synagogues', 'The Hebrew text preserved by the Masoretes', 'The Latin Bible translated by Jerome'], explain: 'Made at Alexandria from about 250 BC and abbreviated LXX. It is usually the version the New Testament writers quote.' },
   { id: 'a-sadducees-deny', kind: 'mcq', topic: 'context', tier: 2, prompt: 'What did the Sadducees deny that the Pharisees affirmed?', answer: 'The resurrection, angels and spirits', distractors: ['The authority of the Law of Moses', 'The oneness of God', 'The rebuilding of the temple'], explain: 'Acts 23:8. Paul splits the council in two by naming the resurrection as the charge against him.' },
   { id: 'a-dead-sea-scrolls', kind: 'mcq', topic: 'context', tier: 3, prompt: 'The Dead Sea Scrolls are usually connected with which group?', answer: 'The Essenes at Qumran', distractors: ['The Pharisees at Jerusalem', 'The Zealots at Masada', 'The Samaritans at Mount Gerizim'], explain: 'Found from 1947 in caves near the Dead Sea; they include a copy of Isaiah a thousand years older than any then known.' },
 
   // ---- Rituals and festivals (#35)
   { id: 'a-atonement-goats', kind: 'mcq', topic: 'rituals', tier: 1, prompt: 'On the Day of Atonement, what happened to the two goats?', answer: 'One was sacrificed; the other was sent alive into the wilderness', distractors: ['Both were sacrificed, one for the priests and one for the people', 'One was sacrificed; the other was given to the Levites', 'Both were released, one at the tabernacle and one outside the camp'], explain: 'Leviticus 16. Lots were cast over them: one lot for the LORD, one for Azazel.' },
-  { id: 'a-azazel', kind: 'type', topic: 'rituals', tier: 2, prompt: 'What is the goat driven out on the Day of Atonement called?', answer: 'Azazel — the scapegoat', accepts: ['azazel', 'scapegoat', 'the scapegoat', 'azazel scapegoat'], explain: 'It carried the people’s sins away into a land cut off (Leviticus 16:21–22).' },
+  { id: 'a-azazel', kind: 'type', topic: 'rituals', tier: 2, prompt: 'What is the goat driven out on the Day of Atonement called?', answer: 'Azazel, the scapegoat', accepts: ['azazel', 'scapegoat', 'the scapegoat', 'azazel scapegoat'], explain: 'It carried the people’s sins away into a land cut off (Leviticus 16:21–22).' },
   { id: 'a-feast-count', kind: 'type', topic: 'rituals', tier: 2, prompt: 'How many appointed feasts does Leviticus 23 set out?', answer: '7', accepts: ['seven'], explain: 'Passover, Unleavened Bread, Firstfruits, Weeks, Trumpets, the Day of Atonement and Booths. The weekly Sabbath heads the chapter but is not counted among them.' },
   { id: 'a-pentecost-name', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'Why is the Feast of Weeks also called Pentecost?', answer: 'It falls fifty days after Firstfruits, and pentekostos is Greek for fiftieth', distractors: ['Fifty lambs were offered on the altar', 'The feast itself lasted fifty days', 'Fifty elders led the procession into the temple'], explain: 'Which is why the Spirit comes fifty days after the resurrection, at the wheat harvest (Acts 2).' },
-  { id: 'a-dedication-feast', kind: 'mcq', topic: 'rituals', tier: 3, prompt: 'Which feast is not commanded in the Law of Moses, yet Jesus is at the temple for it?', answer: 'The Feast of Dedication', distractors: ['The Feast of Booths', 'The Day of Atonement', 'The Feast of Weeks'], explain: 'John 10:22 — Hanukkah, kept for the rededication of the temple after Antiochus IV defiled it in 167 BC.' },
-  { id: 'a-jubilee-how-often', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'How often does the Year of Jubilee fall?', answer: 'Every fiftieth year', distractors: ['Every seventh year', 'Every fortieth year', 'Every hundredth year'], explain: 'Leviticus 25 — after seven sabbath years. Land goes back to the family that held it and slaves go free.' },
+  { id: 'a-dedication-feast', kind: 'mcq', topic: 'rituals', tier: 3, prompt: 'Which feast is not commanded in the Law of Moses, yet Jesus is at the temple for it?', answer: 'The Feast of Dedication', distractors: ['The Feast of Booths', 'The Day of Atonement', 'The Feast of Weeks'], explain: 'John 10:22, Hanukkah, kept for the rededication of the temple after Antiochus IV defiled it in 167 BC.' },
+  { id: 'a-jubilee-how-often', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'How often does the Year of Jubilee fall?', answer: 'Every fiftieth year', distractors: ['Every seventh year', 'Every fortieth year', 'Every hundredth year'], explain: 'Leviticus 25, after seven sabbath years. Land goes back to the family that held it and slaves go free.' },
   { id: 'a-nazirite-vow', kind: 'mcq', topic: 'rituals', tier: 2, prompt: 'What three things did the Nazirite vow forbid?', answer: 'Wine, cutting the hair, and touching a dead body', distractors: ['Wine, meat, and marriage', 'Leaven, wine, and travel', 'Cutting the hair, wearing linen, and entering the temple'], explain: 'Numbers 6. Samson, Samuel and John the Baptist were held to it for life rather than for a season.' },
   { id: 'a-passover-lamb', kind: 'mcq', topic: 'rituals', tier: 1, prompt: 'What did the blood of the Passover lamb mark?', answer: 'The doorposts and lintel of every Israelite house', distractors: ['The horns of the altar', 'The threshold of the tabernacle', 'The forehead of the firstborn son'], explain: 'Exodus 12. The destroyer passed over the houses that carried the mark.' },
 
@@ -136,7 +136,7 @@ export const AUTHORED: Item[] = [
  * Explicit wrong options for "which of these is NOT part of X" questions.
  * Drawing these from other lists automatically produced at least one broken
  * question (Levi is a tribe AND the apostle Matthew's other name), so they are
- * authored instead — plausible, but unambiguously not on the list.
+ * authored instead, plausible, but unambiguously not on the list.
  */
 export const LIST_DECOYS: Record<string, string[]> = {
   plagues: ['Earthquake', 'Fire from heaven', 'Plague of serpents', 'Drought'],

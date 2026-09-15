@@ -2,19 +2,19 @@
  * The E2E stand-in for useStore.
  *
  * Aliased over the real hook only when vite runs with E2E=1 (see
- * vite.config.ts) — never part of a production bundle. It swaps the transport
+ * vite.config.ts), never part of a production bundle. It swaps the transport
  * (Firestore → localStorage) and nothing else: every transition still goes
  * through ./store-ops, the same code the real hook runs, so a Playwright test
  * exercises the actual grading, logging and clamping logic rather than a
  * re-implementation of it.
  *
- * The declared `StoreApi` return type is deliberate — if the real hook's
+ * The declared `StoreApi` return type is deliberate, if the real hook's
  * surface changes, this file stops compiling.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { isAllowedEmail } from './firebase.e2e';
-import { emptyStore, type Settings, type Store } from './storage';
+import { emptyStore, mergeSettings, type Settings, type Store } from './storage';
 import type { CardState, Grade } from './srs';
 import { E2E_AUTH_EVENT, E2E_AUTH_KEY, E2E_STORE_KEY } from './e2e-keys';
 import {
@@ -36,14 +36,14 @@ function readStore(): Store {
   if (!raw) return emptyStore();
   try {
     const parsed = JSON.parse(raw) as Partial<Store>;
-    // Settings are spread over the defaults rather than taken whole: a seeded
+    // Settings go through the same merge as a Firestore snapshot: a seeded
     // fixture writes only the keys its test cares about, so anything added
-    // since (difficulty in #36, followPlan in #40) has to back-fill here just
-    // as it does off a Firestore snapshot.
+    // since (difficulty in #36, followPlan in #40) back-fills here too, and
+    // so does the move off the old default quiz date.
     const base = emptyStore();
     return {
       cards: parsed.cards ?? base.cards,
-      settings: { ...base.settings, ...(parsed.settings ?? {}) },
+      settings: mergeSettings(parsed.settings),
       log: parsed.log ?? base.log,
       starred: parsed.starred ?? base.starred,
     };
@@ -57,7 +57,7 @@ function statusFor(email: string | null): AuthStatus {
   return isAllowedEmail(email) ? 'ready' : 'denied';
 }
 
-/** A stand-in for the Firebase User — only `email` and `uid` are ever read. */
+/** A stand-in for the Firebase User, only `email` and `uid` are ever read. */
 function fakeUser(email: string): User {
   return { uid: `e2e-${email}`, email, displayName: email.split('@')[0] } as User;
 }

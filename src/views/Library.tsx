@@ -20,7 +20,7 @@ type Tab = 'books' | 'timeline' | 'people' | 'lists';
 const TAB_OPTIONS: { label: string; value: Tab }[] =
   (Object.keys(copy.library.tabs) as Tab[]).map((value) => ({ label: copy.library.tabs[value], value }));
 
-/** Everything about a book that search should reach — outline, events, and all. */
+/** Everything about a book that search should reach, outline, events, and all. */
 function haystack(bookId: string): string {
   const b = BOOKS.find((x) => x.id === bookId)!;
   const d = DETAIL_BY_BOOK.get(bookId);
@@ -117,7 +117,7 @@ export default function Library() {
         <div className="screen">
           <p className="tiny muted">
             {copy.library.booksBlurb}
-            {needle && ` — ${filteredBooks.length} book${filteredBooks.length === 1 ? '' : 's'} match “${q.trim()}”.`}
+            {needle && `, ${filteredBooks.length} book${filteredBooks.length === 1 ? '' : 's'} match “${q.trim()}”.`}
           </p>
           {DIVISION_ORDER.map((div) => {
             const group = filteredBooks.filter((b) => b.division === div);
@@ -237,7 +237,7 @@ export default function Library() {
           </div>
           <p className="tiny muted">
             {copy.library.essentialsBlurb}
-            {needle && ` — ${filteredEssentials.length} list${filteredEssentials.length === 1 ? '' : 's'} match “${q.trim()}”.`}
+            {needle && `, ${filteredEssentials.length} list${filteredEssentials.length === 1 ? '' : 's'} match “${q.trim()}”.`}
           </p>
           <div className="grid two">
             {filteredEssentials.map((l, i) => (

@@ -26,7 +26,7 @@ function siblingNames(bookId: string): string[] {
  * Difficulty used to bite on roughly a third of the bank: the questions routed
  * through `distractorSets` carried easy and hard alternates, and everything
  * else fell back to one canon-wide `pickDistractors` draw at every setting.
- * That is why "hard" did not feel hard — a question about Leviticus would
+ * That is why "hard" did not feel hard, a question about Leviticus would
  * happily offer Philemon, which is not a harder question, just a different
  * subject you can rule out without knowing anything.
  *
@@ -48,7 +48,7 @@ function siblingNames(bookId: string): string[] {
  * one division further out, its Testament, then the whole canon.
  *
  * This is the same fence `nearbyPool` uses for the medium pools, for the same
- * reason (#10, #12) — a wrong option only tests anything if it is a plausible
+ * reason (#10, #12), a wrong option only tests anything if it is a plausible
  * neighbour.
  */
 function bookRings(bookId: string): (() => Book[])[] {
@@ -71,7 +71,7 @@ function bookPools(bookId: string, extract: (b: Book) => string[]): (() => strin
  *
  * Book first rather than era first because "who is this?" is nearly always
  * answered from a story, and the people you confuse with Gideon are the other
- * judges in Judges — not everyone who happens to sit in the same century.
+ * judges in Judges, not everyone who happens to sit in the same century.
  */
 function peopleRings(p: Person): (() => Person[])[] {
   const testament = BOOKS_BY_ID[p.book]?.testament;
@@ -87,7 +87,7 @@ function peopleRings(p: Person): (() => Person[])[] {
  * `peopleRings` projected through `extract`.
  *
  * Any per-question exclusion belongs inside `extract`, not after the pool is
- * built — the same lesson #12 recorded for events. A ring that looks full and
+ * built, the same lesson #12 recorded for events. A ring that looks full and
  * only loses its illegal entries afterwards stops the widening early and leaves
  * the card short.
  */
@@ -98,8 +98,8 @@ function peoplePools(p: Person, extract: (x: Person) => string[]): (() => string
 /**
  * The rings a Places question tightens through.
  *
- * `Place` carries a `book` and an `era` and nothing finer — no region, no
- * coordinates — so locality here means "belongs to the same stretch of the
+ * `Place` carries a `book` and an `era` and nothing finer, no region, no
+ * coordinates, so locality here means "belongs to the same stretch of the
  * story", which is the association a reader actually has. Gethsemane against
  * Golgotha and the Mount of Olives is a real question; Gethsemane against Ur is
  * not.
@@ -137,8 +137,8 @@ function buildBookItems(): Item[] {
   const items: Item[] = [];
 
   for (const b of BOOKS) {
-    // Per-book chapter counts used to live here. They were rote trivia — 66
-    // questions whose answer is a number you can read off a contents page —
+    // Per-book chapter counts used to live here. They were rote trivia, 66
+    // questions whose answer is a number you can read off a contents page,
     // and they crowded the Numbers & Counts topic with the one kind of recall
     // that teaches nothing about the book. Removed in #8.
 
@@ -202,8 +202,8 @@ function buildBookItems(): Item[] {
       id: `gen-line-${b.id}`, kind: 'mcq', topic: 'oneline', tier: 1, book: b.id,
       prompt: `${b.name} in one line?`,
       answer: b.line,
-      // Lines are terser than themes and collide harder — half the canon can be
-      // summed up as a rescue — which is exactly what makes the near rings a
+      // Lines are terser than themes and collide harder, half the canon can be
+      // summed up as a rescue, which is exactly what makes the near rings a
       // hard set and the canon-wide draw an easy one.
       ...scopedSets(b.line, `line-${b.id}`, {
         medium: BOOKS.map((x) => x.line),
@@ -238,13 +238,13 @@ function buildBookItems(): Item[] {
 
     // --- Key events → book. Many events appear in more than one book (the
     // Transfiguration is in three Gospels), so distractors exclude every book
-    // that also records the event — otherwise a right answer scores as wrong.
+    // that also records the event, otherwise a right answer scores as wrong.
     for (const ev of b.keyEvents) {
       const key = eventKey(ev);
       if (eventOwner.get(key) !== b.id) continue; // one item per event, first book wins
       const banned = booksRecording(ev);
       // The ban is folded into the extract rather than applied afterwards, so
-      // the widening in nearbyPool counts only books it can actually offer —
+      // the widening in nearbyPool counts only books it can actually offer,
       // filtering after the fact could leave a division short and still stop (#12).
       // It stays inside the extract for all three difficulty pools, for the
       // same reason.
@@ -329,7 +329,7 @@ function buildPeopleItems(): Item[] {
   // Every relationship question scopes the same way: hard draws the *same*
   // field from people in the answer's own book, then era, then Testament, so
   // the wrong fathers are other fathers from the same story. Easy keeps the
-  // canon-wide list these questions have always used — a father from Acts
+  // canon-wide list these questions have always used, a father from Acts
   // against a question about Genesis is wrong on sight (#40).
   for (const p of PEOPLE) {
     if (p.father && allFathers.length >= 4) {
@@ -499,7 +499,7 @@ function buildTimelineItems(): Item[] {
     });
   }
 
-  // Era ordering — three sliding windows of four.
+  // Era ordering, three sliding windows of four.
   for (let i = 0; i + 4 <= ERAS.length; i += 2) {
     const window = ERAS.slice(i, i + 4);
     items.push({
@@ -510,7 +510,7 @@ function buildTimelineItems(): Item[] {
     });
   }
 
-  // Event ordering — sliding windows of four dated events.
+  // Event ordering, sliding windows of four dated events.
   const sorted = [...EVENTS].sort((a, b) => a.year - b.year);
   for (let i = 0; i + 4 <= sorted.length; i += 3) {
     const window = sorted.slice(i, i + 4);
@@ -529,7 +529,7 @@ function buildTimelineItems(): Item[] {
 function buildListItems(): Item[] {
   const items: Item[] = [];
 
-  // Members of every *other* standing list — the "wrong on sight" pool that
+  // Members of every *other* standing list, the "wrong on sight" pool that
   // makes a positional question easy. It is deliberately not used for the
   // NOT-in-this-list cards below; see the note there.
   const otherListItems = (id: string) =>
@@ -554,7 +554,7 @@ function buildListItems(): Item[] {
           easy: [() => list.items],
           hard: [() => list.items],
         }),
-        explain: `${list.title} — ${list.note}: ${list.items.join(', ')}.`,
+        explain: `${list.title}, ${list.note}: ${list.items.join(', ')}.`,
       });
     });
 
@@ -573,8 +573,8 @@ function buildListItems(): Item[] {
           id: `gen-list-pos-${list.id}-${idx}`, kind: 'mcq', topic: list.topic ?? 'essentials', tier: 3,
           prompt: `In ${list.title}, what is #${idx + 1}?`,
           answer: entry,
-          // Medium is already the tightest honest pool — the other members of
-          // this same list — so hard keeps it and only widens if a short list
+          // Medium is already the tightest honest pool, the other members of
+          // this same list, so hard keeps it and only widens if a short list
           // cannot fill six choices. Easy is where the setting earns its keep:
           // an item from a different list is wrong without knowing the order.
           ...scopedSets(entry, `pos-${list.id}-${idx}`, {

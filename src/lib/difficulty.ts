@@ -3,8 +3,8 @@
  *
  * Before this file the setting had two effects: it swapped the wrong-option set
  * on the ~30% of items that carried alternates, and it leaned the review queue
- * by ease. Everything else — how many options a question offers, whether it
- * asks for free recall first, and the order new material is introduced in —
+ * by ease. Everything else, how many options a question offers, whether it
+ * asks for free recall first, and the order new material is introduced in,
  * was identical at all three settings, which is why `hard` did not feel hard
  * and `easy` did not feel easy.
  *
@@ -21,8 +21,8 @@ export interface DifficultySpec {
   /**
    * Wrong options offered alongside the answer.
    *
-   * Fewer choices is straightforwardly easier — a 3-option question is a coin
-   * flip after one elimination — so this is the single cheapest honest dial in
+   * Fewer choices is straightforwardly easier, a 3-option question is a coin
+   * flip after one elimination, so this is the single cheapest honest dial in
    * the whole system, and it costs nothing in item stability.
    */
   wrongOptions: number;
@@ -37,7 +37,7 @@ export interface DifficultySpec {
   /**
    * How new cards are ordered as they are introduced.
    *
-   * `canonical` walks the bank in generation order — Genesis first, straight
+   * `canonical` walks the bank in generation order, Genesis first, straight
    * through the canon. That is the right shape for a beginner building the
    * frame, and it is exactly what made the trainer predictable at every other
    * setting: you could tell what was coming next from where you were.

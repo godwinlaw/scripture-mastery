@@ -3,14 +3,14 @@
  *
  * Two halves, tested where each actually lives. The option-scoping rules are a
  * property of the generated bank, so they run in Node against the real
- * generators — the same reasoning as content-contract.spec.ts. The control
+ * generators, the same reasoning as content-contract.spec.ts. The control
  * itself is UI, so that half drives the browser.
  *
  * The seam rule is the one worth guarding hardest: medium and hard must never
  * offer an option from the other Testament, because a New Testament book
  * against an Old Testament question is not a hard choice, just a different
- * subject (#10, #12). Easy deliberately breaks that rule — that is what makes
- * it easy — so it is pinned from the other side.
+ * subject (#10, #12). Easy deliberately breaks that rule, that is what makes
+ * it easy, so it is pinned from the other side.
  */
 import { expect, test } from '@playwright/test';
 import { BOOKS, BOOKS_BY_ID } from '../../src/data/books';
@@ -50,7 +50,7 @@ function crossings(options: string[] | undefined, ownTestament: string): number 
   }).length;
 }
 
-test.describe('difficulty — option scoping', () => {
+test.describe('difficulty, option scoping', () => {
   /**
    * Only Chapter Content and Events are in scope. The seam rule was written for
    * those two (#24, #27) because a question about one passage should offer
@@ -87,7 +87,7 @@ test.describe('difficulty — option scoping', () => {
     );
     // A floor rather than an exact count: the number moves whenever the bank
     // grows, but "easy behaves differently from medium" must not silently stop
-    // being true — that would leave the setting doing nothing.
+    // being true, that would leave the setting doing nothing.
     expect(crossed).toBeGreaterThan(0);
   });
 
@@ -99,27 +99,27 @@ test.describe('difficulty — option scoping', () => {
       return (by.easy && by.easy.length < base) || (by.hard && by.hard.length < base);
     });
     // A short pool means a three-choice question, and three choices are easier
-    // than four — which would invert hard mode rather than sharpen it.
+    // than four, which would invert hard mode rather than sharpen it.
     expect(thin.map((i) => i.id)).toEqual([]);
   });
 });
 
 /**
- * #40 — the setting stopped being a distractor-swap and became an axis.
+ * #40, the setting stopped being a distractor-swap and became an axis.
  *
  * Before it, two thirds of the bank carried no alternate option sets at all:
  * every People, Places, Family, Book Order, Numbers, Timeline and Book
  * Summaries question fell back to its medium set, and plenty of those pools
  * were canon-wide. So `hard` quietly offered New Testament options against Old
- * Testament questions — 637 of them, measured — which is the complaint that
+ * Testament questions, 637 of them, measured, which is the complaint that
  * started this. The tests below are the floor that stops that regressing.
  *
  * Those are the old topic names, because that is what the measurement was taken
  * against; the same questions are now filed under the ANCHORED strands (#35),
- * and the two families that were removed outright — Book Order and Numbers &
- * Counts — took their scoping tests with them.
+ * and the two families that were removed outright, Book Order and Numbers &
+ * Counts, took their scoping tests with them.
  */
-test.describe('difficulty — scoping across the whole bank', () => {
+test.describe('difficulty, scoping across the whole bank', () => {
   const mcq = allItems().filter((i) => i.kind === 'mcq');
   const BY_NAME = new Map(BOOKS.map((b) => [b.name, b]));
 
@@ -131,7 +131,7 @@ test.describe('difficulty — scoping across the whole bank', () => {
    * matching option text against the canon there measures the collision, not a
    * seam crossing.
    *
-   * A is Chapter Content and Events, O is Book Summaries plus the line drill —
+   * A is Chapter Content and Events, O is Book Summaries plus the line drill,
    * the same families this measured before ANCHORED re-filed them (#35).
    */
   const BOOK_ANSWER_TOPICS = new Set(['arc', 'oneline']);
@@ -154,8 +154,8 @@ test.describe('difficulty — scoping across the whole bank', () => {
 
   // Two tests stood here: that Book Order scoped its options by canonical
   // distance rather than by the Testament seam, and that it never offered the
-  // book its own prompt names. Both described a family that no longer exists —
-  // #35 removed Book Order outright — so they went with it rather than being
+  // book its own prompt names. Both described a family that no longer exists,
+  // #35 removed Book Order outright, so they went with it rather than being
   // rewritten into assertions about nothing.
 
   test('almost every question carries all three option sets', () => {
@@ -201,20 +201,20 @@ test.describe('difficulty — scoping across the whole bank', () => {
  *
  * Option scoping is invisible unless you already know the canon; option *count*
  * is not. Three choices is a coin flip after one elimination, six is a real
- * question, and neither costs anything in item stability — the bank stays
+ * question, and neither costs anything in item stability, the bank stays
  * difficulty-blind and the render site slices.
  */
 /**
  * Which new cards get introduced, and whether you can predict them (#40).
  *
  * The complaint: "build the frame is great in going through all of the books
- * but it's in order — for easy mode that's fine but for hard mode it should
+ * but it's in order, for easy mode that's fine but for hard mode it should
  * not be. It's too easy to predict." It was literally true at every setting.
  * `fresh` arrives in the bank's generation order, which is canonical, and
  * `buildQueue` took `fresh.slice(0, newLimit)`. The within-session shuffle
  * (#11) never touched it, because it only reorders cards already chosen.
  */
-test.describe('difficulty — how new material is introduced', () => {
+test.describe('difficulty, how new material is introduced', () => {
   const items = allItems();
   const meta: Record<string, ItemMeta> = {};
   for (const i of items) meta[i.id] = { tier: i.tier, book: i.book };
@@ -237,7 +237,7 @@ test.describe('difficulty — how new material is introduced', () => {
       .map((id) => BOOKS_BY_ID[ITEMS_BY_ID.get(id)!.book ?? '']?.order)
       .filter((n): n is number => typeof n === 'number');
 
-    // Genesis-first, and tightly clustered — the frame is built front to back.
+    // Genesis-first, and tightly clustered, the frame is built front to back.
     // This is also why the tier bias is not allowed to reorder `canonical`:
     // floating tier 1 forward opened easy on Isaiah instead of Genesis.
     expect(Math.min(...orders)).toBe(1);
@@ -282,7 +282,7 @@ test.describe('difficulty — how new material is introduced', () => {
   });
 });
 
-test.describe('difficulty — what reaches the card', () => {
+test.describe('difficulty, what reaches the card', () => {
   const CHOICES = { easy: 3, medium: 4, hard: 6 } as const;
 
   for (const [difficulty, expected] of Object.entries(CHOICES)) {
@@ -326,7 +326,7 @@ test.describe('difficulty — what reaches the card', () => {
 
 });
 
-test.describe('difficulty — the control', () => {
+test.describe('difficulty, the control', () => {
   test('the chosen difficulty is saved and survives a reload', async ({ page }) => {
     await openAs(page, {}, 'settings');
 
@@ -343,8 +343,8 @@ test.describe('difficulty — the control', () => {
     await openAs(page, {}, 'settings');
 
     // The setting postdates the store format, so a store written before #36 has
-    // no such key. It must read as medium — the behaviour that predates the
-    // setting — rather than leaving the control with nothing selected.
+    // no such key. It must read as medium, the behaviour that predates the
+    // setting, rather than leaving the control with nothing selected.
     await expect(page.getByRole('radio', { name: 'Medium' })).toBeChecked();
   });
 

@@ -1,7 +1,7 @@
 /**
  * Content-integrity checks over the generated item bank.
  *
- * The bank is generated, not authored, so the failure mode is not a typo — it
+ * The bank is generated, not authored, so the failure mode is not a typo, it
  * is a rule that produces a broken question everywhere at once. Run with
  * `npm run validate`. A non-zero exit means at least one hard check failed.
  */
@@ -37,7 +37,7 @@ hard('mcq items with duplicate distractors', items.filter((i) => i.distractors &
 // The easy and hard option sets (#36) are generated content in exactly the way
 // the medium set is, and the card swaps one in wholesale at render. The three
 // gates above only ever look at `distractors`, so a leaked answer or a short
-// pool in an alternate set would ship invisibly — to anyone who had moved off
+// pool in an alternate set would ship invisibly, to anyone who had moved off
 // the default setting, which is the whole point of having it.
 (['easy', 'hard'] as Difficulty[]).forEach((level) => {
   const withSet = items.filter((i) => i.distractorsBy?.[level]);
@@ -47,12 +47,29 @@ hard('mcq items with duplicate distractors', items.filter((i) => i.distractors &
   hard(`mcq items with duplicate ${level} distractors`, withSet.filter((i) => dupes(optionsOf(i)).length > 0), (i: Item) => i.id);
 });
 
+// A "Which book is this?" card hands over its answer when the quoted line names
+// the book, "God tells Hosea to marry…" is not a question about Hosea, it is a
+// label. Only the quoting shapes are checked (the summary, the key verse, the
+// distinctive fact); "Which book immediately follows 1 Samuel?" names a book on
+// purpose. The bare title is compared (Kings, not 1 Kings), so a line naming
+// one of a numbered pair leaks half the answer and is still caught.
+const QUOTING_BOOK_PROMPT = /^Which book is this(?: from| true of)?\? "(.*)"$/;
+const bareTitle = (name: string) => name.replace(/^[123] /, '');
+hard(
+  'book prompts whose quoted line names the answer',
+  items.filter((i) => {
+    const quoted = QUOTING_BOOK_PROMPT.exec(i.prompt)?.[1];
+    return quoted !== undefined && new RegExp(`\\b${bareTitle(i.answer)}\\b`, 'i').test(quoted);
+  }),
+  (i: Item) => `${i.id} | ${i.prompt}`,
+);
+
 hard('order items with a duplicated step', items.filter((i) => i.kind === 'order' && i.sequence && dupes(i.sequence).length > 0), (i: Item) => i.id);
 hard('order items with fewer than 3 steps', items.filter((i) => i.kind === 'order' && (i.sequence?.length ?? 0) < 3), (i: Item) => i.id);
 hard('items pointing at a book that does not exist', items.filter((i) => i.book && !BOOKS.some((b) => b.id === i.book)), (i: Item) => `${i.id} -> ${i.book}`);
 
 // ------------------------------------------------------------- ambiguity
-// The real test is not "two cards share a prompt" — the NOT-in-this-list cards
+// The real test is not "two cards share a prompt", the NOT-in-this-list cards
 // legitimately do, each with its own single right answer. It is "one card's
 // correct answer is offered as a wrong option on another card asking the same
 // question." That one marks a right answer wrong.
@@ -78,7 +95,7 @@ hard('prompts where a correct answer is a wrong option elsewhere', [...new Set(a
 
 // A shared prompt with differing answers is not automatically wrong. The four
 // "which is NOT on this list" cards share a prompt on purpose, each pairing a
-// different decoy with three real members — every card still has exactly one
+// different decoy with three real members, every card still has exactly one
 // right answer. The genuine fault is the same prompt showing the same four
 // options and expecting a different one. So the key is the whole option set,
 // answer included.
@@ -137,7 +154,7 @@ hard(
 
 // A topic is a filter in the quiz and a row in the weakest-areas list, so one
 // with no questions behind it is a dead control. Added with the two topics the
-// ANCHOR framework asked for (#35) — the union, the labels and the content are
+// ANCHOR framework asked for (#35), the union, the labels and the content are
 // three separate edits, and forgetting the third is the silent failure.
 hard(
   'topics with no questions',

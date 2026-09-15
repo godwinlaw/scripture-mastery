@@ -5,8 +5,8 @@ import { TOPIC_LABELS, type Topic } from './types';
  * The reader-facing guide to ANCHORED (#35), rendered on the Study Plan.
  *
  * The prose lives in `copy.ts` with every other user-facing string; this file
- * owns the order and the shape. Order is the whole point — the guide is only
- * useful if it reads A-N-C-H-O-R-E-D straight down — so it is taken from the
+ * owns the order and the shape. Order is the whole point: the guide is only
+ * useful if it reads A-N-C-H-O-R-E-D straight down, so it is taken from the
  * `Topic` union's own declaration order via `TOPIC_LABELS`, which means the
  * guide cannot drift out of step with the quiz filter or the dashboard rows.
  */
@@ -18,7 +18,7 @@ export interface Strand {
   covers: string;
   /** A concrete question of the kind this strand asks. */
   example: string;
-  /** Where the letter comes from — six are the framework's, two are ours. */
+  /** Where the letter comes from: six are the framework's, two are ours. */
   from: string;
 }
 

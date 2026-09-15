@@ -2,7 +2,7 @@
  * Typed handles onto the CSS custom properties declared in styles.css.
  *
  * These are the ONE source the TS side reaches for when it must set a colour,
- * a duration, or a spacing step inline — so a value like the steel-blue accent
+ * a duration, or a spacing step inline, so a value like the steel-blue accent
  * is never re-typed as a hex literal in a component (which would silently drift
  * from the token and, worse, ignore the dark theme). Everything resolves to a
  * `var(--…)` string, so it still tracks the light/dark swap at the point of use.

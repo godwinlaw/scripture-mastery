@@ -12,7 +12,7 @@ test.describe('daily review', () => {
   /**
    * The three seeded cards straddle the plan's first phase on purpose (#40).
    *
-   * `ITEM.mcq` is a `oneline` question, which Phase 1 — Build the Frame —
+   * `ITEM.mcq` is a `oneline` question, which Phase 1, Build the Frame,
    * asks for. `ITEM.type` is `rituals` and `ITEM.order` is `arc`, neither of
    * which it does. So the same store reads two different, both-correct ways
    * depending on whether the plan is being followed, and the pair of tests
@@ -23,11 +23,11 @@ test.describe('daily review', () => {
   const straddlingPlan = {
     [ITEM.mcq]: dueCard(ITEM.mcq),
     [ITEM.type]: dueCard(ITEM.type),
-    // Not due for a week — should count as seen but not as due.
+    // Not due for a week, should count as seen but not as due.
     [ITEM.order]: dueCard(ITEM.order, { due: Date.now() + 7 * DAY }),
   };
 
-  test('the idle screen counts inside the phase the plan is asking for', async ({ page }) => {
+  test('the idle screen counts what the session will actually ask', async ({ page }) => {
     await openAs(page, {
       store: {
         cards: straddlingPlan,
@@ -35,10 +35,14 @@ test.describe('daily review', () => {
       },
     }, 'review');
 
-    // Only the one-line card is in Phase 1, so it is the only one counted.
-    await expectStat(page, 'Due now', 1);
+    // Two of the three are due; the plan rations new material, not revision,
+    // so the session will ask them and the plate has to say so. Counting due
+    // cards by phase would promise one and then hand over two.
+    await expectStat(page, 'Due now', 2);
     await expectStat(page, 'New today', 5); // capped by the new-card limit
-    await expectStat(page, 'Seen so far', 1);
+    // Progress, not session: all three have been seen, and the third stays
+    // counted even though its topic is outside the current phase.
+    await expectStat(page, 'Seen so far', 3);
   });
 
   test('turning the plan off counts what is due, what is new, and what has been seen', async ({ page }) => {
@@ -75,8 +79,8 @@ test.describe('daily review', () => {
 
   test('a missed card is requeued and asked again', async ({ page }) => {
     // Fixed in #40 by keying the session card on the queue position rather than
-    // `item.id`. When a missed card was requeued as the *very next* card — which
-    // is what happens whenever you miss the last card of a session — React
+    // `item.id`. When a missed card was requeued as the *very next* card, which
+    // is what happens whenever you miss the last card of a session, React
     // reused the component, QuestionCard's reset effect (keyed on the same
     // `item.id`) never fired, and the card returned still revealed. There was no
     // retrieval, which is the entire point of requeueing it; worse, the only way
@@ -88,7 +92,7 @@ test.describe('daily review', () => {
     await answerMcq(page, 'Deuteronomy');
     await page.getByRole('button', { name: /^Continue/ }).click();
 
-    // The card is back — it should be asked afresh, not shown already answered.
+    // The card is back, it should be asked afresh, not shown already answered.
     await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
     await expect(page.locator('.feedback')).toHaveCount(0);
     await expect(page.locator('.choice').first()).toBeEnabled();
@@ -100,7 +104,7 @@ test.describe('daily review', () => {
 
     // Miss it three times; the third must not extend the session again.
     for (let attempt = 1; attempt <= 3; attempt++) {
-      // Asked afresh every time, not shown already answered — the requeue bug
+      // Asked afresh every time, not shown already answered, the requeue bug
       // the test above pins is fixed (#40), so this can answer unconditionally.
       await expect(page.getByText(`Which book is this? "Rescue from Egypt, covenant at Sinai"`)).toBeVisible();
       await answerMcq(page, 'Deuteronomy');

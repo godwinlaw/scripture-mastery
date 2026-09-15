@@ -2,7 +2,7 @@
  * Google's "G", for the sign-in button (#23).
  *
  * Google's branding guidelines require their own mark on a "Sign in with
- * Google" control — a recoloured or redrawn approximation is not permitted —
+ * Google" control, a recoloured or redrawn approximation is not permitted,
  * so this is the official four-colour glyph at its published path data, and
  * the colours are literals rather than theme tokens for the same reason: the
  * mark must not follow our palette into dark mode.

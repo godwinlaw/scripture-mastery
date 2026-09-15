@@ -19,7 +19,7 @@ import type { StoreApi } from '../lib/useStore';
  * The daily review now follows the study plan; a quiz is where you go to test
  * yourself on demand, so it keeps every other scope untouched and simply adds
  * the plan as one more thing you can point it at. The labels, and the order
- * they are offered in, live in `copy.quiz.scopes` — this list is the shape.
+ * they are offered in, live in `copy.quiz.scopes`, this list is the shape.
  */
 type Scope = 'plan' | 'all' | 'OT' | 'NT' | 'essentials' | 'starred' | 'weak';
 

@@ -3,10 +3,10 @@
  *
  * The voice is calm, plain, never gamified. We don't show a number the reader
  * can't act on, and we don't dress a study tool up as a game. Keeping it
- * together is what lets the tone stay one tone — and it means the wording can
+ * together is what lets the tone stay one tone, and it means the wording can
  * be edited without opening a component.
  *
- * **What is here and what is not.** Here: everything the app *says* — headings,
+ * **What is here and what is not.** Here: everything the app *says*, headings,
  * blurbs, button labels, table headers, empty states, the ANCHORED guide, the
  * study plan's phases and drills. Not here: the question bank. Those 6,305
  * questions are generated from structured content in `src/data/` (books,
@@ -14,7 +14,7 @@
  * the interface. Editing a book's summary is editing content; editing "Take a
  * quiz" is editing copy.
  *
- * Anything keyed by a `Topic` or a phase id is read back by `src/data/` — see
+ * Anything keyed by a `Topic` or a phase id is read back by `src/data/`, see
  * `strands.labels`, `plan.phases`. The keys are the contract; the values are
  * yours.
  */
@@ -32,8 +32,8 @@ export const copy = {
    * The motto verse (#22). The trainer's own charge: the work is handling the
    * text rightly, not merely admiring it. Quoted in full, as the issue gives it.
    *
-   * Top-level rather than under `boot` because two screens speak it — the boot
-   * splash and the sign-in (#23) — and a verse transcribed twice is a verse
+   * Top-level rather than under `boot` because two screens speak it, the boot
+   * splash and the sign-in (#23), and a verse transcribed twice is a verse
    * that will eventually disagree with itself. `ref` travels with `text` so the
    * line is never shown anonymously; a verse without its citation reads as a
    * slogan.
@@ -48,7 +48,7 @@ export const copy = {
     /** e.g. "1,240 questions across 66 books" */
     tagline: (questionCount: number) =>
       `${questionCount.toLocaleString()} questions across 66 books`,
-    /** e.g. "112 days until October 4" — the meaningful, actionable figure */
+    /** e.g. "112 days until January 31", the meaningful, actionable figure */
     countdown: (daysLeft: number, examDateLabel: string) =>
       `${daysLeft.toLocaleString()} day${daysLeft === 1 ? '' : 's'} until ${examDateLabel}`,
     signOut: 'Sign out',
@@ -67,12 +67,12 @@ export const copy = {
    *
    * Difficulty is the reason this copy has to work hard: "Easy / Medium / Hard"
    * says nothing about *what* changes. So every level carries a note describing
-   * the mechanism, and all three stay on screen at once — a reader choosing
+   * the mechanism, and all three stay on screen at once, a reader choosing
    * between them needs to compare them, not discover them one at a time.
    *
    * Those notes were rewritten in #40 because they had gone stale: they still
    * described a setting that only moved wrong answers around, while the control
-   * had quietly grown three more effects — how many options a question offers,
+   * had quietly grown three more effects, how many options a question offers,
    * whether it asks for free recall first, and how new material is introduced.
    * Copy that promises less than the code does is the same defect as copy that
    * promises more; both leave the reader choosing blind. The figures below are
@@ -81,7 +81,7 @@ export const copy = {
   settings: {
     display: {
       heading: 'Display',
-      help: 'Kept on this device, not in your account — so a shared computer never changes how the app looks on your own.',
+      help: 'Kept on this device, not in your account, so a shared computer never changes how the app looks on your own.',
       themeCaption: 'Theme',
       themeNote: 'Light by default. System follows whatever your computer is set to.',
     },
@@ -94,7 +94,7 @@ export const copy = {
       options: {
         easy: {
           label: 'Easy',
-          note: 'Three options, with the wrong two drawn from anywhere in the canon — usually wrong on sight. References are never asked from memory, and the explanation is offered as a hint before you answer. New material walks the canon in order, a little at a time.',
+          note: 'Three options, with the wrong two drawn from anywhere in the canon, usually wrong on sight. References are never asked from memory, and the explanation is offered as a hint before you answer. New material walks the canon in order, a little at a time.',
         },
         medium: {
           label: 'Medium',
@@ -102,7 +102,7 @@ export const copy = {
         },
         hard: {
           label: 'Hard',
-          note: 'Six options, drawn as close to the answer as the question allows — the same book where there is one, canonical neighbours for book order, the same era or family for people. References are always named from memory first, with no hint. New material comes from anywhere in the current scope in an unpredictable order, half again as much of it, and a card you miss does not come back until tomorrow.',
+          note: 'Six options, drawn as close to the answer as the question allows, the same book where there is one, canonical neighbours for book order, the same era or family for people. References are always named from memory first, with no hint. New material comes from anywhere in the current scope in an unpredictable order, half again as much of it, and a card you miss does not come back until tomorrow.',
         },
       },
     },
@@ -119,9 +119,9 @@ export const copy = {
       heading: 'Follow the study plan',
       /** accessible name for the On/Off switch */
       label: 'Follow the study plan',
-      help: 'Your daily review draws from whichever phase the plan is currently in, rather than from the whole bank at once. Quizzes are unaffected — they still cover whatever you point them at.',
+      help: 'Your daily review draws from whichever phase the plan is currently in, rather than from the whole bank at once. Quizzes are unaffected, they still cover whatever you point them at.',
       options: { on: 'On', off: 'Off' },
-      note: 'The plan works in order — the frame first, then the Old Testament, then the New, then the timeline and mixed review — and this keeps the daily queue inside it. When there is not enough left in the current phase to fill a session, the queue quietly widens to the rest of the bank rather than telling you there is nothing to study.',
+      note: 'The plan works in order, the frame first, then the Old Testament, then the New, then the timeline and mixed review, and this keeps the daily queue inside it. When there is not enough left in the current phase to fill a session, the queue quietly widens to the rest of the bank rather than telling you there is nothing to study.',
       /** Names the phase the queue is currently drawn from, on the review screen. */
       activeOn: (phaseName: string) => `Following the study plan: ${phaseName}.`,
       studyEverything: 'Study everything instead',
@@ -144,7 +144,7 @@ export const copy = {
 
   mobileGate: {
     body:
-      'This trainer is built for a full keyboard and a wide screen — and, honestly, for time set apart rather than time squeezed in. Come back from a computer when you can give it your attention.',
+      'This trainer is built for a full keyboard and a wide screen, and, honestly, for time set apart rather than time squeezed in. Come back from a computer when you can give it your attention.',
   },
 
   auth: {
@@ -170,7 +170,7 @@ export const copy = {
   },
 
   /**
-   * ANCHORED — the eight strands every question belongs to.
+   * ANCHORED, the eight strands every question belongs to.
    *
    * `labels` is read back by `data/types.ts` as `TOPIC_LABELS`, so the keys are
    * the `Topic` union and every one must be present. The letter is part of the
@@ -185,21 +185,21 @@ export const copy = {
    */
   strands: {
     labels: {
-      arc: 'A — The Arc',
-      names: 'N — Names',
-      cities: 'C — Cities & Geography',
-      context: 'H — Historical Context',
-      oneline: 'O — One Line per Book',
-      rituals: 'R — Rituals & Festivals',
-      essentials: 'E — Essentials',
-      doctrine: 'D — Doctrine',
+      arc: 'A, The Arc',
+      names: 'N, Names',
+      cities: 'C, Cities & Geography',
+      context: 'H, Historical Context',
+      oneline: 'O, One Line per Book',
+      rituals: 'R, Rituals & Festivals',
+      essentials: 'E, Essentials',
+      doctrine: 'D, Doctrine',
     },
 
-    heading: 'ANCHORED — what the eight letters ask of you',
+    heading: 'ANCHORED: what the eight letters ask of you',
     kicker: 'the shape of the whole bank',
 
     provenance:
-      'The first six letters are the framework as a college-ministry podcast gives it — ' +
+      'The first six letters are the framework as a college-ministry podcast gives it: ' +
       'the arc, names, cities, historical context, one word per book, rituals and festivals. ' +
       'The transcript stops there, so ANCHOR is the source’s complete acronym. Essentials and ' +
       'Doctrine are this app’s, added to finish the word the episode is named after and to cover ' +
@@ -221,21 +221,21 @@ export const copy = {
         letter: 'N',
         name: 'Names',
         from: 'framework',
-        covers: 'People, groups, rulers and genealogies — and, where there is one, the origin story. The Amalekites come from Edom, which is Esau. The Ammonites and Moabites come from Lot. Zadok descends from Eleazar and Abiathar from Ithamar.',
+        covers: 'People, groups, rulers and genealogies, and, where there is one, the origin story. The Amalekites come from Edom, which is Esau. The Ammonites and Moabites come from Lot. Zadok descends from Eleazar and Abiathar from Ithamar.',
         example: 'Who was the father of Phinehas? · Which tribe did Achan belong to?',
       },
       cities: {
         letter: 'C',
         name: 'Cities & Geography',
         from: 'framework',
-        covers: 'Revelation happened in a particular place, and a small one — the land is roughly 9,500 square miles, about the size of Vermont. The Sea of Galilee sits nearly 700 feet below sea level and the Dead Sea about 1,300, joined by the Jordan running down the great rift.',
+        covers: 'Revelation happened in a particular place, and a small one, the land is roughly 9,500 square miles, about the size of Vermont. The Sea of Galilee sits nearly 700 feet below sea level and the Dead Sea about 1,300, joined by the Jordan running down the great rift.',
         example: 'Which city is this? Where the Israelites set up twelve memorial stones',
       },
       context: {
         letter: 'H',
         name: 'Historical Context',
         from: 'framework',
-        covers: 'The power houses of the ancient world — Assyria, Babylon, Persia, Greece, Rome — in the order they ruled and what each did to Israel and Judah. Then the four hundred years between the testaments, and the political landscape the Gospels assume.',
+        covers: 'The power houses of the ancient world, Assyria, Babylon, Persia, Greece, Rome, in the order they ruled and what each did to Israel and Judah. Then the four hundred years between the testaments, and the political landscape the Gospels assume.',
         example: 'Why was Judea governed by a Roman prefect rather than a king?',
       },
       oneline: {
@@ -249,7 +249,7 @@ export const copy = {
         letter: 'R',
         name: 'Rituals & Festivals',
         from: 'framework',
-        covers: 'The calendar and the system behind it. Leviticus 16 is the Day of Atonement — two goats, one killed and one driven out as the scapegoat. Then Booths, Unleavened Bread, Passover, and the offerings, vows and holy years that frame them.',
+        covers: 'The calendar and the system behind it. Leviticus 16 is the Day of Atonement: two goats, one killed and one driven out as the scapegoat. Then Booths, Unleavened Bread, Passover, and the offerings, vows and holy years that frame them.',
         example: 'On the Day of Atonement, what happened to the two goats?',
       },
       essentials: {
@@ -257,13 +257,13 @@ export const copy = {
         name: 'Essentials',
         from: 'app',
         covers: 'The standing lists a survey quiz assumes you know cold, each drilled in both directions: Genesis by chapter, the seven days, the ten plagues and commandments, the twelve tribes and disciples, the major judges, kings and prophets, the key psalms, John and Acts by chapter, the Romans Road, and the key epistle chapters.',
-        example: 'Major kings — which kingdom did Jehu rule? · What is Acts 8?',
+        example: 'Major kings, which kingdom did Jehu rule? · What is Acts 8?',
       },
       doctrine: {
         letter: 'D',
         name: 'Doctrine',
         from: 'app',
-        covers: 'Primary doctrine and the address where it is found — one landmark reference each, asked both ways. Deliberately the doctrine Christians hold in common rather than what they divide over: no predestination, no millennium, no timing of the rapture.',
+        covers: 'Primary doctrine and the address where it is found, one landmark reference each, asked both ways. Deliberately the doctrine Christians hold in common rather than what they divide over: no predestination, no millennium, no timing of the rapture.',
         example: 'Where do we find verses about God’s patience? · What does Romans 8:1 anchor?',
       },
     },
@@ -284,14 +284,14 @@ export const copy = {
       `Today: ${reviewed} answered, ${correct} correct (${Math.round((correct / reviewed) * 100)}%).`,
     masteryHeading: 'Mastery across ANCHORED',
     masteryBlurb:
-      'Every question in the bank sits under one of the eight strands. Read the letters straight down — that is the checklist.',
+      'Every question in the bank sits under one of the eight strands. Read the letters straight down, that is the checklist.',
     masterySuffix: '% mastery',
   },
 
   review: {
     heading: 'Daily Review',
     blurb:
-      'Spaced repetition over everything you have unlocked. Cards you miss come back sooner; cards you know get pushed out — but never past your exam date.',
+      'Spaced repetition over everything you have unlocked. Cards you miss come back sooner; cards you know get pushed out, but never past your exam date.',
     stats: { due: 'Due now', fresh: 'New today', seen: 'Seen so far' },
     start: 'Start review session',
     nothingDue:
@@ -312,7 +312,7 @@ export const copy = {
   quiz: {
     heading: 'Mixed Quiz',
     blurb:
-      'Test yourself under quiz conditions. Interleaving topics is harder than drilling one at a time — and that difficulty is what makes it stick. Narrow to a single book when you are working through it; leave it on everything once you are consolidating.',
+      'Test yourself under quiz conditions. Interleaving topics is harder than drilling one at a time, and that difficulty is what makes it stick. Narrow to a single book when you are working through it; leave it on everything once you are consolidating.',
     setupKicker: 'Setup',
     setupTitle: 'Choose what to cover',
     topicLabel: 'Topic',
@@ -321,7 +321,7 @@ export const copy = {
     allBooks: 'Every book',
     scopeLabel: 'Scope',
     // Key order is display order. `plan` (#40) leads because it is the answer
-    // to "what should I be drilling right now?" — the daily review already
+    // to "what should I be drilling right now?", the daily review already
     // follows the study plan, and this is the on-demand version of the same
     // question. Every other scope is untouched by it.
     scopes: {
@@ -398,7 +398,7 @@ export const copy = {
     essentialsHeading: 'Must-know lists',
     essentialsKicker: 'know these cold',
     essentialsBlurb:
-      'Every row is a pair: the address on the left, what sits there on the right. Cover one column and work down the other — the quiz asks in both directions.',
+      'Every row is a pair: the address on the left, what sits there on the right. Cover one column and work down the other, the quiz asks in both directions.',
     noList: (q: string) => `No must-know list mentions “${q}”.`,
     aliasNote: (titles: string) =>
       `Four more belong to this set and are already below, where the drill is membership rather than pairing: ${titles}.`,
@@ -433,7 +433,7 @@ export const copy = {
   /**
    * The study plan.
    *
-   * `phases` is read back by `data/plan.ts`, which owns the structure — the
+   * `phases` is read back by `data/plan.ts`, which owns the structure, the
    * weight each phase carries, the strands it covers, the books in scope. The
    * name, the goal and the drills are copy and live here.
    */
@@ -444,13 +444,13 @@ export const copy = {
       `${daysLeft} days left. The plan below runs ${weeks} weeks from the day you started, not from today, so it moves on as the weeks pass. The order matters: the frame first, then content, then connections, then mixed review. Detail learned before the frame has nothing to attach to.`,
     scheduleKicker: 'Schedule',
     datePassed:
-      'No weeks to show — the quiz date above has already passed. Move it forward to rebuild the plan.',
+      'No weeks to show, the quiz date above has already passed. Move it forward to rebuild the plan.',
     phasesHeading: 'What each phase actually asks of you',
 
     phases: {
       frame: {
-        name: 'Phase 1 — Build the Frame',
-        goal: 'Know all 66 books cold — one line each — plus the must-know lists. Nothing else sticks without this.',
+        name: 'Phase 1, Build the Frame',
+        goal: 'Know all 66 books cold, one line each, plus the must-know lists. Nothing else sticks without this.',
         drills: [
           'Say the one line for every book, front to back, out loud and daily',
           'Given a line, name the book; given a book, say the line',
@@ -458,7 +458,7 @@ export const copy = {
         ],
       },
       'ot-sweep': {
-        name: 'Phase 2 — Old Testament Sweep',
+        name: 'Phase 2, Old Testament Sweep',
         goal: 'Walk the OT storyline book by book: key chapters, people, places, and the feasts.',
         drills: [
           'For each book, say its key chapters and what happens in them',
@@ -469,8 +469,8 @@ export const copy = {
         ],
       },
       'nt-sweep': {
-        name: 'Phase 3 — New Testament Sweep',
-        goal: 'Walk the NT: Gospels, Acts, the letters — audience and occasion — and Revelation.',
+        name: 'Phase 3, New Testament Sweep',
+        goal: 'Walk the NT: Gospels, Acts, the letters, audience and occasion, and Revelation.',
         drills: [
           'Name all 13 Pauline letters in order and their one-line point',
           'Trace Paul’s journeys through Acts, city by city',
@@ -480,18 +480,18 @@ export const copy = {
         ],
       },
       connections: {
-        name: 'Phase 4 — Context & Doctrine',
+        name: 'Phase 4, Context & Doctrine',
         goal: 'Set the story inside world history, and know where primary doctrine is found in the text.',
         drills: [
           'Put the 14 eras in order from memory, and every book on the timeline',
           'Put the world powers in order and say what each did to Israel or Judah',
           'Walk the four hundred silent years from Alexander to Herod',
-          'Name the landmark reference for each primary doctrine — then say it the other way round',
+          'Name the landmark reference for each primary doctrine, then say it the other way round',
           'Memorize the two fall dates: 722 BC and 586 BC',
         ],
       },
       consolidate: {
-        name: 'Phase 5 — Mixed Review & Mock Quizzes',
+        name: 'Phase 5, Mixed Review & Mock Quizzes',
         goal: 'No new material. Mixed review, weak spots, and full-length practice under time.',
         drills: [
           'Take a 40-question mixed quiz every other day',
@@ -517,7 +517,7 @@ export const copy = {
       },
       {
         lead: 'Review is the whole game.',
-        body: 'New material every day without revisiting old material means you arrive in October knowing the last two weeks well and everything else vaguely. The scheduler handles this for you — just clear your due cards.',
+        body: 'New material every day without revisiting old material means you arrive at the quiz knowing the last two weeks well and everything else vaguely. The scheduler handles this for you, just clear your due cards.',
       },
       {
         lead: 'Say it out loud.',

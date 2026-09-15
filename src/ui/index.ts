@@ -1,4 +1,4 @@
-/** The blueprint UI kit — one import surface for views and the shell. */
+/** The blueprint UI kit, one import surface for views and the shell. */
 export { Card, Blueprint, Corners, CountUp, Meter, Segmented, Field } from './primitives';
 export { BootSplash } from './BootSplash';
 export { MobileGate } from './MobileGate';

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { auth, db, isAllowedEmail } from './firebase';
-import { DEFAULT_SETTINGS, emptyStore, type Settings, type Store } from './storage';
+import { emptyStore, mergeSettings, type Settings, type Store } from './storage';
 import type { CardState, Grade } from './srs';
 import {
   applyAnswer,
@@ -44,13 +44,9 @@ export function useStore() {
       ref,
       (snap) => {
         const saved = snap.exists() ? (snap.data() as Store) : emptyStore();
-        // A document written before a setting existed simply has no value for
-        // it, and every reader downstream trusts Settings to be complete. Fill
-        // the gaps from the defaults on the way in, the way importStore and the
-        // E2E hook already do, so #36's difficulty control and #40's
-        // follow-the-plan switch have something to show an account that
-        // predates them.
-        const data: Store = { ...saved, settings: { ...DEFAULT_SETTINGS, ...saved.settings } };
+        // Defaults under the saved settings, and the pre-January quiz date
+        // moved forward, in the one place that logic lives (see mergeSettings).
+        const data: Store = { ...saved, settings: mergeSettings(saved.settings) };
         storeRef.current = data;
         setStore(data);
         setStoreReady(true);

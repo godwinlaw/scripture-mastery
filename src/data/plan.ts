@@ -4,8 +4,8 @@ import { BOOKS } from './books';
 
 /**
  * A phased plan built backwards from the exam date. The ordering is deliberate:
- * the frame (order, summaries) comes first, because every later fact has to
- * hang on something. Detail without a frame does not stick.
+ * the frame (order, summaries, key chapters) comes first, because every later
+ * fact has to hang on something. Detail without a frame does not stick.
  */
 export interface Phase {
   id: string;
@@ -126,8 +126,8 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
 /**
  * The week the calendar is currently sitting in, clamped to the schedule's ends.
  *
- * Two views computed this inline and identically (#40) — Dashboard to name the
- * phase on its hero card, Plan to mark a row `now` — and a third caller then
+ * Two views computed this inline and identically (#40), Dashboard to name the
+ * phase on its hero card, Plan to mark a row `now`, and a third caller then
  * arrived in Review, which is where a duplicated definition of "today" stops
  * being a tidiness problem and starts being a correctness one: the daily queue
  * and the schedule it claims to follow have to agree on which week it is.
@@ -135,7 +135,7 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
  * `planStartISO` is required rather than defaulted, and that is the whole
  * repair. The old shape let the anchor fall back to `new Date()`, which meant
  * every call rebuilt the schedule starting today, today always landed in week
- * 1, and the plan could never advance past Phase 1 — invisible while the plan
+ * 1, and the plan could never advance past Phase 1, invisible while the plan
  * was decorative, and a hard cap on what anyone could study once the review
  * began filtering on it. An optional anchor would let any future caller
  * reintroduce exactly that bug in silence; a required one makes the compiler
@@ -152,7 +152,7 @@ export function buildSchedule(examISO: string, startDate = new Date()): PlannedW
  *   The plan has not started; Phase 1 is still what it is asking for.
  * - **Past the last week** (an anchor far enough back that the runway has run
  *   out): the last week. Returning nothing here would be the worst answer
- *   available — the member is out of time, and Phase 5's "no new material,
+ *   available, the member is out of time, and Phase 5's "no new material,
  *   mixed review" is precisely the advice for that.
  *
  * Null is left for the one case with no week to name at all: an empty
@@ -165,7 +165,7 @@ export function currentWeek(
 ): PlannedWeek | null {
   // A hand-edited or imported `planStart` can be junk; an Invalid Date here
   // would make every week boundary NaN and every comparison false, so fall
-  // back to `now` — the pre-#40 behaviour, which is at least well-defined.
+  // back to `now`, the pre-#40 behaviour, which is at least well-defined.
   const parsed = new Date(`${planStartISO}T00:00:00`);
   const schedule = buildSchedule(examISO, Number.isNaN(parsed.getTime()) ? now : parsed);
   if (schedule.length === 0) return null;
@@ -179,13 +179,13 @@ export function currentWeek(
 }
 
 /**
- * The phase that week belongs to — what the study plan is asking of you today.
+ * The phase that week belongs to, what the study plan is asking of you today.
  *
  * Total, deliberately: there is no date on which the honest answer is "no
  * phase". The two ways to fall off the schedule both land on Phase 5, which is
  * why the fallback below is the last phase and not null:
  *
- * - The runway ran out — handled by `currentWeek`'s clamp above.
+ * - The runway ran out, handled by `currentWeek`'s clamp above.
  * - The schedule is empty because the anchor is *after* the exam date, so
  *   `buildSchedule` filters every week away. That is a plan with no time in it
  *   at all: same situation, same answer.

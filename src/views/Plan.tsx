@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { ANCHORED, PROVENANCE } from '../data/anchored';
 import { buildSchedule, currentWeek, PHASES } from '../data/plan';
+import { isUsableExamDate } from '../lib/store-ops';
 import { TOPIC_LABELS } from '../data/types';
 import { planStartOf } from '../lib/store-ops';
 import type { StoreApi } from '../lib/useStore';
@@ -13,7 +14,7 @@ export default function Plan({ api }: { api: StoreApi }) {
   const { store, updateSettings, daysLeft } = api;
   // The schedule is drawn from the member's stored plan start, not from today
   // (#40). Rebuilding it from `new Date()` on every render was what made every
-  // week between the start and now silently disappear — the first row always
+  // week between the start and now silently disappear, the first row always
   // said "this week", so the view could only ever show a plan about to begin.
   const planStart = planStartOf(store);
   const schedule = useMemo(
@@ -38,14 +39,20 @@ export default function Plan({ api }: { api: StoreApi }) {
               view is computed from, the schedule below rebuilds as you change
               it, and the empty state's advice ("move it forward") is only
               actionable with the field in reach. Same setting, written from two
-              places — the store is the one copy. */}
+              places, the store is the one copy. */}
           <Field label={copy.plan.examDateLabel} htmlFor="exam">
             <input
               id="exam"
               className="ctl"
               type="date"
               value={store.settings.examDate}
-              onChange={(e) => updateSettings({ examDate: e.target.value })}
+              // Guarded exactly as the Settings copy of this field is: an
+              // emptied or half-typed date commits NaN, which silently disables
+              // the SRS exam clamp (#41).
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (isUsableExamDate(raw)) updateSettings({ examDate: raw });
+              }}
             />
           </Field>
         </div>
@@ -63,8 +70,8 @@ export default function Plan({ api }: { api: StoreApi }) {
               // Weeks can now genuinely be behind you, which they never could
               // while the schedule restarted at today (#40). Three states, from
               // the one `active` index rather than three date tests: done,
-              // current, still to come. Deliberately not a new stylesheet rule
-              // — `.week.now` already carries the highlight, and a past week
+              // current, still to come. Deliberately not a new stylesheet rule,
+              // `.week.now` already carries the highlight, and a past week
               // only needs to read as receded, so it dims and says so.
               const isNow = w.index === active?.index;
               const isPast = active != null && w.index < active.index;
@@ -79,7 +86,7 @@ export default function Plan({ api }: { api: StoreApi }) {
                     <div className="tiny muted">{w.label}{isPast ? ' · past' : ''}</div>
                   </div>
                   <div>
-                    <strong className="small">{w.phase.name.replace(/^Phase \d+ — /, '')}</strong>
+                    <strong className="small">{w.phase.name.replace(/^Phase \d+, /, '')}</strong>
                     <p className="small muted" style={sx({ margin: `${space[1]} 0 ${space[3]}` })}>
                       {w.phase.goal}
                     </p>
@@ -95,7 +102,7 @@ export default function Plan({ api }: { api: StoreApi }) {
       </div>
 
       {/* The guide sits above the phases because the phases are described in
-          terms of the strands — a week labelled "A · N · C · R" means nothing
+          terms of the strands, a week labelled "A · N · C · R" means nothing
           until you have read what the letters are. */}
       <div className="section">
         <div className="spread">
@@ -110,7 +117,7 @@ export default function Plan({ api }: { api: StoreApi }) {
                   beside a long title like "Cities & Geography" it wrapped onto
                   its own line on half the cards and sat inline on the rest. */}
               <h3 style={sx({ margin: 0 })}>
-                <span className="mono" style={sx({ color: 'var(--color-accent-700)' })}>{s.letter}</span> — {s.name}
+                <span className="mono" style={sx({ color: 'var(--color-accent-700)' })}>{s.letter}</span>: {s.name}
               </h3>
               <p className="small">{s.covers}</p>
               <div className="spread" style={sx({ alignItems: 'flex-end', gap: space[3] })}>

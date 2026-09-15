@@ -1,19 +1,19 @@
 /**
- * Theme choice — Light (default) · Dark · System.
+ * Theme choice, Light (default) · Dark · System.
  *
  * The mode is the user's *choice*; 'system' follows the OS, 'light'/'dark' pin
  * it. Light is the default when nothing is saved, so the app opens light even on
- * an OS set to dark — 'system' is the explicit opt-in back to following the OS.
+ * an OS set to dark, 'system' is the explicit opt-in back to following the OS.
  *
  * The choice lives in localStorage (a per-device display preference, not synced
- * account state), which lets it apply before React paints and before sign-in —
+ * account state), which lets it apply before React paints and before sign-in,
  * so the boot splash and sign-in screen are already in the right theme with no
  * flash of the wrong one.
  *
  * We resolve the choice to a concrete light|dark value and write it to
  * <html data-theme>. styles.css keeps :root as the light source of truth and
  * defines [data-theme='dark']; because 'system' is resolved *here* rather than
- * in a media query, the stylesheet needs only the two concrete themes — no
+ * in a media query, the stylesheet needs only the two concrete themes, no
  * duplication.
  */
 import { useSyncExternalStore } from 'react';
@@ -43,7 +43,7 @@ export function getThemeMode(): ThemeMode {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (isMode(saved)) return saved;
   } catch {
-    /* localStorage can throw in private mode / sandboxed frames — fall back */
+    /* localStorage can throw in private mode / sandboxed frames, fall back */
   }
   return DEFAULT_MODE;
 }
@@ -76,7 +76,7 @@ export function setThemeMode(mode: ThemeMode): void {
 
 /**
  * Apply the saved theme and keep 'system' honest: when the OS flips light/dark,
- * repaint — but only while the user is still on 'system'. Call once, as early as
+ * repaint, but only while the user is still on 'system'. Call once, as early as
  * possible (before the first React render) so there's no flash.
  */
 export function initTheme(): void {

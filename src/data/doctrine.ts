@@ -1,12 +1,12 @@
 import type { EssentialList } from './essentials';
 
 /**
- * The D of ANCHORED (#35) — primary doctrine, and where it is found.
+ * The D of ANCHORED (#35): primary doctrine, and where it is found.
  *
  * The drill is the address: given a doctrine, name the landmark reference, and
  * given the reference, name what it anchors. Because every forward answer is a
  * place in scripture, all of these earn the typed bonus round automatically
- * (#14) — you name it from memory before the four options appear.
+ * (#14), you name it from memory before the four options appear.
  *
  * Two rules govern the content, and both exist to keep the multiple choice
  * sound. Distractors are drawn from the other references on this list, so:
@@ -17,7 +17,7 @@ import type { EssentialList } from './essentials';
  *   2. **No two entries a single verse could equally answer.** God's love is
  *      John 3:16 and 1 John 4:8-10 is a note, because two entries both "about
  *      God's love" would put one card's right answer among another's wrong
- *      options — the exact fault `validate` gates on. For the same reason the
+ *      options, the exact fault `validate` gates on. For the same reason the
  *      incarnation is Philippians 2:5-8 rather than John 1:14, which would
  *      collide with Jesus' claim to divinity; and the ascension keeps Acts
  *      1:9-11 while Christ's return takes Revelation 1:7.
@@ -31,12 +31,12 @@ import type { EssentialList } from './essentials';
 export const DOCTRINE: EssentialList = {
   id: 'doctrine',
   title: 'Primary doctrine, and where to find it',
-  source: 'One landmark reference per doctrine — secondary references are in the notes',
+  source: 'One landmark reference per doctrine, secondary references are in the notes',
   testament: 'NT',
   topic: 'doctrine',
   forward: 'Where do we find verses about {cue}?',
-  back: 'Doctrine — what does {what} anchor?',
-  groupAsk: 'Doctrine — {cue} belongs under which heading?',
+  back: 'Doctrine, what does {what} anchor?',
+  groupAsk: 'Doctrine, {cue} belongs under which heading?',
   entries: [
     // ------------------------------------------------ the character of God
     { cue: 'God’s love', what: 'John 3:16', book: 'john', group: 'The character of God', note: 'Also 1 John 4:8-10 ("God is love") and Romans 5:8.' },
@@ -52,11 +52,11 @@ export const DOCTRINE: EssentialList = {
     { cue: 'God’s goodness', what: 'Psalm 34:8', book: 'psalms', group: 'The character of God', note: '"Taste and see that the LORD is good."' },
     { cue: 'God’s jealousy', what: 'Exodus 34:14', book: 'exodus', group: 'The character of God', note: '"The LORD, whose name is Jealous, is a jealous God."' },
     { cue: 'The Trinity', what: '2 Corinthians 13:14', book: '2-corinthians', group: 'The character of God', note: 'Grace, love and fellowship named together. Also Matthew 28:19.' },
-    { cue: 'God as Creator', what: 'Genesis 1:1', book: 'genesis', group: 'The character of God', note: 'Also John 1:3 and Colossians 1:16 — creation through the Son.' },
+    { cue: 'God as Creator', what: 'Genesis 1:1', book: 'genesis', group: 'The character of God', note: 'Also John 1:3 and Colossians 1:16, creation through the Son.' },
     { cue: 'The name I AM', what: 'Exodus 3:14', book: 'exodus', group: 'The character of God', note: 'The name Jesus takes for himself in John 8:58.' },
 
     // ------------------------------------------------------------ Scripture
-    { cue: 'The inspiration of Scripture', what: '2 Timothy 3:16-17', book: '2-timothy', group: 'Scripture', note: 'Breathed out by God and profitable — the classic proof text.' },
+    { cue: 'The inspiration of Scripture', what: '2 Timothy 3:16-17', book: '2-timothy', group: 'Scripture', note: 'Breathed out by God and profitable, the classic proof text.' },
     { cue: 'Scripture carried along by the Spirit', what: '2 Peter 1:20-21', book: '2-peter', group: 'Scripture', note: 'No prophecy ever came by the will of man.' },
     { cue: 'The word living and active', what: 'Hebrews 4:12', book: 'hebrews', group: 'Scripture' },
     { cue: 'Scripture as light for the path', what: 'Psalm 119:105', book: 'psalms', group: 'Scripture' },
@@ -72,7 +72,7 @@ export const DOCTRINE: EssentialList = {
     { cue: 'Sin entering through one man', what: 'Romans 5:12', book: 'romans', group: 'Humanity and sin' },
 
     // ------------------------------------------------------ the person of Christ
-    { cue: 'Jesus’ claim to divinity', what: 'John 8:58', book: 'john', group: 'The person of Christ', note: '"Before Abraham was, I am" — they picked up stones. Also John 10:30; 14:9.' },
+    { cue: 'Jesus’ claim to divinity', what: 'John 8:58', book: 'john', group: 'The person of Christ', note: '"Before Abraham was, I am", they picked up stones. Also John 10:30; 14:9.' },
     { cue: 'The incarnation', what: 'Philippians 2:5-8', book: 'philippians', group: 'The person of Christ', note: 'Emptied himself, taking the form of a servant. Also John 1:14.' },
     { cue: 'The virgin birth', what: 'Isaiah 7:14', book: 'isaiah', group: 'The person of Christ', note: 'Quoted at Matthew 1:22-23; see also Luke 1:35.' },
     { cue: 'Christ’s sinlessness', what: 'Hebrews 4:15', book: 'hebrews', group: 'The person of Christ', note: 'Tempted as we are, yet without sin.' },
@@ -93,7 +93,7 @@ export const DOCTRINE: EssentialList = {
     { cue: 'Salvation by grace through faith', what: 'Ephesians 2:8-9', book: 'ephesians', group: 'Salvation' },
     { cue: 'Justification by faith', what: 'Romans 5:1', book: 'romans', group: 'Salvation', note: 'Also Romans 3:28 and Galatians 2:16.' },
     { cue: 'The new birth', what: 'John 3:3-7', book: 'john', group: 'Salvation', note: 'Told to Nicodemus at night: "you must be born again."' },
-    { cue: 'Repentance', what: 'Acts 3:19', book: 'acts', group: 'Salvation', note: 'Also 2 Corinthians 7:10 — godly grief produces repentance.' },
+    { cue: 'Repentance', what: 'Acts 3:19', book: 'acts', group: 'Salvation', note: 'Also 2 Corinthians 7:10, godly grief produces repentance.' },
     { cue: 'Confessing and believing', what: 'Romans 10:9-10', book: 'romans', group: 'Salvation' },
     { cue: 'Adoption as sons', what: 'Romans 8:14-17', book: 'romans', group: 'Salvation', note: 'The Spirit of adoption, by whom we cry "Abba! Father!" Also Galatians 4:4-7.' },
     { cue: 'No condemnation', what: 'Romans 8:1', book: 'romans', group: 'Salvation' },
@@ -106,7 +106,7 @@ export const DOCTRINE: EssentialList = {
 
     // ----------------------------------------------------------- the Holy Spirit
     { cue: 'The Spirit’s indwelling', what: '1 Corinthians 6:19-20', book: '1-corinthians', group: 'The Holy Spirit', note: 'Your body is a temple. Also Romans 8:9.' },
-    { cue: 'The Helper who teaches and reminds', what: 'John 14:26', book: 'john', group: 'The Holy Spirit', note: 'Also John 16:13 — he will guide you into all the truth.' },
+    { cue: 'The Helper who teaches and reminds', what: 'John 14:26', book: 'john', group: 'The Holy Spirit', note: 'Also John 16:13, he will guide you into all the truth.' },
     { cue: 'The Spirit convicting the world', what: 'John 16:8', book: 'john', group: 'The Holy Spirit', note: 'Concerning sin, righteousness and judgment.' },
     { cue: 'Being filled with the Spirit', what: 'Ephesians 5:18', book: 'ephesians', group: 'The Holy Spirit' },
     { cue: 'Sealed with the Spirit', what: 'Ephesians 1:13-14', book: 'ephesians', group: 'The Holy Spirit', note: 'The guarantee of our inheritance.' },
@@ -125,7 +125,7 @@ export const DOCTRINE: EssentialList = {
     { cue: 'Church discipline', what: 'Matthew 18:15-17', book: 'matthew', group: 'The church' },
 
     // -------------------------------------------------------- the Christian life
-    { cue: 'Sanctification', what: '1 Thessalonians 4:3-7', book: '1-thessalonians', group: 'The Christian life', note: 'Also Hebrews 12:14 and 2 Corinthians 3:18 — from one degree of glory to another.' },
+    { cue: 'Sanctification', what: '1 Thessalonians 4:3-7', book: '1-thessalonians', group: 'The Christian life', note: 'Also Hebrews 12:14 and 2 Corinthians 3:18, from one degree of glory to another.' },
     { cue: 'The will of God', what: 'Romans 12:1-2', book: 'romans', group: 'The Christian life', note: 'Renewed minds that discern it. Also 1 Thessalonians 5:16-18.' },
     { cue: 'Taking up your cross daily', what: 'Luke 9:23', book: 'luke', group: 'The Christian life' },
     { cue: 'The greatest commandment', what: 'Matthew 22:37-39', book: 'matthew', group: 'The Christian life' },
@@ -147,7 +147,7 @@ export const DOCTRINE: EssentialList = {
     { cue: 'Compassion on the crowds', what: 'Matthew 9:36-38', book: 'matthew', group: 'God’s heart for the lost', note: 'Harassed and helpless, like sheep without a shepherd.' },
     { cue: 'Coming to seek and save the lost', what: 'Luke 19:10', book: 'luke', group: 'God’s heart for the lost', note: 'Said over Zacchaeus.' },
     { cue: 'The Great Commission', what: 'Matthew 28:18-20', book: 'matthew', group: 'God’s heart for the lost' },
-    { cue: 'Witnesses to the ends of the earth', what: 'Acts 1:8', book: 'acts', group: 'God’s heart for the lost', note: 'Jerusalem, Judea, Samaria, the end of the earth — the outline of Acts.' },
+    { cue: 'Witnesses to the ends of the earth', what: 'Acts 1:8', book: 'acts', group: 'God’s heart for the lost', note: 'Jerusalem, Judea, Samaria, the end of the earth, the outline of Acts.' },
     { cue: 'The power of the gospel', what: 'Romans 1:16-17', book: 'romans', group: 'God’s heart for the lost' },
     { cue: 'How will they hear', what: 'Romans 10:14-15', book: 'romans', group: 'God’s heart for the lost' },
     { cue: 'Ambassadors of reconciliation', what: '2 Corinthians 5:18-20', book: '2-corinthians', group: 'God’s heart for the lost' },

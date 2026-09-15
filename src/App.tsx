@@ -59,8 +59,8 @@ export default function App() {
    * exactly right for the animation and exactly wrong for anyone who is not
    * looking at the screen: focus stayed on the nav button it was pressed from,
    * nothing was announced, and the only way to discover the page had changed
-   * was to tab blindly forward through it. Moving focus into `<main>` — which
-   * carries the view's name, see its `aria-label` below — announces the new
+   * was to tab blindly forward through it. Moving focus into `<main>`, which
+   * carries the view's name, see its `aria-label` below, announces the new
    * view and starts the next Tab at the top of it.
    *
    * Deliberately not on first paint: the app has only just loaded, focus
@@ -95,7 +95,7 @@ export default function App() {
     return <MobileGate />;
   }
 
-  // Decide behind the splash — don't flash the sign-in to a returning member
+  // Decide behind the splash, don't flash the sign-in to a returning member
   // while auth is still resolving.
   const booting =
     api.authStatus === 'loading' || (api.authStatus === 'ready' && !api.storeReady);
@@ -186,7 +186,7 @@ export default function App() {
         <div className="brand">
           {/* favicon.svg, not the icon.svg the sign-in screen uses: this is the
               mark's small-size cut, drawn for exactly this range. BASE_URL for
-              the same reason as there — vite's base is relative. */}
+              the same reason as there, vite's base is relative. */}
           <img
             className="brand-mark"
             src={`${import.meta.env.BASE_URL}favicon.svg`}
@@ -231,14 +231,14 @@ export default function App() {
 
         The `<h1>` is the document's one and only, and it names the app rather
         than the view. Every view opens at `<h2>`, which left the outline with
-        no top at all — a screen reader's heading list started midway down.
+        no top at all, a screen reader's heading list started midway down.
         Naming the *app* here is both the conventional shape (h1 the place, h2
         the section) and the only one that is safe from the shell: an h1 that
         repeated the view's name would sit alongside the view's own `<h2>`
         saying the same words, and the views are a shared surface this change
         has no business restructuring.
 
-        Visually hidden, not decorative — the header already prints the app
+        Visually hidden, not decorative, the header already prints the app
         name and the nav already marks the current tab, so a third visible copy
         would be noise to everyone who can see the other two.
       */}

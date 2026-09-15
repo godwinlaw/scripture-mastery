@@ -2,7 +2,7 @@
  * Recognising and comparing Bible references, for the typed bonus round (#14).
  *
  * A reference-answered question is one whose answer is a place in scripture
- * rather than a fact about it — "Joshua 6", "1 Cor 15:1-8". Those are the
+ * rather than a fact about it, "Joshua 6", "1 Cor 15:1-8". Those are the
  * questions worth letting someone answer from memory before showing them four
  * options, because naming the reference is a strictly harder thing to do than
  * recognising it.
@@ -11,8 +11,8 @@ import { BOOKS } from '../data/books';
 
 /**
  * Spellings a reader will reasonably type that are neither the book's name nor
- * its abbreviation. "Psalm 23" is how an individual psalm is actually cited —
- * singular — and without this the parser would not recognise it as a reference
+ * its abbreviation. "Psalm 23" is how an individual psalm is actually cited,
+ * singular, and without this the parser would not recognise it as a reference
  * at all, so the typed bonus would never fire on one (#14).
  */
 const ALIASES: Record<string, string[]> = {
@@ -38,12 +38,12 @@ function escape(s: string): string {
 }
 
 /**
- * "Joshua 6", "Josh 6", "1 Cor 15:1-8" — a book label followed by a locus, and
+ * "Joshua 6", "Josh 6", "1 Cor 15:1-8", a book label followed by a locus, and
  * *nothing else*.
  *
  * The whole-string anchor matters. A prefix rule called "Genesis 3:15 is the
  * protoevangelium" a reference, so five answers that are really sentences were
- * being put up for a typed round nobody could win — you cannot type a sentence
+ * being put up for a typed round nobody could win, you cannot type a sentence
  * into a box asking for an address. Adding "Psalm" to `ALIASES` made that
  * visible by pulling "Psalm 119 is the longest" into the same trap.
  */
@@ -83,7 +83,7 @@ export function parseReference(input: string): ParsedReference | null {
     const locus = text
       .slice(m[0].length)
       .toLowerCase()
-      .replace(/\s*[-–—]\s*/g, '-')
+      .replace(/\s*[-–\u2014]\s*/g, '-')
       .replace(/\s*:\s*/g, ':')
       .replace(/[^\d:\-,]/g, '')
       .replace(/,+$/, '');

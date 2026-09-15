@@ -16,7 +16,7 @@ const PANES: { id: Pane; label: string }[] = [
 
 /**
  * The deep view of one book. Split into panes because a book like Genesis
- * carries twenty-eight episodes and sixteen figures — dumping all of it at once
+ * carries twenty-eight episodes and sixteen figures, dumping all of it at once
  * is a wall, and a wall gets skimmed instead of recalled.
  */
 export default function BookDetailPanel({ book, detail, highlight }: {
@@ -47,7 +47,7 @@ export default function BookDetailPanel({ book, detail, highlight }: {
         <>
           <p style={{ fontSize: '1.02rem', marginTop: 0 }}>{book.oneLine}</p>
           <dl className="facts">
-            <dt>{copy.bookPanel.fields.author}</dt><dd>{book.author}{book.authorNote ? ` — ${book.authorNote}` : ''}</dd>
+            <dt>{copy.bookPanel.fields.author}</dt><dd>{book.author}{book.authorNote ? `, ${book.authorNote}` : ''}</dd>
             <dt>{copy.bookPanel.fields.written}</dt><dd>{detail.written}{detail.writtenFrom ? ` · from ${detail.writtenFrom}` : ''}</dd>
             <dt>{copy.bookPanel.fields.audience}</dt><dd>{detail.audience}</dd>
             <dt>{copy.bookPanel.fields.purpose}</dt><dd>{detail.purpose}</dd>
@@ -58,13 +58,13 @@ export default function BookDetailPanel({ book, detail, highlight }: {
           {book.keyVerse && (
             <blockquote className="verse">
               “{book.keyVerse.text}”<br />
-              <span className="tiny">— {book.keyVerse.ref} (ESV)</span>
+              <span className="tiny">{book.keyVerse.ref} (ESV)</span>
             </blockquote>
           )}
           {(detail.verses ?? []).map((v) => (
             <blockquote className="verse" key={v.ref}>
               “{v.text}”<br />
-              <span className="tiny">— {v.ref} (ESV)</span>
+              <span className="tiny">{v.ref} (ESV)</span>
             </blockquote>
           ))}
 
@@ -136,7 +136,7 @@ export default function BookDetailPanel({ book, detail, highlight }: {
       {pane === 'people' && (
         <>
           <p className="tiny muted">
-            Who does what, in this book. The same person may do something else somewhere else —
+            Who does what, in this book. The same person may do something else somewhere else,
             that is the point of listing them per book.
           </p>
           <table className="data">

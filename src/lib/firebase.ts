@@ -31,7 +31,7 @@ export function isAllowedEmail(email: string | null | undefined): boolean {
 
 const googleProvider = new GoogleAuthProvider();
 // Hints Google's account chooser to offer only Workspace accounts, not personal
-// Gmail — a UX nicety only. isAllowedEmail + firestore.rules do the real check.
+// Gmail, a UX nicety only. isAllowedEmail + firestore.rules do the real check.
 googleProvider.setCustomParameters({ hd: '*' });
 
 export async function signIn(): Promise<void> {

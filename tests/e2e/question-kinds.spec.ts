@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { ITEM, ORDER_SEQUENCE, openAs, readStore, soloQueue } from './harness';
 
-/** A choice button by its option text — `.choice` also holds the 1-4 key label. */
+/** A choice button by its option text, `.choice` also holds the 1-4 key label. */
 const choice = (page: Page, label: string) =>
   page.locator('.choice').filter({ has: page.getByText(label, { exact: true }) });
 
@@ -22,7 +22,7 @@ async function arrangeInto(page: Page, want: string[]) {
       await rows.nth(at).getByRole('button', { name: 'Move up' }).click();
       // Wait for the row to actually land in its new slot before re-reading.
       // Without this the next allInnerTexts() can observe the pre-click DOM,
-      // compute a stale index, and walk some other row up the list — which
+      // compute a stale index, and walk some other row up the list, which
       // shows up as an arrangement that is only partly sorted.
       await expect(labels().nth(at - 1)).toHaveText(want[target]);
     }
@@ -63,7 +63,7 @@ test.describe('multiple choice', () => {
     await expect(page.locator('.feedback')).toContainText('Answer: Exodus');
     await expect(page.locator('.choice.correct')).toHaveText(/Exodus/);
     await expect(page.locator('.choice.wrong')).toHaveText(/Deuteronomy/);
-    // A miss offers no self-grading — it goes back in the queue as "again".
+    // A miss offers no self-grading, it goes back in the queue as "again".
     await expect(page.getByRole('button', { name: /^Ok/ })).toBeHidden();
     await expect(page.getByRole('button', { name: /^Continue/ })).toBeVisible();
   });

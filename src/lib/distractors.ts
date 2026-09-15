@@ -1,5 +1,5 @@
 /**
- * One question, three sets of wrong options — one per difficulty setting (#36).
+ * One question, three sets of wrong options, one per difficulty setting (#36).
  *
  * The sets are computed here, once, at generation time and baked onto the item,
  * rather than regenerating the bank when the setting changes. Item ids have to
@@ -8,8 +8,8 @@
  * the control. Generation stays difficulty-blind; only the render site chooses.
  *
  * The `medium` set is whatever the app produced before this file existed, and
- * it is still what lands in `Item.distractors`, so every existing reader —
- * validate.ts, the content-contract tests, the quiz results table — is
+ * it is still what lands in `Item.distractors`, so every existing reader,
+ * validate.ts, the content-contract tests, the quiz results table, is
  * untouched.
  */
 import { BOOKS_BY_ID, canonPool, nearbyPool } from '../data/books';
@@ -22,15 +22,15 @@ import { MAX_WRONG_OPTIONS } from './difficulty';
  *
  * Chapter Content asks about the inside of one book, so its wrong options can
  * come from that same book and still be answerable. High-level Events questions
- * ("in which book does this happen?") have no inside to draw from — the answer
- * *is* a book — so the tightest honest pool there is the surrounding division.
+ * ("in which book does this happen?") have no inside to draw from, the answer
+ * *is* a book, so the tightest honest pool there is the surrounding division.
  */
 export type HardScope = 'book' | 'division';
 
 export interface DistractorSets {
   /** The medium set, unchanged from what the app has always generated. */
   distractors: string[];
-  /** The easy and hard alternates. Medium is omitted — it is `distractors`. */
+  /** The easy and hard alternates. Medium is omitted, it is `distractors`. */
   distractorsBy: Partial<Record<Difficulty, string[]>>;
 }
 
@@ -40,7 +40,7 @@ export interface DistractorSets {
  *
  * The widening matters more than the tightness. A pool that cannot supply `n`
  * distinct options leaves a question with three choices instead of four, and a
- * three-choice question is *easier* — which would invert the entire setting.
+ * three-choice question is *easier*, which would invert the entire setting.
  * So when the strict pool comes up short we fall back to the same ring-by-ring
  * widening `medium` uses: own division first, one division further out per
  * step, and never across the Testament seam.
@@ -66,8 +66,8 @@ function hardPool(
  * Build all three option sets for one question.
  *
  * `extract` pulls candidate strings out of a book, exactly as `nearbyPool`
- * expects, and it is where any per-question exclusion belongs — books that also
- * record the event return `[]` — so that the widening counts only books it can
+ * expects, and it is where any per-question exclusion belongs, books that also
+ * record the event return `[]`, so that the widening counts only books it can
  * actually offer. Filtering after the pool is built would let a division look
  * full, stop widening, and then come up short (#12).
  *
@@ -85,7 +85,7 @@ export function distractorSets(
 ): DistractorSets {
   // `hard` asks for the widest set any setting renders, not `n`: the render
   // site slices down per setting, and a hard card that could only fill three
-  // slots would show fewer choices than medium — easier, not harder (#40).
+  // slots would show fewer choices than medium, easier, not harder (#40).
   return scopedSets(answer, seed, {
     medium: nearbyPool(bookId, extract, answer, n),
     easy: [() => canonPool(extract, answer)],
@@ -103,7 +103,7 @@ export function distractorSets(
  * widest.
  *
  * Every scoped pool in the app needs this shape, because tightness that
- * silently yields a short pool does not make a question harder — it makes it
+ * silently yields a short pool does not make a question harder, it makes it
  * *shorter*, and a three-choice question is easier than a six-choice one. The
  * widening is the guarantee that a `hard` card is never accidentally the
  * easiest card on screen (#40).
@@ -126,7 +126,7 @@ export function layeredPool(
  * The one entry point every generator uses to bake its three option sets.
  *
  * `medium` is passed as a ready-made pool because it has to stay byte-identical
- * to what the generator produced before — `Item.distractors` is what validate.ts,
+ * to what the generator produced before, `Item.distractors` is what validate.ts,
  * the content-contract tests and every existing user's rendered card read, and
  * item ids are the key SRS history is stored under. `easy` and `hard` are
  * chains: `hard` tightest-first, widening only when the tight pool cannot fill
